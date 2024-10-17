@@ -26,6 +26,7 @@ const App = () => {
         </Box>
       </Router>
     </ThemeProvider>
+    
   );
 };
 

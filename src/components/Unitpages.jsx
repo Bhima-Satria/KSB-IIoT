@@ -17,7 +17,7 @@ const Bubble = ({ title, value, unit, Icon }) => {
     return (
         <Box
             sx={{
-                width: '140px',
+                width: { xs: '100%', sm: '140px' }, // Lebar responsif
                 height: 'auto',
                 backgroundColor: '#FF8A00', // Warna latar utama
                 borderRadius: '12px', // Membuat ujung bulat
@@ -25,7 +25,7 @@ const Bubble = ({ title, value, unit, Icon }) => {
                 flexDirection: 'column',
                 justifyContent: 'center',
                 alignItems: 'center',
-                boxShadow: '0px 4px 16px rgba(0, 0, 0, 0.1)', // Bayangan lembut awal
+                boxShadow: '0px 4px 16px rgba(0, 0, 0, 0.1)', // Bayangan lembut
                 padding: '10px',
                 transition: 'all 0.3s ease', // Transisi halus untuk hover
                 '&:hover': {
@@ -35,16 +35,17 @@ const Bubble = ({ title, value, unit, Icon }) => {
                 },
             }}
         >
-            <Icon sx={{ fontSize: '20px', color: 'White', boxShadow: '0px 4px 16px rgba(0, 0, 0, 0.1)' }} />
-            <Typography variant="body2" sx={{ color: 'white', fontWeight: 'bold' }}>
+            <Icon sx={{ fontSize: '20px', color: 'white', boxShadow: '0px 4px 16px rgba(0, 0, 0, 0.1)' }} />
+            <Typography variant="body2" sx={{ color: 'white', fontWeight: 'bold', textAlign: 'center' }}>
                 {title}
             </Typography>
-            <Typography variant="h6" sx={{ color: 'white' }}>
-                {value}{unit}
+            <Typography variant="h6" sx={{ color: 'white', textAlign: 'center' }}>
+                {value} {unit}
             </Typography>
         </Box>
     );
 };
+
 
 const DataCard = ({ title, value, unit, Icon, lastUpdatedDate }) => {
     return (
@@ -129,6 +130,19 @@ const UnitPage = () => {
         ],
     });
 
+    // Function to get image based on unitId
+    const getImageByUnitId = (id) => {
+        switch (id) {
+            case 'KSB-Unit 67':
+                return imageUnit1;
+            case 'KSB-Unit 68':
+                return imageUnit2;
+            // Tambahkan case lain sesuai unitId
+            default:
+                return null;
+        }
+    };
+
     // Fungsi untuk menambahkan data baru
     const addData = (newData) => {
         setChartData((prevData) => {
@@ -154,19 +168,6 @@ const UnitPage = () => {
                 ],
             };
         });
-    };
-
-    // Function to get image based on unitId
-    const getImageByUnitId = (id) => {
-        switch (id) {
-            case 'KSB-Unit 67':
-                return imageUnit1;
-            case 'KSB-Unit 68':
-                return imageUnit2;
-            // Tambahkan case lain sesuai unitId
-            default:
-                return null;
-        }
     };
 
     useEffect(() => {
@@ -277,129 +278,182 @@ const UnitPage = () => {
                             ))}
                         </Box>
                     </Grid>
-                    <Grid item xs={12}>
-                        <Box sx={{
-                            backgroundColor: 'white',
-                            boxShadow: '0px 4px 16px rgba(0, 0, 0, 0.2)',
-                            display: 'flex',
-                            alignItems: 'space-between',
-                            position: 'relative',
-                            marginTop: '1px',
-                            padding: '16px',
-                            borderRadius: '30px'
-                        }}> {/* Atur marginTop untuk mengurangi jarak */}
 
+                    <Grid container spacing={0} sx={{ padding: '20px' }}>
+                        {/* Kolom untuk chart */}
+                        <Grid item xs={12} sm={12} md={6} lg={4}>
                             <Box sx={{
+                                backgroundColor: 'white',
+                                boxShadow: '0px 4px 16px rgba(0, 0, 0, 0.2)',
+                                borderRadius: '30px',
                                 height: '500px',
-                                width: '100%',
-                                padding: '12px',
-                                boxShadow: '0px 4px 16px rgba(0, 0, 0, 0.2)',
-                                borderRadius: '30px'
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                margin: '5px',
                             }}>
-                                <Line data={chartData} options={{
-                                    responsive: true,
-                                    plugins: {
-                                        legend: {
-                                            position: 'top',
-                                        },
-                                        title: {
-                                            display: true,
-                                            text: 'Monitoring Data Chart',
-                                        },
-                                    },
-                                    scales: {
-                                        x: {
-                                            title: {
-                                                display: true,
-                                                text: 'Time',
+                                <Box sx={{
+                                    height: '100%',
+                                    width: '100%',
+                                    padding: '12px',
+                                    boxShadow: '0px 4px 16px rgba(0, 0, 0, 0.2)',
+                                    borderRadius: '30px',
+                                }}>
+                                    <Line
+                                        data={chartData}
+                                        options={{
+                                            responsive: true,
+                                            maintainAspectRatio: false,
+                                            plugins: {
+                                                legend: {
+                                                    position: 'top',
+                                                },
+                                                title: {
+                                                    display: true,
+                                                    text: 'Monitoring Data Chart',
+                                                },
                                             },
-                                        },
-                                        y: {
-                                            title: {
-                                                display: true,
-                                                text: 'Values',
+                                            scales: {
+                                                x: {
+                                                    title: {
+                                                        display: true,
+                                                        text: 'Time',
+                                                    },
+                                                },
+                                                y: {
+                                                    title: {
+                                                        display: true,
+                                                        text: 'Values',
+                                                    },
+                                                },
                                             },
-                                        },
-                                    },
-                                }} />
+                                        }}
+                                    />
+                                </Box>
                             </Box>
+                        </Grid>
 
-                            {window.innerWidth >= 600 && ( // Mengatur agar gambar hanya ditampilkan di atas ukuran layar minimum (misalnya 600px)
-                                <img
-                                    src={getImageByUnitId(unitId)}
-                                    alt="Unit Visual"
-                                    style={{
-                                        width: 'auto', height: 'auto',
-                                        marginRight: '10px',
-                                        marginLeft: '10px',
-                                        maxWidth: '27%',
-                                        boxShadow: '0px 4px 16px rgba(0, 0, 0, 0.2)',
-                                        borderRadius: '30px'
-                                    }} // Ukuran gambar kecil dan margin kanan
-                                />
-                            )}
+                        {/* Kolom kosong 1 */}
+                        {window.innerWidth >= 600 && ( // Menampilkan gambar hanya jika lebar layar lebih dari 600px
+                            <Grid item xs={12} sm={12} md={3} lg={4}>
+                                <Box sx={{
+                                    height: '500px',
+                                    backgroundColor: 'white',
+                                    boxShadow: '0px 4px 16px rgba(0, 0, 0, 0.2)',
+                                    borderRadius: '30px',
+                                    margin: '5px',
+                                    display: 'flex',
+                                    flexDirection: 'column', // Menyusun elemen secara vertikal
+                                    alignItems: 'center', // Menjaga agar semua elemen berada di tengah
+                                    justifyContent: 'space-between', // Memberi ruang di antara elemen
+                                }}>
 
-                            <Box sx={{
-                                padding: '20px',
-                                boxShadow: '0px 4px 16px rgba(0, 0, 0, 0.2)',
-                                borderRadius: '40px'
-                            }}>
-                                <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', marginBottom: '10px' }}>
-                                    <Typography
-                                        variant="body2"
-                                        color="textSecondary"
+                                    <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                                        <Typography
+                                            variant="body2"
+                                            color="textSecondary"
+                                            sx={{
+                                                fontSize: '1.5rem',
+                                                textAlign: 'center',
+                                                textShadow: '2px 2px 4px rgba(0, 0, 0, 0.5)', // Menambahkan shadow pada tekstur
+                                            }}
+                                        >
+                                            {unitId}
+                                        </Typography>
+                                    </Box>
+
+
+                                    <Box
                                         sx={{
-                                            fontSize: '1.5rem',
-                                            textAlign: 'center',
-                                            textShadow: '2px 2px 4px rgba(0, 0, 0, 0.5)' // Menambahkan shadow pada teks
+                                            display: 'flex',
+                                            justifyContent: 'center', // Menempatkan gambar di tengah
+                                            width: '100%', // Membuat box mengambil lebar penuh
+                                            padding: '10px', // Padding untuk memberi jarak
+                                            marginBottom: '20px', // Memberi jarak dari elemen di bawahnya
                                         }}
                                     >
-                                        {unitId} Data
-                                    </Typography>
+                                        <img
+                                            src={getImageByUnitId(unitId)}
+                                            alt="Unit Visual"
+                                            style={{
+                                                width: '100%', // Membuat gambar responsif mengikuti lebar box
+                                                height: 'auto', // Mempertahankan rasio aspek gambar
+                                                maxWidth: '500px', // Atur lebar maksimum gambar agar tidak terlalu besar
+                                                borderRadius: '20px',
+                                            }} // Ukuran gambar responsif
+                                        />
+                                    </Box>
+
                                 </Box>
-                                <Grid container spacing={2}>
-                                    {cardData.map((data, index) => (
-                                        <Grid item xs={12} key={index}>
+                            </Grid>
+                        )}
 
-                                            <Grid container spacing={2}>
-                                                <Grid item xs={12} sm={3}>
-                                                    <Bubble title="Flow" value={data.flow} unit=" L/m" Icon={Icons.AcUnitRounded} />
-                                                </Grid>
-                                                <Grid item xs={12} sm={3}>
-                                                    <Bubble title="Temperature" value={data.pump_de_temperature} unit="°C" Icon={Icons.AcUnitRounded} />
-                                                </Grid>
-                                                <Grid item xs={12} sm={3}>
-                                                    <Bubble title="Disch. Press" value={data.discharge_pressure} unit=" Bar" Icon={Icons.AcUnitRounded} />
-                                                </Grid>
-                                                <Grid item xs={12} sm={3}>
-                                                    <Bubble title="Engine Run Hour" value={data.engine_run_hour} unit=" H" Icon={Icons.AcUnitRounded} />
-                                                </Grid>
-                                                <Grid item xs={12} sm={3}>
-                                                    <Bubble title="Engine Speed" value={data.engine_speed} unit=" Rpm" Icon={Icons.AcUnitRounded} />
-                                                </Grid>
-                                                <Grid item xs={12} sm={3}>
-                                                    <Bubble title="Engine Load" value={data.engine_load} unit=" %" Icon={Icons.AcUnitRounded} />
-                                                </Grid>
-                                                <Grid item xs={12} sm={3}>
-                                                    <Bubble title="Fuel Rate" value={data.engine_fuel_rate} unit=" L" Icon={Icons.AcUnitRounded} />
-                                                </Grid>
-                                                <Grid item xs={12} sm={3}>
-                                                    <Bubble title="Pump Vib Y" value={data.pump_de_vib_y} unit=" mm/s" Icon={Icons.AcUnitRounded} />
-                                                </Grid>
-                                                <Grid item xs={12} sm={3}>
-                                                    <Bubble title="Pump Vib X" value={data.pump_de_vib_x} unit=" mm/s" Icon={Icons.AcUnitRounded} />
-                                                </Grid>
-                                                <Grid item xs={12} sm={3}>
-                                                    <Bubble title="Total Flow" value={data.total_flow} unit=" L" Icon={Icons.AcUnitRounded} />
-                                                </Grid>
-                                            </Grid>
+                        {/* Kolom kosong 2 */}
+                        <Grid item xs={12} sm={12} md={3} lg={4}>
+                            <Box
+                                sx={{
+                                    height: '500px',
+                                    backgroundColor: 'white',
+                                    boxShadow: '0px 4px 16px rgba(0, 0, 0, 0.2)',
+                                    borderRadius: '30px',
+                                    margin: '5px',
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    justifyContent: 'flex-start', // Menyusun anak-anak di atas
+                                    alignItems: 'center', // Menyusun anak-anak di tengah secara horizontal
+                                    overflow: 'auto',
+                                    padding: '10px',
+                                }}
+                            >
+                                {/* Teks tipografi di atas tengah */}
+                                <Typography
+                                    variant="body2"
+                                    color="textSecondary"
+                                    sx={{
+                                        fontSize: '1.5rem',
+                                        textAlign: 'center',
+                                        textShadow: '2px 2px 4px rgba(0, 0, 0, 0.5)', // Menambahkan shadow pada tekstur
+                                        marginBottom: '10px', // Memberikan jarak di bawah teks
+                                    }}
+                                >
+                                    Data Instruments {unitId}
+                                </Typography>
+
+                                {/* Kontainer untuk Bubble */}
+                                {cardData.map((data, index) => (
+                                    <Grid container spacing={1} justifyContent="center"> {/* Mengatur letak grid agar terpusat */}
+                                        <Grid item xs={6} sm={4} md={6} lg={4} container justifyContent="center">
+                                            <Bubble title="Flow" value={data.flow} unit="L/min" Icon={Icons.Speed} />
                                         </Grid>
-                                    ))}
-                                </Grid>
+                                        <Grid item xs={6} sm={4} md={6} lg={4} container justifyContent="center">
+                                            <Bubble title="Disc Press" value={data.discharge_pressure} unit="Bar" Icon={Icons.FlashOn} />
+                                        </Grid>
+                                        <Grid item xs={6} sm={4} md={6} lg={4} container justifyContent="center">
+                                            <Bubble title="Pump Temp" value={data.pump_de_temperature} unit="°C" Icon={Icons.Thermostat} />
+                                        </Grid>
+                                        <Grid item xs={6} sm={4} md={6} lg={4} container justifyContent="center">
+                                            <Bubble title="Run Hour" value={data.engine_run_hour} unit="H" Icon={Icons.BatteryChargingFull} />
+                                        </Grid>
+                                        <Grid item xs={6} sm={4} md={6} lg={4} container justifyContent="center">
+                                            <Bubble title="Engine Speed" value={data.engine_speed} unit="Rpm" Icon={Icons.Speed} />
+                                        </Grid>
+                                        <Grid item xs={6} sm={4} md={6} lg={4} container justifyContent="center">
+                                            <Bubble title="Engine Load" value={data.engine_load} unit="%" Icon={Icons.BatteryChargingFull} />
+                                        </Grid>
+                                        <Grid item xs={6} sm={4} md={6} lg={4} container justifyContent="center">
+                                            <Bubble title="Fuel Rate" value={data.engine_fuel_rate} unit="L/hr" Icon={Icons.LocalGasStation} />
+                                        </Grid>
+                                        <Grid item xs={6} sm={4} md={6} lg={4} container justifyContent="center">
+                                            <Bubble title="Pump Vib Y" value={data.pump_de_vib_y} unit="m/s²" Icon={Icons.Sensors} />
+                                        </Grid>
+                                        <Grid item xs={6} sm={4} md={6} lg={4} container justifyContent="center">
+                                            <Bubble title="Pump Vib X" value={data.pump_de_vib_x} unit="m/s²" Icon={Icons.Sensors} />
+                                        </Grid>
+                                    </Grid>
+                                ))}
                             </Box>
+                        </Grid>
 
-
-                        </Box>
                     </Grid>
                 </Grid>
             )}
