@@ -106,12 +106,11 @@ const Content = () => {
                                 height: 800, // Ukuran gambar 2x lipat
                                 width: 800, // Ukuran gambar 2x lipat
                                 my: 2,
-                                transition: 'transform 1s ease', // Animasi saat hover
+                                transition: 'transform 0.5s ease, opacity 0.5s ease', // Animasi saat hover dan transisi opacity
                                 transform: isZoomingIn ? 'scale(1.2)' : 'scale(1)', // Zoom in jika diklik
                                 opacity: isZoomingIn ? 0 : 1, // Menghilang setelah zoom in
                                 '&:hover': { transform: 'scale(1.1)' }, // Memperbesar gambar saat hover
                                 cursor: 'pointer', // Mengubah kursor saat hover
-                                transition: 'transform 0.5s, opacity 0.5s', // Animasi transisi zoom dan opacity
                             }}
                             onClick={() => handleImageClick(chartsData[currentIndex].title)} // Pindah halaman saat di-klik
                         >

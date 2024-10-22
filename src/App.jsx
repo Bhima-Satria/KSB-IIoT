@@ -14,8 +14,8 @@ const App = () => {
       <CssBaseline />
       <Router>
         <Helmet>
-          <title>KSB IoT Products</title>
-          <link rel="icon" href="/img/ksblogo.png" /> {/* Path to default icon */}
+          <title>KSB IoT</title>
+          <link rel="icon" href="../public/favicon.ico" /> {/* Path to default icon */}
         </Helmet>
         <Box sx={{ flexGrow: 1 }}>
           <Header />

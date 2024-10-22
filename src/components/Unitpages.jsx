@@ -74,7 +74,7 @@ const Bubble = ({ title, value, unit, Icon }) => {
             sx={{
                 width: { xs: '100%', sm: '220px' }, // Lebar responsif
                 height: 'auto',
-                backgroundColor: '#0000FF', // Warna latar utama
+                backgroundColor: '#336699', // Warna latar utama
                 borderRadius: '12px', // Membuat ujung bulat
                 display: 'flex',
                 flexDirection: 'column',
@@ -416,7 +416,7 @@ const UnitPage = () => {
                                                 <TableCell
                                                     colSpan={2}
                                                     sx={{
-                                                        backgroundColor: '#0000FF',
+                                                        backgroundColor: '#336699',
                                                         color: 'white',
                                                         fontWeight: 'bold',
                                                         textAlign: 'center',
