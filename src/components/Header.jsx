@@ -1,4 +1,3 @@
-// src/components/Header.jsx
 import React, { useState } from 'react';
 import { AppBar, Toolbar, Typography, IconButton, Box, Drawer, List, ListItem, ListItemText, ListItemIcon, Divider } from '@mui/material';
 import { styled } from '@mui/material/styles';
@@ -24,6 +23,7 @@ const Sidebar = styled(Box)(({ theme }) => ({
 
 const Header = () => {
     const [drawerOpen, setDrawerOpen] = useState(false); // State for controlling the sidebar's open/close status
+    const [headerTitle, setHeaderTitle] = useState('KSB IoT Product'); // Set initial title
     const navigate = useNavigate(); // Hook for navigation
 
     // Data for the units displayed in the sidebar
@@ -49,12 +49,14 @@ const Header = () => {
 
     // Function to navigate to a specific unit's page and close the sidebar
     const handleMenuClick = (title) => {
+        setHeaderTitle(title); // Update header title based on clicked unit
         navigate(`/unit/${title}`); // Navigates to the unit's page
         handleDrawerToggle(); // Closes the sidebar
     };
 
     // Function to navigate back to the home page when the logo is clicked
     const handleLogoClick = () => {
+        setHeaderTitle('KSB IoT Product'); // Reset to the initial title when going home
         navigate('/'); // Navigate back to home
     };
 
@@ -79,7 +81,7 @@ const Header = () => {
                             letterSpacing: '0.05em', // Letter spacing
                         }}
                     >
-                        KSB IoT Products
+                        {headerTitle} {/* Display the current title */}
                     </Typography>
                 </Box>
 
@@ -120,7 +122,7 @@ const Header = () => {
                             borderRadius: '4px', // Rounded corners for the title
                         }}
                     >
-                        IoT Product Lists
+                        {/* Optional Sidebar Title */}
                     </Typography>
 
                     <Divider sx={{ backgroundColor: '#fff', marginY: 1 }} /> {/* Divider line */}

@@ -67,14 +67,14 @@ const IndicatorLamp = ({ value, maxValue }) => {
     );
 };
 
-
+// Komponen Bubble untuk menampilkan data (Atur agar menyesuaikan layar)
 const Bubble = ({ title, value, unit, Icon }) => {
     return (
         <Box
             sx={{
                 width: { xs: '100%', sm: '220px' }, // Lebar responsif
                 height: 'auto',
-                backgroundColor: '#FF8A00', // Warna latar utama
+                backgroundColor: '#0000FF', // Warna latar utama
                 borderRadius: '12px', // Membuat ujung bulat
                 display: 'flex',
                 flexDirection: 'column',
@@ -116,7 +116,7 @@ const DataCard = ({ title, value, unit, Icon, lastUpdatedDate }) => {
         }}>
             <CardContent sx={{ display: 'flex', alignItems: 'center', width: '100%' }}>
                 <Box sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
-                    <Typography variant="body2" color="textSecondary" sx={{ fontSize: { xs: '0.8rem', sm: '1rem' } }}>
+                    <Typography variant="body2" color="textSecondary" sx={{ fontSize: { xs: '1.2rem', sm: '1.5rem' } }}>
                         {title}
                     </Typography>
                     <Typography variant="h5" sx={{ fontWeight: 'bold', fontSize: { xs: '1.2rem', sm: '1.5rem' } }}>
@@ -335,7 +335,247 @@ const UnitPage = () => {
                     </Grid>
 
                     <Grid container spacing={0} sx={{ padding: '20px' }}>
-                        {/* Kolom untuk chart */}
+
+                        {/* Kolom untuk gambar */}
+                        {window.innerWidth >= 600 && (
+                            <Grid item xs={12} sm={12} md={4} lg={4}>
+                                <Box sx={{
+                                    height: '400px',
+                                    backgroundColor: 'white',
+                                    boxShadow: '0px 4px 16px rgba(0, 0, 0, 0.2)',
+                                    borderRadius: '30px',
+                                    margin: '5px',
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    alignItems: 'center',
+                                    justifyContent: 'space-between',
+                                }}>
+                                    <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                                        <Typography
+                                            variant="h6"  // Use h6 for the title
+                                            color="textSecondary"
+                                            sx={{
+                                                fontSize: '1.3rem',  // Adjust font size as needed
+                                                textAlign: 'center',
+                                                fontWeight: 'bold',
+                                                textShadow: '2px 2px 4px rgba(0, 0, 0, 0.5)',
+                                            }}
+                                        >
+                                            {unitId}
+                                        </Typography>
+                                    </Box>
+
+                                    <Box sx={{
+                                        display: 'flex',
+                                        justifyContent: 'center',
+                                        width: '100%',
+                                        padding: '10px',
+                                        marginBottom: '20px',
+                                    }}>
+                                        <img
+                                            src={getImageByUnitId(unitId)}
+                                            alt="Unit Visual"
+                                            style={{
+                                                width: '100%',
+                                                height: 'auto',
+                                                maxWidth: '450px',
+                                                borderRadius: '20px',
+                                            }}
+                                        />
+                                    </Box>
+                                </Box>
+                            </Grid>
+                        )}
+
+                        {/* Kolom untuk Detail Informasi */}
+                        <Grid item xs={12} sm={12} md={4} lg={4}>
+                            <Box sx={{
+                                height: '400px',
+                                backgroundColor: 'white',
+                                boxShadow: '0px 8px 24px rgba(0, 0, 0, 0.2)',
+                                borderRadius: '30px',
+                                margin: '5px',
+                                padding: '20px', // Tambahkan padding untuk estetika
+                            }}>
+                                {/* Tabel Detail Unit */}
+                                <TableContainer
+                                    component={Paper}
+                                    sx={{
+                                        maxHeight: '360px',
+                                        overflowY: 'scroll', // Biarkan scroll untuk Y
+                                        '&::-webkit-scrollbar': {
+                                            display: 'none', // Menyembunyikan scrollbar di WebKit browsers (Chrome, Safari)
+                                        },
+                                        '&': {
+                                            scrollbarWidth: 'none', // Menyembunyikan scrollbar di Firefox
+                                        },
+                                    }}>
+                                    <Table stickyHeader aria-label="detail unit table">
+                                        <TableHead>
+                                            <TableRow>
+                                                <TableCell
+                                                    colSpan={2}
+                                                    sx={{
+                                                        backgroundColor: '#0000FF',
+                                                        color: 'white',
+                                                        fontWeight: 'bold',
+                                                        textAlign: 'center',
+                                                        fontSize: '1.3rem', // Atur ukuran font lebih besar
+                                                        padding: '8px', // Mengurangi padding di header
+                                                    }}
+                                                >
+                                                    <strong>Unit Information</strong>
+                                                </TableCell>
+                                            </TableRow>
+                                        </TableHead>
+                                        <TableBody>
+                                            {[
+                                                { label: 'Nama Unit', value: unitId }, // Make Bold Text
+                                                { label: 'Type Pump', value: 'ISPV' },
+                                                { label: 'Customer', value: 'PT Thriveni' },
+                                                { label: 'Duty Flow', value: '3000 L/m' },
+                                                { label: 'Duty Head', value: '50 m' },
+                                                { label: 'Speed', value: '2900 RPM' },
+                                            ].map(({ label, value }, index) => (
+                                                <TableRow key={index}>
+                                                    <TableCell sx={{ padding: '13px', fontSize: '1.1rem' }}>{label}</TableCell> {/* Atur ukuran font dan padding */}
+                                                    <TableCell sx={{ padding: '13px', fontSize: '1.1rem' }}>{value}</TableCell> {/* Atur ukuran font dan padding */}
+                                                </TableRow>
+                                            ))}
+                                        </TableBody>
+                                    </Table>
+                                </TableContainer>
+                            </Box>
+                        </Grid>
+
+
+                        {/* Kolom untuk Data Instruments */}
+                        <Grid item xs={12} sm={12} md={4} lg={4}>
+                            <Box
+                                sx={{
+                                    height: '400px',
+                                    backgroundColor: 'white',
+                                    boxShadow: '0px 4px 16px rgba(0, 0, 0, 0.2)',
+                                    borderRadius: '30px',
+                                    margin: '5px',
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    justifyContent: 'flex-start',
+                                    alignItems: 'center',
+                                    overflow: 'auto',
+                                    padding: '10px',
+                                }}
+                            >
+                                <Typography
+                                    variant="body2"
+                                    color="textSecondary"
+                                    sx={{
+                                        fontSize: '1.3rem',  // Adjust font size as needed
+                                        textAlign: 'center',
+                                        fontWeight: 'bold',
+                                        textShadow: '2px 2px 4px rgba(0, 0, 0, 0.5)',
+                                        marginBottom: '10px'  // Add margin below the title
+                                    }}
+                                >
+                                    Data Instruments {unitId}
+                                </Typography>
+
+                                <Grid container spacing={1} justifyContent="center">
+                                    {cardData.map((data, index) => (
+                                        <React.Fragment key={index}>
+                                            <Grid item xs={6} sm={4} md={6} lg={4} container justifyContent="center">
+                                                <Bubble title="Flow" value={data.flow} unit="L/min" Icon={Icons.Speed} />
+                                            </Grid>
+                                            <Grid item xs={6} sm={4} md={6} lg={4} container justifyContent="center">
+                                                <Bubble title="Disc Press" value={data.discharge_pressure} unit="Bar" Icon={Icons.FlashOn} />
+                                            </Grid>
+                                            <Grid item xs={6} sm={4} md={6} lg={4} container justifyContent="center">
+                                                <Bubble title="Pump DE Temp" value={data.pump_de_temperature} unit="°C" Icon={Icons.Thermostat} />
+                                            </Grid>
+                                            <Grid item xs={6} sm={4} md={6} lg={4} container justifyContent="center">
+                                                <Bubble title="Engine Run Hour" value={data.engine_run_hour} unit="Hours" Icon={Icons.BatteryChargingFull} />
+                                            </Grid>
+                                            <Grid item xs={6} sm={4} md={6} lg={4} container justifyContent="center">
+                                                <Bubble title="Engine Speed" value={data.engine_speed} unit="RPM" Icon={Icons.Speed} />
+                                            </Grid>
+                                            <Grid item xs={6} sm={4} md={6} lg={4} container justifyContent="center">
+                                                <Bubble title="Engine Load" value={data.engine_load} unit="%" Icon={Icons.BatteryChargingFull} />
+                                            </Grid>
+                                            <Grid item xs={6} sm={4} md={6} lg={4} container justifyContent="center">
+                                                <Bubble title="Fuel Rate" value={data.engine_fuel_rate} unit="L/h" Icon={Icons.Speed} />
+                                            </Grid>
+                                            <Grid item xs={6} sm={4} md={6} lg={4} container justifyContent="center">
+                                                <Bubble title="Pump DE Vib X" value={data.pump_de_vib_x} unit="mm/s" Icon={Icons.Speed} />
+                                            </Grid>
+                                            <Grid item xs={6} sm={4} md={6} lg={4} container justifyContent="center">
+                                                <Bubble title="Pump DE Vib Y" value={data.pump_de_vib_y} unit="mm/s" Icon={Icons.Speed} />
+                                            </Grid>
+                                            {/* Additional Bubbles */}
+                                        </React.Fragment>
+                                    ))}
+                                </Grid>
+                            </Box>
+                        </Grid>
+
+                        <Grid item xs={12} sm={12} md={4} lg={4}>
+                            <Box
+                                sx={{
+                                    height: '400px', // Height of the outer box
+                                    backgroundColor: 'white',
+                                    boxShadow: '0px 4px 16px rgba(0, 0, 0, 0.2)',
+                                    borderRadius: '30px',
+                                    margin: '5px',
+                                    overflow: 'hidden',  // Prevent overflow
+                                    padding: '10px',     // Padding inside the box
+                                }}
+                            >
+                                {/* Title with centered text */}
+                                <Typography
+                                    variant="h6"  // Use h6 for the title
+                                    color="textPrimary"
+                                    sx={{
+                                        fontSize: '1.3rem',  // Adjust font size as needed
+                                        textAlign: 'center',
+                                        fontWeight: 'bold',
+                                        textShadow: '2px 2px 4px rgba(0, 0, 0, 0.5)',
+                                    }}
+                                >
+                                    Location {unitId}
+                                </Typography>
+
+                                {/* Frame around the map */}
+                                <Box
+                                    sx={{
+                                        height: '340px',  // Set a maximum height for the map
+                                        width: '100%',
+                                        border: '2px solid #4A90E2',  // Frame color and thickness
+                                        borderRadius: '20px',         // Border radius for the map
+                                        overflow: 'hidden',            // Prevent the map from overflowing the box
+                                    }}
+                                >
+                                    {/* MapContainer for displaying the map */}
+                                    <MapContainer
+                                        center={[-1.83333, 115.55]}  // Initial map coordinates
+                                        zoom={13}
+                                        style={{ width: '100%', height: '100%' }}  // Make map fill the box
+                                    >
+                                        <TileLayer
+                                            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                                            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                                        />
+                                        {/* Adding marker */}
+                                        <Marker position={[-1.83333, 115.55]}>
+                                            <Popup>
+                                                Location {unitId}
+                                            </Popup>
+                                        </Marker>
+                                    </MapContainer>
+                                </Box>
+                            </Box>
+                        </Grid>
+
+
+                        {/* Kolom kosong 3 */}
                         <Grid item xs={12} sm={12} md={4} lg={4}>
                             <Box sx={{
                                 backgroundColor: 'white',
@@ -387,163 +627,6 @@ const UnitPage = () => {
                                 </Box>
                             </Box>
                         </Grid>
-
-                        {/* Kolom untuk gambar */}
-                        {window.innerWidth >= 600 && (
-                            <Grid item xs={12} sm={12} md={4} lg={4}>
-                                <Box sx={{
-                                    height: '400px',
-                                    backgroundColor: 'white',
-                                    boxShadow: '0px 4px 16px rgba(0, 0, 0, 0.2)',
-                                    borderRadius: '30px',
-                                    margin: '5px',
-                                    display: 'flex',
-                                    flexDirection: 'column',
-                                    alignItems: 'center',
-                                    justifyContent: 'space-between',
-                                }}>
-                                    <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                                        <Typography
-                                            variant="body2"
-                                            color="textSecondary"
-                                            sx={{
-                                                fontSize: '1.5rem',
-                                                textAlign: 'center',
-                                                textShadow: '2px 2px 4px rgba(0, 0, 0, 0.5)',
-                                            }}
-                                        >
-                                            {unitId}
-                                        </Typography>
-                                    </Box>
-
-                                    <Box sx={{
-                                        display: 'flex',
-                                        justifyContent: 'center',
-                                        width: '100%',
-                                        padding: '10px',
-                                        marginBottom: '20px',
-                                    }}>
-                                        <img
-                                            src={getImageByUnitId(unitId)}
-                                            alt="Unit Visual"
-                                            style={{
-                                                width: '100%',
-                                                height: 'auto',
-                                                maxWidth: '450px',
-                                                borderRadius: '20px',
-                                            }}
-                                        />
-                                    </Box>
-                                </Box>
-                            </Grid>
-                        )}
-
-                        {/* Kolom untuk Data Instruments */}
-                        <Grid item xs={12} sm={12} md={4} lg={4}>
-                            <Box
-                                sx={{
-                                    height: '400px',
-                                    backgroundColor: 'white',
-                                    boxShadow: '0px 4px 16px rgba(0, 0, 0, 0.2)',
-                                    borderRadius: '30px',
-                                    margin: '5px',
-                                    display: 'flex',
-                                    flexDirection: 'column',
-                                    justifyContent: 'flex-start',
-                                    alignItems: 'center',
-                                    overflow: 'auto',
-                                    padding: '10px',
-                                }}
-                            >
-                                <Typography
-                                    variant="body2"
-                                    color="textSecondary"
-                                    sx={{
-                                        fontSize: '1.5rem',
-                                        textAlign: 'center',
-                                        textShadow: '2px 2px 4px rgba(0, 0, 0, 0.5)',
-                                        marginBottom: '10px',
-                                    }}
-                                >
-                                    Data Instruments {unitId}
-                                </Typography>
-
-                                <Grid container spacing={1} justifyContent="center">
-                                    {cardData.map((data, index) => (
-                                        <React.Fragment key={index}>
-                                            <Grid item xs={6} sm={4} md={6} lg={4} container justifyContent="center">
-                                                <Bubble title="Flow" value={data.flow} unit="L/min" Icon={Icons.Speed} />
-                                            </Grid>
-                                            <Grid item xs={6} sm={4} md={6} lg={4} container justifyContent="center">
-                                                <Bubble title="Disc Press" value={data.discharge_pressure} unit="Bar" Icon={Icons.FlashOn} />
-                                            </Grid>
-                                            <Grid item xs={6} sm={4} md={6} lg={4} container justifyContent="center">
-                                                <Bubble title="Pump Temp" value={data.pump_de_temperature} unit="°C" Icon={Icons.Thermostat} />
-                                            </Grid>
-                                            <Grid item xs={6} sm={4} md={6} lg={4} container justifyContent="center">
-                                                <Bubble title="Engine Run Hour" value={data.engine_run_hour} unit="Hours" Icon={Icons.BatteryChargingFull} />
-                                            </Grid>
-                                            <Grid item xs={6} sm={4} md={6} lg={4} container justifyContent="center">
-                                                <Bubble title="Engine Speed" value={data.engine_speed} unit="RPM" Icon={Icons.Speed} />
-                                            </Grid>
-                                            <Grid item xs={6} sm={4} md={6} lg={4} container justifyContent="center">
-                                                <Bubble title="Engine Load" value={data.engine_load} unit="%" Icon={Icons.BatteryChargingFull} />
-                                            </Grid>
-                                            <Grid item xs={6} sm={4} md={6} lg={4} container justifyContent="center">
-                                                <Bubble title="Fuel Rate" value={data.engine_fuel_rate} unit="L/h" Icon={Icons.Speed} />
-                                            </Grid>
-                                            <Grid item xs={6} sm={4} md={6} lg={4} container justifyContent="center">
-                                                <Bubble title="Pump DE Vib X" value={data.pump_de_vib_x} unit="mm/s" Icon={Icons.Speed} />
-                                            </Grid>
-                                            <Grid item xs={6} sm={4} md={6} lg={4} container justifyContent="center">
-                                                <Bubble title="Pump DE Vib Y" value={data.pump_de_vib_y} unit="mm/s" Icon={Icons.Speed} />
-                                            </Grid>
-                                            {/* Additional Bubbles */}
-                                        </React.Fragment>
-                                    ))}
-                                </Grid>
-                            </Box>
-                        </Grid>
-
-                        {/* Kolom kosong 1 diisi dengan peta */}
-                        <Grid item xs={12} sm={12} md={4} lg={4}>
-                            <Box sx={{
-                                height: '400px',
-                                backgroundColor: 'white',
-                                boxShadow: '0px 4px 16px rgba(0, 0, 0, 0.2)',
-                                borderRadius: '30px',
-                                margin: '5px',
-                                overflow: 'hidden',  // Agar peta tidak keluar dari batas box
-                                padding: '10px',     // Memberi jarak antara box dan frame
-                            }}>
-                                {/* Frame di sekitar peta */}
-                                <Box sx={{
-                                    height: '100%',
-                                    width: '100%',
-                                    border: '2px solid #4A90E2',  // Warna dan ketebalan frame
-                                    borderRadius: '20px',         // Border untuk peta
-                                }}>
-                                    {/* MapContainer untuk menampilkan peta */}
-                                    <MapContainer
-                                        center={[-1.83333, 115.55]}  // Koordinat awal peta (bisa disesuaikan)
-                                        zoom={13}
-                                        style={{ width: '100%', height: '100%', borderRadius: '20px' }}  // Gaya peta disesuaikan
-                                    >
-                                        <TileLayer
-                                            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                                            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                                        />
-                                        {/* Menambahkan marker (opsional) */}
-                                        <Marker position={[-1.83333, 115.55]}>
-                                            <Popup>
-                                                Location {unitId}
-                                            </Popup>
-                                        </Marker>
-                                    </MapContainer>
-                                </Box>
-                            </Box>
-                        </Grid>
-
 
                         {/* Kolom kosong 2 diisi dengan Indicator Fault*/}
                         <Grid item xs={12} sm={12} md={4} lg={4}>
@@ -730,70 +813,6 @@ const UnitPage = () => {
                             </Box>
                         </Grid>
 
-
-                        {/* Kolom kosong 3 */}
-                        <Grid item xs={12} sm={12} md={4} lg={4}>
-                            <Box sx={{
-                                height: '400px',
-                                backgroundColor: 'white',
-                                boxShadow: '0px 8px 24px rgba(0, 0, 0, 0.2)',
-                                borderRadius: '30px',
-                                margin: '5px',
-                                padding: '20px', // Tambahkan padding untuk estetika
-                            }}>
-                                {/* Tabel Detail Unit */}
-                                <TableContainer
-                                    component={Paper}
-                                    sx={{
-                                        maxHeight: '360px',
-                                        overflowY: 'scroll', // Biarkan scroll untuk Y
-                                        '&::-webkit-scrollbar': {
-                                            display: 'none', // Menyembunyikan scrollbar di WebKit browsers (Chrome, Safari)
-                                        },
-                                        '&': {
-                                            scrollbarWidth: 'none', // Menyembunyikan scrollbar di Firefox
-                                        },
-                                    }}
-                                >
-                                    <Table stickyHeader aria-label="detail unit table">
-                                        <TableHead>
-                                            <TableRow>
-                                                <TableCell
-                                                    colSpan={2}
-                                                    sx={{
-                                                        backgroundColor: '#FF8A00',
-                                                        color: 'white',
-                                                        fontWeight: 'bold',
-                                                        textAlign: 'center',
-                                                        fontSize: '1.3rem', // Atur ukuran font sesuai kebutuhan
-                                                    }}
-                                                >
-                                                    <strong>Unit Information</strong>
-                                                </TableCell>
-                                            </TableRow>
-                                        </TableHead>
-                                        <TableBody>
-                                            {[
-                                                { label: 'Nama Unit', value: unitId },
-                                                { label: 'Customer', value: 'PT Thriveni' },
-                                                { label: 'Duty Pump', value: '3000 L/m' },
-                                                { label: 'Duty Head', value: '50 m' },
-                                                { label: 'Location', value: 'Kabupaten Tabalong, Kalimantan Selatan' },
-                                                { label: 'Location (Latitude)', value: '-1.83333' },
-                                                { label: 'Location (Longitude)', value: '115.55' },
-                                                { label: 'Installation Date', value: '2024-01-15' },
-                                            ].map(({ label, value }, index) => (
-                                                <TableRow key={index}>
-                                                    <TableCell>{label}</TableCell>
-                                                    <TableCell>{value}</TableCell>
-                                                </TableRow>
-                                            ))}
-                                        </TableBody>
-                                    </Table>
-                                </TableContainer>
-
-                            </Box>
-                        </Grid>
 
                     </Grid>
                 </Grid>
