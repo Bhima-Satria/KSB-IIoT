@@ -4,34 +4,34 @@ import { CSSTransition } from 'react-transition-group';
 import { useNavigate } from 'react-router-dom'; // Import useNavigate
 
 // Import gambar dari folder src/img/
-import pump1 from '../img/Pumpa.png';
-import pump2 from '../img/Pumpa.png';
-import pump3 from '../img/Pumpa.png';
-import pump4 from '../img/Pumpa.png';
-import pump5 from '../img/Pumpa.png';
-import pump6 from '../img/Pumpa.png';
-import pump7 from '../img/Pumpa.png';
-import pump8 from '../img/Pumpa.png';
-import pump9 from '../img/Pumpa.png';
-import pump10 from '../img/Pumpa.png';
-import pump11 from '../img/Pumpa.png';
-import pump12 from '../img/Pumpa.png';
+import pump1 from '../img/DnD-Engine 1.png';
+import pump2 from '../img/DnD-Engine 1.png';
+import pump3 from '../img/DnD-Engine 2.png';
+import pump4 from '../img/DnD-Engine 3.png';
+import pump5 from '../img/DnD-Engine 1.png';
+import pump6 from '../img/DnD-Engine 2.png';
+import pump7 from '../img/DnD-Engine 3.png';
+import pump8 from '../img/DnD-Engine 1.png';
+import pump9 from '../img/DnD-Engine 2.png';
+import pump10 from '../img/DnD-Engine 3.png';
+import pump11 from '../img/DnD-Engine 1.png';
+import pump12 from '../img/DnD-Engine 2.png';
 
 const Content = () => {
     const navigate = useNavigate(); // useNavigate untuk navigasi
     const chartsData = [
         { id: 1, title: 'KSB-Unit 67', image: pump1 },
-        { id: 2, title: 'KSB-Unit 68', image: pump2 },
-        { id: 3, title: 'KSB-Unit 69', image: pump3 },
-        { id: 4, title: 'KSB-Unit 70', image: pump4 },
-        { id: 5, title: 'KSB-Unit 71', image: pump5 },
-        { id: 6, title: 'KSB-Unit 72', image: pump6 },
-        { id: 7, title: 'KSB-Unit 73', image: pump7 },
-        { id: 8, title: 'KSB-Unit 74', image: pump8 },
-        { id: 9, title: 'KSB-Unit 75', image: pump9 },
-        { id: 10, title: 'KSB-Unit 76', image: pump10 },
-        { id: 11, title: 'KSB-Unit 77', image: pump11 },
-        { id: 12, title: 'KSB-Unit 78', image: pump12 },
+        { id: 2, title: 'DnD-Engine', image: pump2 },
+        { id: 3, title: 'DnD-Engine', image: pump3 },
+        { id: 4, title: 'DnD-Engine', image: pump4 },
+        { id: 5, title: 'DnD-Engine', image: pump5 },
+        { id: 6, title: 'DnD-Engine', image: pump6 },
+        { id: 7, title: 'DnD-Engine', image: pump7 },
+        { id: 8, title: 'DnD-Engine', image: pump8 },
+        { id: 9, title: 'DnD-Engine', image: pump9 },
+        { id: 10, title: 'DnD-Engine', image: pump10 },
+        { id: 11, title: 'DnD-Engine', image: pump11 },
+        { id: 12, title: 'DnD-Engine', image: pump12 },
     ];
 
     const [currentIndex, setCurrentIndex] = useState(0);
@@ -100,7 +100,7 @@ const Content = () => {
                         >
                             {chartsData[currentIndex].title}
                         </Typography>
-                        
+
                         <Box
                             sx={{
                                 height: 800, // Ukuran gambar 2x lipat
@@ -124,7 +124,11 @@ const Content = () => {
                                 <img
                                     src={chartsData[currentIndex].image}
                                     alt={chartsData[currentIndex].title}
-                                    style={{ width: '100%', height: '100%', objectFit: 'cover' }} // Gambar responsif
+                                    style={{
+                                        width: '100%',
+                                        height: '100%',
+                                        objectFit: 'contain',  // Menggunakan 'contain' agar gambar tetap utuh tanpa cropping
+                                    }}
                                 />
                             </CSSTransition>
                         </Box>
