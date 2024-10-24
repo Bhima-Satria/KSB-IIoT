@@ -5,6 +5,7 @@ import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Header from './components/Header';
 import Content from './components/Content';
 import UnitPage from './components/Unitpages'; // Perhatikan perbaikan nama komponen
+import Overview from './components/Overview'; // Import Overview component
 import theme from './components/theme';
 import { Helmet } from 'react-helmet'; // Import Helmet
 
@@ -21,7 +22,8 @@ const App = () => {
           <Header />
           <Routes>
             <Route path="/" element={<Content />} />
-            <Route path="/unit/:unitId" element={<UnitPage />} />
+            <Route path="/unit/:unitId" element={<UnitPage />} /> {/* Perhatikan perbaikan path */}
+            <Route path="/overview" element={<Overview />} /> {/* Add route for Overview component */}
           </Routes>
         </Box>
       </Router>

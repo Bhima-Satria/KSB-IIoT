@@ -23,23 +23,15 @@ const Sidebar = styled(Box)(({ theme }) => ({
 
 const Header = () => {
     const [drawerOpen, setDrawerOpen] = useState(false); // State for controlling the sidebar's open/close status
-    const [headerTitle, setHeaderTitle] = useState('KSB IoT Product'); // Set initial title
+    const [headerTitle, setHeaderTitle] = useState(''); // Set initial title
     const navigate = useNavigate(); // Hook for navigation
 
     // Data for the units displayed in the sidebar
     const chartsData = [
-        { id: 1, title: 'KSB-Unit 67' },
-        { id: 2, title: 'KSB-Unit 68' },
-        { id: 3, title: 'KSB-Unit 69' },
-        { id: 4, title: 'KSB-Unit 70' },
-        { id: 5, title: 'KSB-Unit 71' },
-        { id: 6, title: 'KSB-Unit 72' },
-        { id: 7, title: 'KSB-Unit 73' },
-        { id: 8, title: 'KSB-Unit 74' },
-        { id: 9, title: 'KSB-Unit 75' },
-        { id: 10, title: 'KSB-Unit 76' },
-        { id: 11, title: 'KSB-Unit 77' },
-        { id: 12, title: 'KSB-Unit 78' },
+        { id: 1, title: 'KSB-Unit 64' },
+        { id: 2, title: 'KSB-Unit 67' },
+        { id: 3, title: 'KSB-Double Drive' },
+        { id: 4, title: 'Overview' },
     ];
 
     // Function to toggle the sidebar
@@ -50,13 +42,17 @@ const Header = () => {
     // Function to navigate to a specific unit's page and close the sidebar
     const handleMenuClick = (title) => {
         setHeaderTitle(title); // Update header title based on clicked unit
-        navigate(`/unit/${title}`); // Navigates to the unit's page
+        if (title === 'Overview') {
+            navigate('/overview'); // Navigates to the overview page
+        } else {
+            navigate(`/unit/${title}`); // Navigates to the unit's page
+        }
         handleDrawerToggle(); // Closes the sidebar
     };
 
     // Function to navigate back to the home page when the logo is clicked
     const handleLogoClick = () => {
-        setHeaderTitle('KSB IoT Product'); // Reset to the initial title when going home
+        setHeaderTitle(''); // Reset to the initial title when going home
         navigate('/'); // Navigate back to home
     };
 

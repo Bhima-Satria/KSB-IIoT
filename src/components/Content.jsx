@@ -4,34 +4,16 @@ import { CSSTransition } from 'react-transition-group';
 import { useNavigate } from 'react-router-dom'; // Import useNavigate
 
 // Import gambar dari folder src/img/
-import pump1 from '../img/DnD-Engine 1.png';
-import pump2 from '../img/DnD-Engine 1.png';
-import pump3 from '../img/DnD-Engine 2.png';
-import pump4 from '../img/DnD-Engine 3.png';
-import pump5 from '../img/DnD-Engine 1.png';
-import pump6 from '../img/DnD-Engine 2.png';
-import pump7 from '../img/DnD-Engine 3.png';
-import pump8 from '../img/DnD-Engine 1.png';
-import pump9 from '../img/DnD-Engine 2.png';
-import pump10 from '../img/DnD-Engine 3.png';
-import pump11 from '../img/DnD-Engine 1.png';
-import pump12 from '../img/DnD-Engine 2.png';
+import pump1 from '../img/KSB67.webp';
+import pump2 from '../img/KSB64.webp';
+import pump3 from '../img/KSBDoubleDrive.webp';
 
 const Content = () => {
     const navigate = useNavigate(); // useNavigate untuk navigasi
     const chartsData = [
-        { id: 1, title: 'KSB-Unit 67', image: pump1 },
-        { id: 2, title: 'DnD-Engine', image: pump2 },
-        { id: 3, title: 'DnD-Engine', image: pump3 },
-        { id: 4, title: 'DnD-Engine', image: pump4 },
-        { id: 5, title: 'DnD-Engine', image: pump5 },
-        { id: 6, title: 'DnD-Engine', image: pump6 },
-        { id: 7, title: 'DnD-Engine', image: pump7 },
-        { id: 8, title: 'DnD-Engine', image: pump8 },
-        { id: 9, title: 'DnD-Engine', image: pump9 },
-        { id: 10, title: 'DnD-Engine', image: pump10 },
-        { id: 11, title: 'DnD-Engine', image: pump11 },
-        { id: 12, title: 'DnD-Engine', image: pump12 },
+        { id: 1, title: 'KSB-Unit 64', image: pump2 },
+        { id: 2, title: 'KSB-Unit 67', image: pump1 },
+        { id: 3, title: 'KSB-Double Drive', image: pump3 },
     ];
 
     const [currentIndex, setCurrentIndex] = useState(0);
@@ -41,7 +23,7 @@ const Content = () => {
     useEffect(() => {
         const interval = setInterval(() => {
             handleNext();
-        }, 5000); // Ganti gambar setiap 5 detik
+        }, 20000); // Ganti gambar setiap 5 detik
 
         return () => clearInterval(interval); // Membersihkan interval saat komponen unmounted
     }, []);
@@ -64,6 +46,7 @@ const Content = () => {
 
     const handleImageClick = (title) => {
         setIsZoomingIn(true); // Memulai animasi zoom in
+        document.title = title; // Ubah title halaman sesuai dengan title gambar
         setTimeout(() => {
             navigate(`/unit/${title}`); // Navigasi setelah animasi selesai
         }, 500); // Delay 500ms, sesuaikan dengan durasi animasi

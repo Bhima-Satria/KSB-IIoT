@@ -5,74 +5,38 @@ import { useParams } from 'react-router-dom';
 import { fetchData } from './dataService';
 import { Line } from 'react-chartjs-2';
 import { Chart as ChartJS, LineElement, PointElement, LinearScale, CategoryScale, Title, Tooltip, Legend } from 'chart.js';
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper } from '@mui/material';
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet'; // Pastikan impor ini sudah benar
-import 'leaflet/dist/leaflet.css';  // Impor file CSS untuk Leaflet
+import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, IconButton } from '@mui/material';
+import { MapContainer, TileLayer, Marker, Popup, Circle } from 'react-leaflet';
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
 
 // Import images according to unitId
-import imageUnit1 from '../img/DnD-Engine 2.png'; // Replace with image path for unit 1
-import imageUnit2 from '../img/DnD-Engine 2.png'; // Ganti dengan path gambar unit 2
+import imageUnit1 from '../img/KSB64.webp'; // Replace with image path for unit 1
+import imageUnit2 from '../img/KSB67.webp'; // Replace with image path for unit 2
+import imageUnit3 from '../img/KSBDoubleDrive.webp'; // Replace with image path for unit 3
+import marker_icon from '../img/marker-icon.png'; // Ganti dengan path gambar marker
+import marker_shadow from '../img/marker-shadow.png'; // Ganti dengan path gambar shadow
 
 // Register the required components for Chart.js
 ChartJS.register(LineElement, PointElement, LinearScale, CategoryScale, Title, Tooltip, Legend);
 
-const IndicatorLamp = ({ value, maxValue }) => {
-    const [isFault, setIsFault] = useState(value > maxValue);
-    const [isBlinking, setIsBlinking] = useState(false);
-
-    useEffect(() => {
-        if (value > maxValue) {
-            setIsFault(true);
-            setIsBlinking(true);
-            const interval = setInterval(() => {
-                setIsBlinking((prev) => !prev);
-            }, 500); // Kedip setiap 500ms
-
-            return () => clearInterval(interval); // Bersihkan interval saat unmount
-        } else {
-            setIsFault(false);
-            setIsBlinking(false);
-        }
-    }, [value, maxValue]);
-
-    return (
-        <Box
-            sx={{
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
-                width: '37px', // Lebar frame bulat
-                height: '37px', // Tinggi frame bulat
-                borderRadius: '50%',
-                border: '2px solid #ccc', // Ketebalan border
-                boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)', // Efek bayangan untuk 3D
-                backgroundColor: 'transparent', // Warna background frame bulat
-                position: 'relative',
-            }}
-        >
-            <Box
-                sx={{
-                    width: '32px',
-                    height: '32px',
-                    borderRadius: '50%',
-                    backgroundColor: isFault ? (isBlinking ? 'red' : 'transparent') : 'green',
-                    border: '2px solid #ccc',
-                    position: 'absolute', // Agar bisa ditumpuk di tengah frame
-                    transition: 'background-color 0.2s, opacity 0.2s', // Transisi untuk efek lebih halus
-                    opacity: isFault ? (isBlinking ? 1 : 0.5) : 1, // Efek transparansi saat berkedip
-
-                }}
-            />
-        </Box>
-    );
-};
+// Default marker icon with local backup
+const defaultIcon = new L.Icon({
+    iconUrl: marker_icon, // Local marker icon URL
+    iconSize: [25, 41], // Size of the marker icon
+    iconAnchor: [12, 41], // Where the icon is anchored
+    popupAnchor: [1, -34], // Position of popup relative to marker
+    shadowUrl: marker_shadow, // Local shadow URL
+    shadowSize: [41, 41],  // Size of shadow
+    shadowAnchor: [12, 41], // Where the shadow is anchored
+});
 
 // Komponen Bubble untuk menampilkan data (Atur agar menyesuaikan layar)
 const Bubble = ({ title, value, unit, Icon }) => {
     return (
         <Box
             sx={{
-                width: { xs: '100%', sm: '220px' }, // Lebar responsif
+                width: { xs: '100%', sm: '200px' }, // Lebar responsif
                 height: 'auto',
                 backgroundColor: '#336699', // Warna latar utama
                 borderRadius: '12px', // Membuat ujung bulat
@@ -102,7 +66,7 @@ const Bubble = ({ title, value, unit, Icon }) => {
 };
 
 
-const DataCard = ({ title, value, unit, Icon, lastUpdatedDate }) => {
+const DataCard = ({ title, value, unit, Icon, Duty }) => {
     return (
         <Card sx={{
             backgroundColor: 'white',
@@ -112,7 +76,7 @@ const DataCard = ({ title, value, unit, Icon, lastUpdatedDate }) => {
             padding: 2,
             margin: 1,
             flex: 1,
-            minWidth: { xs: '150px', sm: '200px' },
+            minWidth: { xs: '120px', sm: '200px' },
         }}>
             <CardContent sx={{ display: 'flex', alignItems: 'center', width: '100%' }}>
                 <Box sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
@@ -124,8 +88,8 @@ const DataCard = ({ title, value, unit, Icon, lastUpdatedDate }) => {
                     </Typography>
                 </Box>
                 <Box sx={{
-                    width: '45px',
-                    height: '45px',
+                    width: '60px', // Ubah lebar box sesuai kebutuhan
+                    height: '60px', // Ubah tinggi box sesuai kebutuhan
                     borderRadius: '50%',
                     backgroundColor: '#f5f5f5',
                     display: 'flex',
@@ -133,7 +97,7 @@ const DataCard = ({ title, value, unit, Icon, lastUpdatedDate }) => {
                     justifyContent: 'center',
                     marginLeft: 2
                 }}>
-                    <Icon sx={{ fontSize: '50px', color: '#FF8A00' }} />
+                    <Icon sx={{ fontSize: '50px', color: '#FF8A00' }} /> {/* Ubah ukuran ikon di sini */}
                 </Box>
             </CardContent>
             <Box sx={{
@@ -143,15 +107,114 @@ const DataCard = ({ title, value, unit, Icon, lastUpdatedDate }) => {
                 padding: 1
             }}>
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                    <Icons.CheckCircleOutline sx={{ color: '#4CAF50', marginRight: 0.5 }} />
                     <Typography variant="body2" color="textSecondary" sx={{ fontSize: { xs: '0.8rem', sm: '1rem' } }}>
-                        {lastUpdatedDate}
+                        {Duty}
                     </Typography>
                 </Box>
             </Box>
         </Card>
     );
 };
+
+
+const CardStatus = ({ title, value, lastUpdatedDate }) => {
+    // Menentukan status berdasarkan value
+    const isOn = value > 1;
+
+    // State untuk mengatur blinking pada ikon
+    const [isBlinking, setIsBlinking] = useState(false);
+    const [blinkStyle, setBlinkStyle] = useState({}); // State untuk gaya blinking
+
+    useEffect(() => {
+        if (isOn) {
+            setIsBlinking(true);
+            const interval = setInterval(() => {
+                setBlinkStyle((prevStyle) => ({
+                    opacity: prevStyle.opacity === 1 ? 0 : 1,
+                }));
+            }, 500); // Interval blinking 500ms
+
+            return () => clearInterval(interval); // Membersihkan interval saat komponen di-unmount
+        } else {
+            setIsBlinking(false);
+            setBlinkStyle({ opacity: 1 }); // Set opacity ke 1 saat off
+        }
+    }, [isOn]);
+
+    // Memilih ikon berdasarkan status
+    const statusIcon = isOn ? (
+        <Icons.PowerSettingsNew sx={{
+            color: '#4CAF50',
+            fontSize: '100px',
+            opacity: blinkStyle.opacity,
+        }} />
+    ) : (
+        <Icons.PowerSettingsNew sx={{
+            color: '#FF0000',
+            fontSize: '100px'
+        }} />
+    );
+
+    const statusText = isOn ? 'Running' : 'Stop';
+
+    return (
+        <Card sx={{
+            backgroundColor: 'white',
+            boxShadow: '0px 4px 16px rgba(0, 0, 0, 0.2)',
+            display: 'flex',
+            flexDirection: 'column',
+            padding: 2,
+            margin: 1,
+            flex: 1,
+            minWidth: { xs: '120px', sm: '200px' },
+        }}>
+            <CardContent sx={{ display: 'flex', alignItems: 'center', width: '100%' }}>
+                <Box sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
+                    <Typography variant="body2" color="textSecondary" sx={{ fontSize: { xs: '1.2rem', sm: '1.5rem' } }}>
+                        {title}
+                    </Typography>
+                    <Typography variant="h5" sx={{ fontWeight: 'bold', fontSize: { xs: '1.2rem', sm: '1.5rem' } }}>
+                        {statusText}
+                    </Typography>
+                </Box>
+                <Box sx={{
+                    width: '60px',
+                    height: '60px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    marginLeft: 2
+                }}>
+                    <Box sx={{
+                        width: '100px',
+                        height: '100px',
+                        borderRadius: '100%',
+                        backgroundColor: '#f5f5f5',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        marginLeft: -5
+                    }}>
+                        {statusIcon}
+                    </Box>
+                </Box>
+            </CardContent>
+            <Box sx={{
+                borderTop: '1px solid #e0e0e0', width: '100%',
+                textAlign: 'center', marginTop: 1, display: 'flex',
+                justifyContent: 'space-between', alignItems: 'center',
+                padding: 1
+            }}>
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                    <Typography variant="body2" color="textSecondary" sx={{ fontSize: { xs: '0.8rem', sm: '1rem' } }}>
+                        Lates Online : {lastUpdatedDate}
+                    </Typography>
+                </Box>
+            </Box>
+        </Card>
+    );
+};
+
 
 const UnitPage = () => {
     const { unitId } = useParams();
@@ -292,13 +355,21 @@ const UnitPage = () => {
                     <Grid item xs={12}>
                         <Box sx={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between' }}>
                             {cardData.map((data, index) => (
+                                <CardStatus
+                                    key={index}
+                                    title="Unit Status"
+                                    value={data.engine_speed}
+                                    lastUpdatedDate={parsedDate}
+                                />
+                            ))}
+                            {cardData.map((data, index) => (
                                 <DataCard
                                     key={index}
                                     title="Flow"
                                     value={data.flow}
-                                    unit="L/min"
-                                    Icon={Icons.Speed}
-                                    lastUpdatedDate={parsedDate}
+                                    unit="m3/h"
+                                    Icon={Icons.Water}
+                                    Duty="Duty Flow : 600 m3/h"
                                 />
                             ))}
                             {cardData.map((data, index) => (
@@ -307,28 +378,28 @@ const UnitPage = () => {
                                     title="Discharge Pressure"
                                     value={data.discharge_pressure / 10}
                                     unit="Bar"
-                                    Icon={Icons.FlashOn}
-                                    lastUpdatedDate={parsedDate}
+                                    Icon={Icons.Commit}
+                                    Duty="Duty Pressure : 16.2 Bar"
                                 />
                             ))}
                             {cardData.map((data, index) => (
                                 <DataCard
                                     key={index}
-                                    title="Pump Temperature"
-                                    value={data.pump_de_temperature}
-                                    unit="°C"
-                                    Icon={Icons.Thermostat}
-                                    lastUpdatedDate={parsedDate}
+                                    title="Engine Speed"
+                                    value={data.engine_speed}
+                                    unit="RPM"
+                                    Icon={Icons.Speed}
+                                    Duty="Duty Speed : 1450 RPM"
                                 />
                             ))}
                             {cardData.map((data, index) => (
                                 <DataCard
                                     key={index}
-                                    title="Engine Run Hour"
-                                    value={data.engine_run_hour}
-                                    unit="Hours"
-                                    Icon={Icons.BatteryChargingFull}
-                                    lastUpdatedDate={parsedDate}
+                                    title="Engine Load"
+                                    value={data.engine_load}
+                                    unit="%"
+                                    Icon={Icons.ElectricCar}
+                                    Duty="Duty Engine : - "
                                 />
                             ))}
                         </Box>
@@ -389,14 +460,16 @@ const UnitPage = () => {
 
                         {/* Kolom untuk Detail Informasi */}
                         <Grid item xs={12} sm={12} md={4} lg={4}>
-                            <Box sx={{
-                                height: '400px',
-                                backgroundColor: 'white',
-                                boxShadow: '0px 8px 24px rgba(0, 0, 0, 0.2)',
-                                borderRadius: '30px',
-                                margin: '5px',
-                                padding: '20px', // Tambahkan padding untuk estetika
-                            }}>
+                            <Box
+                                sx={{
+                                    height: '400px',
+                                    backgroundColor: 'white',
+                                    boxShadow: '0px 8px 24px rgba(0, 0, 0, 0.2)',
+                                    borderRadius: '30px',
+                                    margin: '5px',
+                                    padding: '20px', // Tambahkan padding untuk estetika
+                                }}
+                            >
                                 {/* Tabel Detail Unit */}
                                 <TableContainer
                                     component={Paper}
@@ -409,7 +482,8 @@ const UnitPage = () => {
                                         '&': {
                                             scrollbarWidth: 'none', // Menyembunyikan scrollbar di Firefox
                                         },
-                                    }}>
+                                    }}
+                                >
                                     <Table stickyHeader aria-label="detail unit table">
                                         <TableHead>
                                             <TableRow>
@@ -430,16 +504,24 @@ const UnitPage = () => {
                                         </TableHead>
                                         <TableBody>
                                             {[
-                                                { label: 'Nama Unit', value: unitId }, // Make Bold Text
-                                                { label: 'Type Pump', value: 'ISPV' },
-                                                { label: 'Customer', value: 'PT Thriveni' },
-                                                { label: 'Duty Flow', value: '3000 L/m' },
-                                                { label: 'Duty Head', value: '50 m' },
-                                                { label: 'Speed', value: '2900 RPM' },
+                                                { label: 'Unit Name', value: unitId }, // Make Bold Text
+                                                { label: 'Type Pump', value: 'ISP-D150' },
+                                                { label: 'Customer', value: 'PT Adaro Tirta Sarana' },
+                                                { label: 'Duty Flow', value: '600 m3/h' },
+                                                { label: 'Duty Head', value: '165.24 m' },
+                                                { label: 'Speed', value: '1450 RPM' },
                                             ].map(({ label, value }, index) => (
                                                 <TableRow key={index}>
-                                                    <TableCell sx={{ padding: '13px', fontSize: '1.1rem' }}>{label}</TableCell> {/* Atur ukuran font dan padding */}
-                                                    <TableCell sx={{ padding: '13px', fontSize: '1.1rem' }}>{value}</TableCell> {/* Atur ukuran font dan padding */}
+                                                    <TableCell
+                                                        sx={{ padding: '13px', fontSize: '1.1rem' }}
+                                                    >
+                                                        {label}
+                                                    </TableCell>
+                                                    <TableCell
+                                                        sx={{ padding: '13px', fontSize: '1.1rem' }}
+                                                    >
+                                                        {value}
+                                                    </TableCell>
                                                 </TableRow>
                                             ))}
                                         </TableBody>
@@ -447,6 +529,7 @@ const UnitPage = () => {
                                 </TableContainer>
                             </Box>
                         </Grid>
+
 
 
                         {/* Kolom untuk Data Instruments */}
@@ -484,31 +567,31 @@ const UnitPage = () => {
                                     {cardData.map((data, index) => (
                                         <React.Fragment key={index}>
                                             <Grid item xs={6} sm={4} md={6} lg={4} container justifyContent="center">
-                                                <Bubble title="Flow" value={data.flow} unit="L/min" Icon={Icons.Speed} />
+                                                <Bubble title="Flow" value={data.flow} unit="m3/h" Icon={Icons.Water} />
                                             </Grid>
                                             <Grid item xs={6} sm={4} md={6} lg={4} container justifyContent="center">
-                                                <Bubble title="Disc Press" value={data.discharge_pressure} unit="Bar" Icon={Icons.FlashOn} />
+                                                <Bubble title="Disc Press" value={data.discharge_pressure} unit="Bar" Icon={Icons.Commit} />
                                             </Grid>
                                             <Grid item xs={6} sm={4} md={6} lg={4} container justifyContent="center">
                                                 <Bubble title="Pump DE Temp" value={data.pump_de_temperature} unit="°C" Icon={Icons.Thermostat} />
                                             </Grid>
                                             <Grid item xs={6} sm={4} md={6} lg={4} container justifyContent="center">
-                                                <Bubble title="Engine Run Hour" value={data.engine_run_hour} unit="Hours" Icon={Icons.BatteryChargingFull} />
+                                                <Bubble title="Engine Run Hour" value={data.engine_run_hour} unit="Hours" Icon={Icons.ManageHistory} />
                                             </Grid>
                                             <Grid item xs={6} sm={4} md={6} lg={4} container justifyContent="center">
                                                 <Bubble title="Engine Speed" value={data.engine_speed} unit="RPM" Icon={Icons.Speed} />
                                             </Grid>
                                             <Grid item xs={6} sm={4} md={6} lg={4} container justifyContent="center">
-                                                <Bubble title="Engine Load" value={data.engine_load} unit="%" Icon={Icons.BatteryChargingFull} />
+                                                <Bubble title="Engine Load" value={data.engine_load} unit="%" Icon={Icons.ElectricCar} />
                                             </Grid>
                                             <Grid item xs={6} sm={4} md={6} lg={4} container justifyContent="center">
-                                                <Bubble title="Fuel Rate" value={data.engine_fuel_rate} unit="L/h" Icon={Icons.Speed} />
+                                                <Bubble title="Fuel Rate" value={data.engine_fuel_rate} unit="L/h" Icon={Icons.LocalGasStation} />
                                             </Grid>
                                             <Grid item xs={6} sm={4} md={6} lg={4} container justifyContent="center">
-                                                <Bubble title="Pump DE Vib X" value={data.pump_de_vib_x} unit="mm/s" Icon={Icons.Speed} />
+                                                <Bubble title="Pump DE Vib X" value={data.pump_de_vib_x} unit="mm/s" Icon={Icons.Sensors} />
                                             </Grid>
                                             <Grid item xs={6} sm={4} md={6} lg={4} container justifyContent="center">
-                                                <Bubble title="Pump DE Vib Y" value={data.pump_de_vib_y} unit="mm/s" Icon={Icons.Speed} />
+                                                <Bubble title="Pump DE Vib Y" value={data.pump_de_vib_y} unit="mm/s" Icon={Icons.Sensors} />
                                             </Grid>
                                             {/* Additional Bubbles */}
                                         </React.Fragment>
@@ -520,21 +603,20 @@ const UnitPage = () => {
                         <Grid item xs={12} sm={12} md={4} lg={4}>
                             <Box
                                 sx={{
-                                    height: '400px', // Height of the outer box
+                                    height: '400px',
                                     backgroundColor: 'white',
                                     boxShadow: '0px 4px 16px rgba(0, 0, 0, 0.2)',
                                     borderRadius: '30px',
                                     margin: '5px',
-                                    overflow: 'hidden',  // Prevent overflow
-                                    padding: '10px',     // Padding inside the box
+                                    overflow: 'hidden',
+                                    padding: '10px',
                                 }}
                             >
-                                {/* Title with centered text */}
                                 <Typography
-                                    variant="h6"  // Use h6 for the title
+                                    variant="h6"
                                     color="textPrimary"
                                     sx={{
-                                        fontSize: '1.3rem',  // Adjust font size as needed
+                                        fontSize: '1.3rem',
                                         textAlign: 'center',
                                         fontWeight: 'bold',
                                         textShadow: '2px 2px 4px rgba(0, 0, 0, 0.5)',
@@ -543,39 +625,46 @@ const UnitPage = () => {
                                     Location {unitId}
                                 </Typography>
 
-                                {/* Frame around the map */}
                                 <Box
                                     sx={{
-                                        height: '340px',  // Set a maximum height for the map
+                                        height: '340px',
                                         width: '100%',
-                                        border: '2px solid #4A90E2',  // Frame color and thickness
-                                        borderRadius: '20px',         // Border radius for the map
-                                        overflow: 'hidden',            // Prevent the map from overflowing the box
+                                        border: '2px solid #4A90E2',
+                                        borderRadius: '20px',
+                                        overflow: 'hidden',
                                     }}
                                 >
-                                    {/* MapContainer for displaying the map */}
-                                    <MapContainer
-                                        center={[-1.83333, 115.55]}  // Initial map coordinates
-                                        zoom={13}
-                                        style={{ width: '100%', height: '100%' }}  // Make map fill the box
-                                    >
+                                    <MapContainer center={[-1.83333, 115.55]} zoom={6} style={{ width: '100%', height: '100%' }}>
                                         <TileLayer
                                             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                                             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                                         />
-                                        {/* Adding marker */}
-                                        <Marker position={[-1.83333, 115.55]}>
+
+                                        {/* Default Marker */}
+                                        <Marker position={[-1.83333, 115.55]} icon={defaultIcon}>
                                             <Popup>
-                                                Location {unitId}
+                                                Location : -1.83333, 115.55
                                             </Popup>
                                         </Marker>
+
+                                        {/* Circle effect around the marker */}
+                                        <Circle
+                                            center={[-1.83333, 115.55]}  // Position of the circle
+                                            radius={200}  // Radius in meters
+                                            pathOptions={{
+                                                color: 'red',
+                                                weight: 1,
+                                                fillColor: 'red',
+                                                fillOpacity: 0.1, // 10% transparency
+                                            }}
+                                        />
                                     </MapContainer>
                                 </Box>
                             </Box>
                         </Grid>
 
 
-                        {/* Kolom kosong 3 */}
+                        {/* Kolom kosong 3 diisi Chart*/}
                         <Grid item xs={12} sm={12} md={4} lg={4}>
                             <Box sx={{
                                 backgroundColor: 'white',
@@ -628,191 +717,59 @@ const UnitPage = () => {
                             </Box>
                         </Grid>
 
-                        {/* Kolom kosong 2 diisi dengan Indicator Fault*/}
+                        {/* Kolom untuk Tombol Buka Kamera */}
                         <Grid item xs={12} sm={12} md={4} lg={4}>
                             <Box sx={{
                                 height: '400px',
-                                background: 'white', // Perbaiki warna menjadi putih
-                                boxShadow: '0px 8px 24px rgba(0, 0, 0, 0.2)', // Lebih dalam shadow
+                                background: 'white',
+                                boxShadow: '0px 8px 24px rgba(0, 0, 0, 0.2)',
                                 borderRadius: '30px',
-                                margin: '10px',
-                                padding: '20px', // Tambahkan padding untuk estetika
+                                margin: '5px',
+                                padding: '10px',
+                                display: 'flex',
+                                flexDirection: 'column',  // Menyusun konten secara vertikal
+                                justifyContent: 'flex-start',  // Judul di atas
+                                alignItems: 'center',
                             }}>
-                                {/* Judul di tengah box */}
-                                <Typography variant="h6"
-                                    color="textPrimary"
+                                {/* Judul di bagian atas */}
+                                <Typography
+                                    variant="h6"
                                     sx={{
+                                        fontSize: '1.3rem',
                                         textAlign: 'center',
-                                        textShadow: '1px 1px 2px rgba(0, 0, 0, 0.5)',
-                                        marginBottom: '15px',
-                                        color: 'red', // Warna merah untuk menarik perhatian
+                                        fontWeight: 'bold',
+                                        textShadow: '2px 2px 4px rgba(0, 0, 0, 0.5)',
                                     }}
                                 >
-                                    Fault Indicator (Under Development)
+                                    IPC Camera {unitId}
                                 </Typography>
 
-                                <Grid container spacing={1} justifyContent="center">
-                                    {cardData.map((data, index) => (
-                                        <Grid item xs={4} sm={4} md={4} key={index} container justifyContent="center" alignItems="center">
-                                            <Box display="flex" flexDirection="column" alignItems="center">
-                                                {/* Lamp Indicator Flow*/}
-                                                <IndicatorLamp
-                                                    value={parseFloat(data.flow)} // Gunakan flow dari data JSON
-                                                    maxValue={3000} // Batas maksimum sesuai kebutuhan
-                                                />
-                                                {/* Label untuk lamp indicator */}
-                                                <Typography variant="subtitle1" sx={{ marginTop: '5px', textAlign: 'center', fontWeight: 'bold' }}>
-                                                    {'Over Flow Ind.'}
-                                                </Typography>
-
-                                                <Box sx={{ height: '10px' }} />
-
-                                                {/* Lamp Indicator Temperature*/}
-                                                <IndicatorLamp
-                                                    value={parseFloat(data.pump_de_temperature)} // Gunakan temperature dari data JSON
-                                                    maxValue={130} // Batas maksimum sesuai kebutuhan
-                                                />
-                                                {/* Label untuk lamp indicator */}
-                                                <Typography variant="subtitle1" sx={{ marginTop: '5px', textAlign: 'center', fontWeight: 'bold' }}>
-                                                    {'Over Temp'}
-                                                </Typography>
-
-                                                <Box sx={{ height: '10px' }} />
-
-                                                {/* Lamp Indicator Pressure*/}
-                                                <IndicatorLamp
-                                                    value={parseFloat(data.discharge_pressure)} // Gunakan pressure dari data JSON
-                                                    maxValue={18} // Batas maksimum sesuai kebutuhan
-                                                />
-                                                {/* Label untuk lamp indicator */}
-                                                <Typography variant="subtitle1" sx={{ marginTop: '5px', textAlign: 'center', fontWeight: 'bold' }}>
-                                                    {'Over Pressure'}
-                                                </Typography>
-
-                                                <Box sx={{ height: '10px' }} />
-
-                                                {/* Lamp Indicator Engine Run Hour*/}
-                                                <IndicatorLamp
-                                                    value={parseFloat(data.engine_run_hour)} // Gunakan engine run hour dari data JSON
-                                                    maxValue={10000} // Batas maksimum sesuai kebutuhan
-                                                />
-                                                {/* Label untuk lamp indicator */}
-                                                <Typography variant="subtitle1" sx={{ marginTop: '5px', textAlign: 'center', fontWeight: 'bold' }}>
-                                                    {'Over Run Hour'}
-                                                </Typography>
-                                            </Box>
-                                        </Grid>
-                                    ))}
-                                    {/* Menambahkan dua kolom tambahan untuk menampilkan data lebih banyak */}
-                                    {cardData.map((data, index) => (
-                                        <Grid item xs={4} sm={4} md={4} key={index + cardData.length} container justifyContent="center" alignItems="center">
-                                            <Box display="flex" flexDirection="column" alignItems="center">
-                                                {/* Lamp Indicator Fuel Rate*/}
-                                                <IndicatorLamp
-                                                    value={parseFloat(data.engine_fuel_rate)} // Gunakan fuel rate dari data JSON
-                                                    maxValue={100} // Batas maksimum sesuai kebutuhan
-                                                />
-                                                {/* Label untuk lamp indicator */}
-                                                <Typography variant="subtitle1" sx={{ marginTop: '5px', textAlign: 'center', fontWeight: 'bold' }}>
-                                                    {'Engine Fuel Rate'}
-                                                </Typography>
-
-                                                <Box sx={{ height: '10px' }} />
-
-                                                {/* Lamp Indicator Vibration Y*/}
-                                                <IndicatorLamp
-                                                    value={parseFloat(data.pump_de_vib_y)} // Gunakan vibration Y dari data JSON
-                                                    maxValue={5} // Batas maksimum sesuai kebutuhan
-                                                />
-                                                {/* Label untuk lamp indicator */}
-                                                <Typography variant="subtitle1" sx={{ marginTop: '5px', textAlign: 'center', fontWeight: 'bold' }}>
-                                                    {'Pump Vibration Y'}
-                                                </Typography>
-
-                                                <Box sx={{ height: '10px' }} />
-
-                                                {/* Lamp Indicator Vibration X*/}
-                                                <IndicatorLamp
-                                                    value={parseFloat(data.pump_de_vib_x)} // Gunakan vibration X dari data JSON
-                                                    maxValue={5} // Batas maksimum sesuai kebutuhan
-                                                />
-                                                {/* Label untuk lamp indicator */}
-                                                <Typography variant="subtitle1" sx={{ marginTop: '5px', textAlign: 'center', fontWeight: 'bold' }}>
-                                                    {'Pump Vibration X'}
-                                                </Typography>
-
-                                                <Box sx={{ height: '10px' }} />
-
-                                                {/* Lamp Indicator Engine Load*/}
-                                                <IndicatorLamp
-                                                    value={parseFloat(data.engine_load)} // Gunakan engine load dari data JSON
-                                                    maxValue={85} // Batas maksimum sesuai kebutuhan
-                                                />
-                                                {/* Label untuk lamp indicator */}
-                                                <Typography variant="subtitle1" sx={{ marginTop: '5px', textAlign: 'center', fontWeight: 'bold' }}>
-                                                    {'Engine Load'}
-                                                </Typography>
-                                            </Box>
-                                        </Grid>
-                                    ))}
-
-                                    {cardData.map((data, index) => (
-                                        <Grid item xs={4} sm={4} md={4} key={index + cardData.length} container justifyContent="center" alignItems="center">
-                                            <Box display="flex" flexDirection="column" alignItems="center">
-                                                {/* Lamp Indicator Fuel Rate*/}
-                                                <IndicatorLamp
-                                                    value={parseFloat(data.engine_fuel_rate)} // Gunakan fuel rate dari data JSON
-                                                    maxValue={1} // Batas maksimum sesuai kebutuhan
-                                                />
-                                                {/* Label untuk lamp indicator */}
-                                                <Typography variant="subtitle1" sx={{ marginTop: '5px', textAlign: 'center', fontWeight: 'bold' }}>
-                                                    {'Oil Lube Pressure'}
-                                                </Typography>
-
-                                                <Box sx={{ height: '10px' }} />
-
-                                                {/* Lamp Indicator Data Engine Speed*/}
-                                                <IndicatorLamp
-                                                    value={parseFloat(data.engine_speed)} // Gunakan engine speed dari data JSON
-                                                    maxValue={2000} // Batas maksimum sesuai kebutuhan
-                                                />
-                                                {/* Label untuk lamp indicator */}
-                                                <Typography variant="subtitle1" sx={{ marginTop: '5px', textAlign: 'center', fontWeight: 'bold' }}>
-                                                    {'Engine Speed'}
-                                                </Typography>
-
-                                                <Box sx={{ height: '10px' }} />
-
-                                                {/* Lamp Indicator Data Engine Load*/}
-                                                <IndicatorLamp
-                                                    value={parseFloat(data.engine_load)} // Gunakan engine load dari data JSON
-                                                    maxValue={100} // Batas maksimum sesuai kebutuhan
-                                                />
-                                                {/* Label untuk lamp indicator */}
-                                                <Typography variant="subtitle1" sx={{ marginTop: '5px', textAlign: 'center', fontWeight: 'bold' }}>
-                                                    {'Engine Load'}
-                                                </Typography>
-
-                                                <Box sx={{ height: '10px' }} />
-
-                                                {/* Lamp Indicator Data Engine Fuel Rate*/}
-                                                <IndicatorLamp
-                                                    value={parseFloat(data.engine_fuel_rate)} // Gunakan engine fuel rate dari data JSON
-                                                    maxValue={100} // Batas maksimum sesuai kebutuhan
-                                                />
-                                                {/* Label untuk lamp indicator */}
-                                                <Typography variant="subtitle1" sx={{ marginTop: '5px', textAlign: 'center', fontWeight: 'bold' }}>
-                                                    {'Engine Fuel Rate'}
-                                                </Typography>
-
-                                            </Box>
-                                        </Grid>
-                                    ))}
-
-                                </Grid>
+                                {/* Memberikan ruang untuk ikon dan keterangan */}
+                                <Box sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+                                    <IconButton
+                                        onClick={() => window.open('https://ipc.bardi.co.id/login', '_blank')}
+                                        sx={{
+                                            padding: '0',  // Menghapus padding default
+                                            width: '80%',  // Mengatur lebar responsif
+                                            height: 'auto',  // Tinggi otomatis untuk menjaga proporsi
+                                        }}
+                                    >
+                                        <Icons.SmartDisplay sx={{ width: '100%', height: 'auto', color: '#336699' }} /> {/* Ikon responsif */}
+                                    </IconButton>
+                                    {/* Keterangan di bawah ikon */}
+                                    <Typography
+                                        variant="body2"
+                                        sx={{
+                                            marginTop: '5px',
+                                            textAlign: 'center',
+                                            color: 'gray', // Warna keterangan
+                                        }}
+                                    >
+                                        Click to open IPC camera.
+                                    </Typography>
+                                </Box>
                             </Box>
                         </Grid>
-
 
                     </Grid>
                 </Grid>
