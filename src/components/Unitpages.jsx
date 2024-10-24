@@ -207,7 +207,7 @@ const CardStatus = ({ title, value, lastUpdatedDate }) => {
             }}>
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
                     <Typography variant="body2" color="textSecondary" sx={{ fontSize: { xs: '0.8rem', sm: '1rem' } }}>
-                        Lates Online : {lastUpdatedDate}
+                        Latest Online : {lastUpdatedDate}
                     </Typography>
                 </Box>
             </Box>
@@ -600,6 +600,7 @@ const UnitPage = () => {
                             </Box>
                         </Grid>
 
+                        {/* Kolom kosong 1 diisi Map */}
                         <Grid item xs={12} sm={12} md={4} lg={4}>
                             <Box
                                 sx={{
@@ -634,7 +635,7 @@ const UnitPage = () => {
                                         overflow: 'hidden',
                                     }}
                                 >
-                                    <MapContainer center={[-1.83333, 115.55]} zoom={6} style={{ width: '100%', height: '100%' }}>
+                                    <MapContainer center={[-1.83333, 115.55]} zoom={5} style={{ width: '100%', height: '100%' }}>
                                         <TileLayer
                                             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                                             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
