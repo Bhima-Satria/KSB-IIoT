@@ -217,12 +217,12 @@ const CardStatus = ({ title, value, lastUpdatedDate }) => {
 
 
 const UnitPage = () => {
-    const { unitId } = useParams();
-    const [cardData, setCardData] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [lastUpdated, setLastUpdated] = useState(null);
-    const [isDataEmpty, setIsDataEmpty] = useState(false);
-    const [parsedDate, setParsedDate] = useState('');
+    const { unitId } = useParams(); // Mendapatkan unitId dari params URL
+    const [cardData, setCardData] = useState([]); // Menyimpan data untuk ditampilkan di UI
+    const [loading, setLoading] = useState(true); // Loading state
+    const [lastUpdated, setLastUpdated] = useState(null); // Waktu terakhir data diperbarui
+    const [isDataEmpty, setIsDataEmpty] = useState(false); // Status apakah data kosong
+    const [parsedDate, setParsedDate] = useState(''); // Waktu terformat
 
     const [chartData, setChartData] = useState({
         labels: [],
@@ -248,28 +248,33 @@ const UnitPage = () => {
         ],
     });
 
-    // Function to get image based on unitId
     const getImageByUnitId = (id) => {
         switch (id) {
             case 'KSB-Unit 67':
-                return imageUnit1;
+                return imageUnit1; // Pastikan imageUnit1 sudah didefinisikan
             case 'KSB-Unit 68':
-                return imageUnit2;
-            // Tambahkan case lain sesuai unitId
+                return imageUnit2; // Pastikan imageUnit2 sudah didefinisikan
             default:
                 return null;
         }
     };
 
-    // Fungsi untuk menambahkan data baru
+    // Function to parse date from the API's format "DD/MM/YYYY HH:mm:ss"
+    const parseDate = (dateString) => {
+        const [datePart, timePart] = dateString.split(' ');
+        const [day, month, year] = datePart.split('/');
+        const [hours, minutes, seconds] = timePart.split(':');
+        const formattedDate = new Date(year, month - 1, day, hours, minutes, seconds);
+        return formattedDate;
+    };
+
     const addData = (newData) => {
         setChartData((prevData) => {
             const newLabels = [...prevData.labels, newData.label];
-            const newFlowData = [...prevData.datasets[0].data, newData.Flow];
+            const newFlowData = [...prevData.datasets[0].data, newData.FLOW];
             const newTemperatureData = [...prevData.datasets[1].data, newData.temperature];
             const newDischargePressureData = [...prevData.datasets[2].data, newData.dischargePressure];
 
-            // Jika jumlah data lebih dari 50, hapus data paling lama
             if (newLabels.length > 100) {
                 newLabels.shift();
                 newFlowData.shift();
@@ -291,40 +296,75 @@ const UnitPage = () => {
     useEffect(() => {
         const getData = async () => {
             try {
-                const response = await fetchData(unitId);
-                setCardData(response.data || []);
+                const response = await fetchData(unitId); // Ambil data API
+                console.log(response); // Melihat respon API
 
-                if (!response.data || response.data.length === 0) {
-                    setIsDataEmpty(true);
+                const data = response.READ_REAL; // Mengambil data READ_REAL dari respon API
+
+                if (!data) {
+                    setIsDataEmpty(true); // Menandakan data kosong
+                    const lastData = JSON.parse(localStorage.getItem('lastData')); // Ambil data terakhir dari localStorage
+                    if (lastData) {
+                        setCardData([lastData]);
+                        setLastUpdated(lastData.lastUpdated);
+                        setParsedDate(lastData.parsedDate);
+                    }
                 } else {
                     setIsDataEmpty(false);
-                    setLastUpdated(response.data[0].date);
+                    setCardData([data]); // Pastikan cardData adalah array meskipun hanya satu objek
+                    setLastUpdated(response.date);
 
-                    const dateObj = new Date(response.data[0].date);
-                    const options = { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false };
-                    setParsedDate(dateObj.toLocaleString('en-GB', options));
+                    // Memformat tanggal
+                    const dateObj = parseDate(response.date); // Gunakan fungsi custom parseDate
+                    const options = {
+                        year: 'numeric',
+                        month: '2-digit',
+                        day: '2-digit',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        second: '2-digit',
+                        hour12: false,
+                    };
+                    const formattedDate = dateObj.toLocaleString('en-GB', options);
+                    setParsedDate(formattedDate);
 
-                    // Tambahkan data baru ke chart
+                    // Menambahkan data ke chart
                     addData({
                         label: dateObj.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false }),
-                        Flow: response.data[0].flow, // Pastikan ini merujuk ke data yang benar
-                        temperature: response.data[0].pump_de_temperature, // Pastikan ini merujuk ke data yang benar
-                        dischargePressure: response.data[0].discharge_pressure / 10 // Pastikan ini merujuk ke data yang benar
+                        FLOW: data.FLOW,
+                        temperature: data.PUMP_DE_TEMP,
+                        dischargePressure: data.DISCHARGE_PRESSURE / 10,
                     });
+
+                    // Simpan data terakhir ke localStorage
+                    const lastData = {
+                        FLOW: data.FLOW.toFixed(3),
+                        temperature: data.PUMP_DE_TEMP,
+                        dischargePressure: data.DISCHARGE_PRESSURE.toFixed(3),
+                        lastUpdated: response.date,
+                        parsedDate: formattedDate,
+                    };
+                    localStorage.setItem('lastData', JSON.stringify(lastData));
                 }
             } catch (error) {
                 console.error('Error fetching data:', error);
-                setIsDataEmpty(true);
+                setIsDataEmpty(true); // Jika error, data dianggap kosong
+                const lastData = JSON.parse(localStorage.getItem('lastData')); // Ambil data terakhir dari localStorage
+                if (lastData) {
+                    setCardData([lastData]);
+                    setLastUpdated(lastData.lastUpdated);
+                    setParsedDate(lastData.parsedDate);
+                }
             } finally {
-                setLoading(false);
+                setLoading(false); // Menandakan bahwa loading selesai
             }
         };
 
-        getData(); // Call the data fetching function
+        getData(); // Ambil data pertama kali saat komponen dimuat
 
-        const intervalId = setInterval(getData, 1000); // Refresh data every 1000ms
+        const intervalId = setInterval(getData, 1000); // Refresh data setiap 1000ms (1 detik)
 
-        return () => clearInterval(intervalId); // Clear interval on component unmount
+        return () => clearInterval(intervalId); // Bersihkan interval ketika komponen di-unmount
     }, [unitId]);
 
     if (loading) {
@@ -358,7 +398,7 @@ const UnitPage = () => {
                                 <CardStatus
                                     key={index}
                                     title="Unit Status"
-                                    value={data.engine_speed}
+                                    value={data.ENGINE_SPEED}
                                     lastUpdatedDate={parsedDate}
                                 />
                             ))}
@@ -366,7 +406,7 @@ const UnitPage = () => {
                                 <DataCard
                                     key={index}
                                     title="Flow"
-                                    value={data.flow}
+                                    value={data.FLOW.toFixed(3)}
                                     unit="m3/h"
                                     Icon={Icons.Water}
                                     Duty="Duty Flow : 600 m3/h"
@@ -376,7 +416,7 @@ const UnitPage = () => {
                                 <DataCard
                                     key={index}
                                     title="Discharge Pressure"
-                                    value={data.discharge_pressure / 10}
+                                    value={data.DISCHARGE_PRESSURE.toFixed(3)}
                                     unit="Bar"
                                     Icon={Icons.Commit}
                                     Duty="Duty Pressure : 16.2 Bar"
@@ -386,7 +426,7 @@ const UnitPage = () => {
                                 <DataCard
                                     key={index}
                                     title="Engine Speed"
-                                    value={data.engine_speed}
+                                    value={data.ENGINE_SPEED}
                                     unit="RPM"
                                     Icon={Icons.Speed}
                                     Duty="Duty Speed : 1450 RPM"
@@ -396,10 +436,10 @@ const UnitPage = () => {
                                 <DataCard
                                     key={index}
                                     title="Engine Load"
-                                    value={data.engine_load}
+                                    value={data.ENGINE_LOAD}
                                     unit="%"
                                     Icon={Icons.ElectricCar}
-                                    Duty="Duty Engine : - "
+                                    Duty="Duty Engine : 80% "
                                 />
                             ))}
                         </Box>
@@ -567,31 +607,31 @@ const UnitPage = () => {
                                     {cardData.map((data, index) => (
                                         <React.Fragment key={index}>
                                             <Grid item xs={6} sm={4} md={6} lg={4} container justifyContent="center">
-                                                <Bubble title="Flow" value={data.flow} unit="m3/h" Icon={Icons.Water} />
+                                                <Bubble title="Flow" value={data.FLOW.toFixed(3)} unit="m3/h" Icon={Icons.Water} />
                                             </Grid>
                                             <Grid item xs={6} sm={4} md={6} lg={4} container justifyContent="center">
-                                                <Bubble title="Disc Press" value={data.discharge_pressure} unit="Bar" Icon={Icons.Commit} />
+                                                <Bubble title="Pump DE Temp" value={data.PUMP_DE_TEMP.toFixed(3)} unit="°C" Icon={Icons.Thermostat} />
                                             </Grid>
                                             <Grid item xs={6} sm={4} md={6} lg={4} container justifyContent="center">
-                                                <Bubble title="Pump DE Temp" value={data.pump_de_temperature} unit="°C" Icon={Icons.Thermostat} />
+                                                <Bubble title="Engine Run Hour" value={data.ENGINE_RUN_HOUR.toFixed(3)} unit="Hours" Icon={Icons.ManageHistory} />
                                             </Grid>
                                             <Grid item xs={6} sm={4} md={6} lg={4} container justifyContent="center">
-                                                <Bubble title="Engine Run Hour" value={data.engine_run_hour} unit="Hours" Icon={Icons.ManageHistory} />
+                                                <Bubble title="Engine Speed" value={data.ENGINE_SPEED} unit="RPM" Icon={Icons.Speed} />
                                             </Grid>
                                             <Grid item xs={6} sm={4} md={6} lg={4} container justifyContent="center">
-                                                <Bubble title="Engine Speed" value={data.engine_speed} unit="RPM" Icon={Icons.Speed} />
+                                                <Bubble title="Engine Load" value={data.ENGINE_LOAD} unit="%" Icon={Icons.ElectricCar} />
                                             </Grid>
                                             <Grid item xs={6} sm={4} md={6} lg={4} container justifyContent="center">
-                                                <Bubble title="Engine Load" value={data.engine_load} unit="%" Icon={Icons.ElectricCar} />
+                                                <Bubble title="Fuel Rate" value={data.ENGINE_FUEL_CONSUMPTIONS.toFixed(3)} unit="L/h" Icon={Icons.LocalGasStation} />
                                             </Grid>
                                             <Grid item xs={6} sm={4} md={6} lg={4} container justifyContent="center">
-                                                <Bubble title="Fuel Rate" value={data.engine_fuel_rate} unit="L/h" Icon={Icons.LocalGasStation} />
+                                                <Bubble title="Pump DE Vib Y" value={data.PUMP_DE_VIB_Y.toFixed(3)} unit="mm/s" Icon={Icons.Sensors} />
                                             </Grid>
                                             <Grid item xs={6} sm={4} md={6} lg={4} container justifyContent="center">
-                                                <Bubble title="Pump DE Vib X" value={data.pump_de_vib_x} unit="mm/s" Icon={Icons.Sensors} />
+                                                <Bubble title="Pump NDE Vib X1" value={data.PUMP_NDE_VIB_X1.toFixed(3)} unit="mm/s" Icon={Icons.Sensors} />
                                             </Grid>
                                             <Grid item xs={6} sm={4} md={6} lg={4} container justifyContent="center">
-                                                <Bubble title="Pump DE Vib Y" value={data.pump_de_vib_y} unit="mm/s" Icon={Icons.Sensors} />
+                                            <Bubble title="Pump NDE Vib X2" value={data.PUMP_NDE_VIB_X2.toFixed(3)} unit="mm/s" Icon={Icons.Sensors} />
                                             </Grid>
                                             {/* Additional Bubbles */}
                                         </React.Fragment>

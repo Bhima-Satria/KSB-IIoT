@@ -1,59 +1,56 @@
 import React, { useState } from 'react';
-import { AppBar, Toolbar, Typography, IconButton, Box, Drawer, List, ListItem, ListItemText, ListItemIcon, Divider } from '@mui/material';
+import { AppBar, Toolbar, Typography, IconButton, Box, Drawer, List, ListItem, ListItemText, ListItemIcon, Divider, ButtonBase } from '@mui/material';
 import { styled } from '@mui/material/styles';
-import MenuIcon from '@mui/icons-material/Menu'; // Icon for the hamburger menu
-import FiberManualRecordRoundedIcon from '@mui/icons-material/FiberManualRecordRounded'; // Icon for each unit in the list
-import { useNavigate } from 'react-router-dom'; // For navigation between routes
-import Logo from '../img/ksblogo.png'; // Path to the logo image
+import MenuIcon from '@mui/icons-material/Menu';
+import FiberManualRecordRoundedIcon from '@mui/icons-material/FiberManualRecordRounded';
+import { useNavigate } from 'react-router-dom';
+import Logo from '../img/ksblogo.png';
 
-// Styled component for the logo image
 const LogoImage = styled('img')(({ theme }) => ({
-    height: 40, // Logo height
+    height: 40,
     marginRight: theme.spacing(2),
-    cursor: 'pointer', // Changes cursor to pointer on hover
+    cursor: 'pointer',
 }));
 
-// Styled component for the sidebar
 const Sidebar = styled(Box)(({ theme }) => ({
-    width: 270, // Width of the sidebar
-    height: '100%', // Full height
-    background: 'linear-gradient(180deg, rgba(51, 102, 153, 1) 30%, rgba(0, 32, 64, 1) 70%)', // Gradient background
-    color: '#fff', // Text color
+    width: 270,
+    height: '100%',
+    background: 'linear-gradient(180deg, rgba(51, 102, 153, 1) 30%, rgba(0, 32, 64, 1) 70%)',
+    color: '#fff',
 }));
 
 const Header = () => {
-    const [drawerOpen, setDrawerOpen] = useState(false); // State for controlling the sidebar's open/close status
-    const [headerTitle, setHeaderTitle] = useState(''); // Set initial title
-    const navigate = useNavigate(); // Hook for navigation
+    const [drawerOpen, setDrawerOpen] = useState(false);
+    const [headerTitle, setHeaderTitle] = useState('');
+    const navigate = useNavigate();
 
-    // Data for the units displayed in the sidebar
     const chartsData = [
         { id: 1, title: 'KSB-Unit 64' },
         { id: 2, title: 'KSB-Unit 67' },
         { id: 3, title: 'KSB-Double Drive' },
         { id: 4, title: 'Overview' },
+        { id: 5, title: 'Tes API' },
     ];
 
-    // Function to toggle the sidebar
     const handleDrawerToggle = () => {
         setDrawerOpen(!drawerOpen);
     };
 
-    // Function to navigate to a specific unit's page and close the sidebar
     const handleMenuClick = (title) => {
-        setHeaderTitle(title); // Update header title based on clicked unit
+        setHeaderTitle(title);
         if (title === 'Overview') {
-            navigate('/overview'); // Navigates to the overview page
+            navigate('/Overview');
+        } else if (title === 'Tes API') {
+            navigate('/API');
         } else {
-            navigate(`/unit/${title}`); // Navigates to the unit's page
+            navigate(`/unit/${title}`);
         }
-        handleDrawerToggle(); // Closes the sidebar
+        handleDrawerToggle();
     };
 
-    // Function to navigate back to the home page when the logo is clicked
     const handleLogoClick = () => {
-        setHeaderTitle(''); // Reset to the initial title when going home
-        navigate('/'); // Navigate back to home
+        setHeaderTitle('');
+        navigate('/');
     };
 
     return (
@@ -70,72 +67,50 @@ const Header = () => {
                         align="center"
                         marginRight={8}
                         sx={{
-                            textShadow: '2px 2px 4px rgba(0, 0, 0, 0.5)', // Text shadow effect
-                            fontWeight: 'bold', // Bold text
-                            color: '#fff', // White text color
-                            fontSize: '1.5rem', // Font size
-                            letterSpacing: '0.05em', // Letter spacing
+                            textShadow: '2px 2px 4px rgba(0, 0, 0, 0.5)',
+                            fontWeight: 'bold',
+                            color: '#fff',
+                            fontSize: '1.5rem',
+                            letterSpacing: '0.05em',
                         }}
                     >
-                        {headerTitle} {/* Display the current title */}
+                        {headerTitle}
                     </Typography>
                 </Box>
 
-                {/* Button to open the sidebar */}
                 <IconButton
                     edge="end"
                     color="inherit"
                     aria-label="menu"
                     onClick={handleDrawerToggle}
-                    sx={{ marginRight: 2 }} // Margin on the right side
+                    sx={{ marginRight: 2 }}
                 >
                     <MenuIcon />
                 </IconButton>
             </Toolbar>
 
-            {/* Sidebar Drawer */}
-            <Drawer
-                anchor="right" // Drawer opens from the right
-                open={drawerOpen}
-                onClose={handleDrawerToggle} // Close drawer when clicking outside or pressing ESC
-            >
-                <Sidebar
-                    role="presentation"
-                    onClick={handleDrawerToggle} // Closes the sidebar when an item is clicked
-                    onKeyDown={handleDrawerToggle}
-                >
+            <Drawer anchor="right" open={drawerOpen} onClose={handleDrawerToggle}>
+                <Sidebar role="presentation" onClick={handleDrawerToggle} onKeyDown={handleDrawerToggle}>
                     <Box sx={{ textAlign: 'center', padding: 2 }}>
-                        <LogoImage src={Logo} alt="Logo" onClick={handleLogoClick} /> {/* Logo with navigation */}
+                        <LogoImage src={Logo} alt="Logo" onClick={handleLogoClick} />
                     </Box>
 
-                    <Typography
-                        variant="h6"
-                        sx={{
-                            padding: 0,
-                            textAlign: 'center',
-                            textShadow: '2px 2px 4px rgba(0, 0, 0, 0.6)', // Text shadow for the sidebar title
-                            color: '#fff', // White text color
-                            borderRadius: '4px', // Rounded corners for the title
-                        }}
-                    >
-                        {/* Optional Sidebar Title */}
-                    </Typography>
-
-                    <Divider sx={{ backgroundColor: '#fff', marginY: 1 }} /> {/* Divider line */}
+                    <Divider sx={{ backgroundColor: '#fff', marginY: 1 }} />
 
                     <List>
                         {chartsData.map((item) => (
                             <ListItem
-                                button
-                                key={item.id} // Changed key to id for better uniqueness
-                                onClick={() => handleMenuClick(item.title)} // Handle item click
+                                key={item.id}
+                                component={ButtonBase} // Use ButtonBase to make it clickable
+                                onClick={() => handleMenuClick(item.title)}
                                 sx={{
                                     display: 'flex',
                                     alignItems: 'center',
+                                    width: '100%',
                                     '&:hover': {
-                                        backgroundColor: 'rgba(255, 255, 255, 0.1)', // Background color on hover
+                                        backgroundColor: 'rgba(255, 255, 255, 0.1)',
                                     },
-                                    cursor: 'pointer', // Pointer cursor on hover
+                                    cursor: 'pointer',
                                 }}
                             >
                                 <ListItemIcon>
@@ -144,8 +119,8 @@ const Header = () => {
                                 <ListItemText
                                     primary={item.title}
                                     sx={{
-                                        textShadow: '1px 1px 2px rgba(0, 0, 0, 0.5)', // Text shadow for unit titles
-                                        color: '#fff', // White text color
+                                        textShadow: '1px 1px 2px rgba(0, 0, 0, 0.5)',
+                                        color: '#fff',
                                     }}
                                 />
                             </ListItem>
