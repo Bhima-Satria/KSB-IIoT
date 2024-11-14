@@ -250,10 +250,12 @@ const UnitPage = () => {
 
     const getImageByUnitId = (id) => {
         switch (id) {
+            case 'KSB-Unit 64':
+                return imageUnit1; // Pastikan imageUnit3 sudah didefinisikan
             case 'KSB-Unit 67':
-                return imageUnit1; // Pastikan imageUnit1 sudah didefinisikan
+                return imageUnit2; // Pastikan imageUnit1 sudah didefinisikan
             case 'KSB-Unit 68':
-                return imageUnit2; // Pastikan imageUnit2 sudah didefinisikan
+                return imageUnit3; // Pastikan imageUnit2 sudah didefinisikan
             default:
                 return null;
         }
@@ -607,13 +609,13 @@ const UnitPage = () => {
                                     {cardData.map((data, index) => (
                                         <React.Fragment key={index}>
                                             <Grid item xs={6} sm={4} md={6} lg={4} container justifyContent="center">
-                                                <Bubble title="Flow" value={data.FLOW.toFixed(3)} unit="m3/h" Icon={Icons.Water} />
+                                                <Bubble title="Flow" value={data.FLOW.toFixed(2)} unit="m3/h" Icon={Icons.Water} />
                                             </Grid>
                                             <Grid item xs={6} sm={4} md={6} lg={4} container justifyContent="center">
-                                                <Bubble title="Pump DE Temp" value={data.PUMP_DE_TEMP.toFixed(3)} unit="°C" Icon={Icons.Thermostat} />
+                                                <Bubble title="Pump DE Temp" value={data.PUMP_DE_TEMP.toFixed(2)} unit="°C" Icon={Icons.Thermostat} />
                                             </Grid>
                                             <Grid item xs={6} sm={4} md={6} lg={4} container justifyContent="center">
-                                                <Bubble title="Engine Run Hour" value={data.ENGINE_RUN_HOUR.toFixed(3)} unit="Hours" Icon={Icons.ManageHistory} />
+                                                <Bubble title="Engine Run Hour" value={data.ENGINE_RUN_HOUR.toFixed(2)} unit="Hours" Icon={Icons.ManageHistory} />
                                             </Grid>
                                             <Grid item xs={6} sm={4} md={6} lg={4} container justifyContent="center">
                                                 <Bubble title="Engine Speed" value={data.ENGINE_SPEED} unit="RPM" Icon={Icons.Speed} />
@@ -622,16 +624,16 @@ const UnitPage = () => {
                                                 <Bubble title="Engine Load" value={data.ENGINE_LOAD} unit="%" Icon={Icons.ElectricCar} />
                                             </Grid>
                                             <Grid item xs={6} sm={4} md={6} lg={4} container justifyContent="center">
-                                                <Bubble title="Fuel Rate" value={data.ENGINE_FUEL_CONSUMPTIONS.toFixed(3)} unit="L/h" Icon={Icons.LocalGasStation} />
+                                                <Bubble title="Fuel Rate" value={data.ENGINE_FUEL_CONSUMPTIONS.toFixed(2)} unit="L/h" Icon={Icons.LocalGasStation} />
                                             </Grid>
                                             <Grid item xs={6} sm={4} md={6} lg={4} container justifyContent="center">
-                                                <Bubble title="Pump DE Vib Y" value={data.PUMP_DE_VIB_Y.toFixed(3)} unit="mm/s" Icon={Icons.Sensors} />
+                                                <Bubble title="Pump DE Vib Y" value={data.PUMP_DE_VIB_Y.toFixed(2)} unit="mm/s" Icon={Icons.Sensors} />
                                             </Grid>
                                             <Grid item xs={6} sm={4} md={6} lg={4} container justifyContent="center">
-                                                <Bubble title="Pump NDE Vib X1" value={data.PUMP_NDE_VIB_X1.toFixed(3)} unit="mm/s" Icon={Icons.Sensors} />
+                                                <Bubble title="Pump NDE Vib X1" value={data.PUMP_NDE_VIB_X1.toFixed(2)} unit="mm/s" Icon={Icons.Sensors} />
                                             </Grid>
                                             <Grid item xs={6} sm={4} md={6} lg={4} container justifyContent="center">
-                                            <Bubble title="Pump NDE Vib X2" value={data.PUMP_NDE_VIB_X2.toFixed(3)} unit="mm/s" Icon={Icons.Sensors} />
+                                            <Bubble title="Pump NDE Vib X2" value={data.PUMP_NDE_VIB_X2.toFixed(2)} unit="mm/s" Icon={Icons.Sensors} />
                                             </Grid>
                                             {/* Additional Bubbles */}
                                         </React.Fragment>

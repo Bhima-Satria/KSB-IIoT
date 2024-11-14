@@ -2,12 +2,27 @@ export const fetchData = async (unitId) => {
     try {
         // Ambil hanya 'ksb' dan angkanya dari unitId
         const parsedUnitId = unitId.match(/ksb-unit\s*(\d+)/i);
+        let unit;
+        
         if (!parsedUnitId || parsedUnitId.length < 2) {
             throw new Error('Invalid unitId format');
         }
 
-        const unit = `KSB${parsedUnitId[1]}`; // Membentuk unitId baru, contoh: ksb67
-        const response = await fetch(`https://jwvm7y7epd.execute-api.ap-southeast-1.amazonaws.com/${unit}/RealTime`, {
+        const unitNumber = parsedUnitId[1];
+
+        // Cek jika unitId adalah 'KSB-Unit 64' dan ubah endpoint
+        if (unitId.toLowerCase() === 'ksb-unit 64') {
+            unit = `KSB${unitNumber}`;
+        } else {
+            unit = `KSB${unitNumber}`;
+        }
+
+        // Tentukan URL endpoint berdasarkan unitId
+        const apiUrl = unitId.toLowerCase() === 'ksb-unit 64'
+            ? `https://en8wv6x739.execute-api.ap-southeast-1.amazonaws.com/${unit}/RealTime`
+            : `https://jwvm7y7epd.execute-api.ap-southeast-1.amazonaws.com/${unit}/RealTime`;
+
+        const response = await fetch(apiUrl, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
