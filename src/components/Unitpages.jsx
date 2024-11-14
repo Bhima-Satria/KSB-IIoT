@@ -9,6 +9,10 @@ import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper
 import { MapContainer, TileLayer, Marker, Popup, Circle } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+import annotationPlugin from 'chartjs-plugin-annotation';
+
+// Daftarkan plugin
+ChartJS.register(annotationPlugin);
 
 // Import images according to unitId
 import imageUnit1 from '../img/KSB64.webp'; // Replace with image path for unit 1
@@ -119,7 +123,7 @@ const DataCard = ({ title, value, unit, Icon, Duty }) => {
 
 const CardStatus = ({ title, value, lastUpdatedDate }) => {
     // Menentukan status berdasarkan value
-    const isOn = value > 1;
+    const isOn = value >= 1;
 
     // State untuk mengatur blinking pada ikon
     const [isBlinking, setIsBlinking] = useState(false);
@@ -219,6 +223,8 @@ const CardStatus = ({ title, value, lastUpdatedDate }) => {
 const UnitPage = () => {
     const { unitId } = useParams(); // Mendapatkan unitId dari params URL
     const [cardData, setCardData] = useState([]); // Menyimpan data untuk ditampilkan di UI
+    const [cardDataCoil, setCardDataCoil] = useState([]); // Menyimpan data coil untuk ditampilkan di UI
+    const [gpsData, setGpsData] = useState([]); // Menyimpan data GPS
     const [loading, setLoading] = useState(true); // Loading state
     const [lastUpdated, setLastUpdated] = useState(null); // Waktu terakhir data diperbarui
     const [isDataEmpty, setIsDataEmpty] = useState(false); // Status apakah data kosong
@@ -228,19 +234,19 @@ const UnitPage = () => {
         labels: [],
         datasets: [
             {
-                label: 'Flow',
+                label: 'DE Vib Y',
                 data: [],
                 borderColor: 'rgba(75,192,192,1)',
                 fill: false,
             },
             {
-                label: 'Temperature',
+                label: 'NDE Vib X1',
                 data: [],
                 borderColor: 'rgba(255,99,132,1)',
                 fill: false,
             },
             {
-                label: 'Discharge Pressure',
+                label: 'NDE Vib X2',
                 data: [],
                 borderColor: 'rgba(255,205,86,1)',
                 fill: false,
@@ -261,38 +267,39 @@ const UnitPage = () => {
         }
     };
 
-    // Function to parse date from the API's format "DD/MM/YYYY HH:mm:ss"
-    const parseDate = (dateString) => {
-        const [datePart, timePart] = dateString.split(' ');
-        const [day, month, year] = datePart.split('/');
-        const [hours, minutes, seconds] = timePart.split(':');
-        const formattedDate = new Date(year, month - 1, day, hours, minutes, seconds);
-        return formattedDate;
-    };
-
     const addData = (newData) => {
         setChartData((prevData) => {
             const newLabels = [...prevData.labels, newData.label];
-            const newFlowData = [...prevData.datasets[0].data, newData.FLOW];
-            const newTemperatureData = [...prevData.datasets[1].data, newData.temperature];
-            const newDischargePressureData = [...prevData.datasets[2].data, newData.dischargePressure];
+            const newVibrtaionY = [...prevData.datasets[0].data, newData.VibrationY];
+            const newVibrtaionX1 = [...prevData.datasets[1].data, newData.VibrationX1];
+            const newVibrtaionX2 = [...prevData.datasets[2].data, newData.VibrationX2];
 
-            if (newLabels.length > 100) {
+            if (newLabels.length > 86400) {
                 newLabels.shift();
-                newFlowData.shift();
-                newTemperatureData.shift();
-                newDischargePressureData.shift();
+                newVibrtaionY.shift();
+                newVibrtaionX1.shift();
+                newVibrtaionX2.shift();
             }
 
             return {
                 labels: newLabels,
                 datasets: [
-                    { ...prevData.datasets[0], data: newFlowData },
-                    { ...prevData.datasets[1], data: newTemperatureData },
-                    { ...prevData.datasets[2], data: newDischargePressureData },
+                    { ...prevData.datasets[0], data: newVibrtaionY },
+                    { ...prevData.datasets[1], data: newVibrtaionX1 },
+                    { ...prevData.datasets[2], data: newVibrtaionX2 },
                 ],
             };
         });
+    };
+
+    // Fungsi untuk parse tanggal dari API ke objek Date UTC
+    const parseDateUTC = (dateString) => {
+        const [datePart, timePart] = dateString.split(' ');
+        const [day, month, year] = datePart.split('/');
+        const [hours, minutes, seconds] = timePart.split(':');
+
+        // Membuat objek Date sebagai UTC
+        return new Date(Date.UTC(year, month - 1, day, hours, minutes, seconds));
     };
 
     useEffect(() => {
@@ -301,23 +308,22 @@ const UnitPage = () => {
                 const response = await fetchData(unitId); // Ambil data API
                 console.log(response); // Melihat respon API
 
-                const data = response.READ_REAL; // Mengambil data READ_REAL dari respon API
+                const data = response.realTimeData; // Mengambil data READ_REAL dari respon API
+                const dataCoil = response.coilData; // Mengambil data READ_COIL dari respon API
+                const dataGPS = response.gpsData; // Mengambil data READ_GPS dari respon API
 
                 if (!data) {
                     setIsDataEmpty(true); // Menandakan data kosong
-                    const lastData = JSON.parse(localStorage.getItem('lastData')); // Ambil data terakhir dari localStorage
-                    if (lastData) {
-                        setCardData([lastData]);
-                        setLastUpdated(lastData.lastUpdated);
-                        setParsedDate(lastData.parsedDate);
-                    }
                 } else {
                     setIsDataEmpty(false);
                     setCardData([data]); // Pastikan cardData adalah array meskipun hanya satu objek
+                    setCardDataCoil([dataCoil]); // Pastikan cardDataCoil adalah array meskipun hanya satu objek
+                    setGpsData([dataGPS]); // Set data GPS
                     setLastUpdated(response.date);
 
-                    // Memformat tanggal
-                    const dateObj = parseDate(response.date); // Gunakan fungsi custom parseDate
+                    // Konversi waktu dari API ke waktu lokal pengguna
+                    const dateObj = parseDateUTC(response.date); // Menggunakan parseDateUTC untuk mengonversi tanggal API ke UTC
+
                     const options = {
                         year: 'numeric',
                         month: '2-digit',
@@ -327,36 +333,22 @@ const UnitPage = () => {
                         second: '2-digit',
                         hour12: false,
                     };
-                    const formattedDate = dateObj.toLocaleString('en-GB', options);
+
+                    // Memformat tanggal sesuai zona waktu lokal pengguna
+                    const formattedDate = dateObj.toLocaleString('id-ID', options);
                     setParsedDate(formattedDate);
 
                     // Menambahkan data ke chart
                     addData({
-                        label: dateObj.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false }),
-                        FLOW: data.FLOW,
-                        temperature: data.PUMP_DE_TEMP,
-                        dischargePressure: data.DISCHARGE_PRESSURE / 10,
+                        label: dateObj.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false }),
+                        VibrationY: data.PUMP_DE_VIB_Y.toFixed(2),
+                        VibrationX1: data.PUMP_NDE_VIB_X1.toFixed(2),
+                        VibrationX2: data.PUMP_NDE_VIB_X2.toFixed(2),
                     });
-
-                    // Simpan data terakhir ke localStorage
-                    const lastData = {
-                        FLOW: data.FLOW.toFixed(3),
-                        temperature: data.PUMP_DE_TEMP,
-                        dischargePressure: data.DISCHARGE_PRESSURE.toFixed(3),
-                        lastUpdated: response.date,
-                        parsedDate: formattedDate,
-                    };
-                    localStorage.setItem('lastData', JSON.stringify(lastData));
                 }
             } catch (error) {
                 console.error('Error fetching data:', error);
                 setIsDataEmpty(true); // Jika error, data dianggap kosong
-                const lastData = JSON.parse(localStorage.getItem('lastData')); // Ambil data terakhir dari localStorage
-                if (lastData) {
-                    setCardData([lastData]);
-                    setLastUpdated(lastData.lastUpdated);
-                    setParsedDate(lastData.parsedDate);
-                }
             } finally {
                 setLoading(false); // Menandakan bahwa loading selesai
             }
@@ -396,11 +388,11 @@ const UnitPage = () => {
                 <Grid container spacing={2} justifyContent="center" direction="row">
                     <Grid item xs={12}>
                         <Box sx={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between' }}>
-                            {cardData.map((data, index) => (
+                            {cardDataCoil.map((data, index) => (
                                 <CardStatus
                                     key={index}
                                     title="Unit Status"
-                                    value={data.ENGINE_SPEED}
+                                    value={data.ENGINE_RUN}
                                     lastUpdatedDate={parsedDate}
                                 />
                             ))}
@@ -408,7 +400,7 @@ const UnitPage = () => {
                                 <DataCard
                                     key={index}
                                     title="Flow"
-                                    value={data.FLOW.toFixed(3)}
+                                    value={data.FLOW.toFixed(0)}
                                     unit="m3/h"
                                     Icon={Icons.Water}
                                     Duty="Duty Flow : 600 m3/h"
@@ -418,7 +410,7 @@ const UnitPage = () => {
                                 <DataCard
                                     key={index}
                                     title="Discharge Pressure"
-                                    value={data.DISCHARGE_PRESSURE.toFixed(3)}
+                                    value={data.DISCHARGE_PRESSURE.toFixed(2)}
                                     unit="Bar"
                                     Icon={Icons.Commit}
                                     Duty="Duty Pressure : 16.2 Bar"
@@ -428,7 +420,7 @@ const UnitPage = () => {
                                 <DataCard
                                     key={index}
                                     title="Engine Speed"
-                                    value={data.ENGINE_SPEED}
+                                    value={data.ENGINE_SPEED.toFixed(0)}
                                     unit="RPM"
                                     Icon={Icons.Speed}
                                     Duty="Duty Speed : 1450 RPM"
@@ -609,7 +601,7 @@ const UnitPage = () => {
                                     {cardData.map((data, index) => (
                                         <React.Fragment key={index}>
                                             <Grid item xs={6} sm={4} md={6} lg={4} container justifyContent="center">
-                                                <Bubble title="Flow" value={data.FLOW.toFixed(2)} unit="m3/h" Icon={Icons.Water} />
+                                                <Bubble title="Flow" value={data.FLOW.toFixed(0)} unit="m3/h" Icon={Icons.Water} />
                                             </Grid>
                                             <Grid item xs={6} sm={4} md={6} lg={4} container justifyContent="center">
                                                 <Bubble title="Pump DE Temp" value={data.PUMP_DE_TEMP.toFixed(2)} unit="°C" Icon={Icons.Thermostat} />
@@ -633,7 +625,7 @@ const UnitPage = () => {
                                                 <Bubble title="Pump NDE Vib X1" value={data.PUMP_NDE_VIB_X1.toFixed(2)} unit="mm/s" Icon={Icons.Sensors} />
                                             </Grid>
                                             <Grid item xs={6} sm={4} md={6} lg={4} container justifyContent="center">
-                                            <Bubble title="Pump NDE Vib X2" value={data.PUMP_NDE_VIB_X2.toFixed(2)} unit="mm/s" Icon={Icons.Sensors} />
+                                                <Bubble title="Pump NDE Vib X2" value={data.PUMP_NDE_VIB_X2.toFixed(2)} unit="mm/s" Icon={Icons.Sensors} />
                                             </Grid>
                                             {/* Additional Bubbles */}
                                         </React.Fragment>
@@ -644,66 +636,69 @@ const UnitPage = () => {
 
                         {/* Kolom kosong 1 diisi Map */}
                         <Grid item xs={12} sm={12} md={4} lg={4}>
-                            <Box
-                                sx={{
-                                    height: '400px',
-                                    backgroundColor: 'white',
-                                    boxShadow: '0px 4px 16px rgba(0, 0, 0, 0.2)',
-                                    borderRadius: '30px',
-                                    margin: '5px',
-                                    overflow: 'hidden',
-                                    padding: '10px',
-                                }}
-                            >
-                                <Typography
-                                    variant="h6"
-                                    color="textPrimary"
-                                    sx={{
-                                        fontSize: '1.3rem',
-                                        textAlign: 'center',
-                                        fontWeight: 'bold',
-                                        textShadow: '2px 2px 4px rgba(0, 0, 0, 0.5)',
-                                    }}
-                                >
-                                    Location {unitId}
-                                </Typography>
-
+                            {gpsData.map((data, index) => (
                                 <Box
                                     sx={{
-                                        height: '340px',
-                                        width: '100%',
-                                        border: '2px solid #4A90E2',
-                                        borderRadius: '20px',
+                                        height: '400px',
+                                        backgroundColor: 'white',
+                                        boxShadow: '0px 4px 16px rgba(0, 0, 0, 0.2)',
+                                        borderRadius: '30px',
+                                        margin: '5px',
                                         overflow: 'hidden',
+                                        padding: '10px',
                                     }}
+                                    key={index} // Menambahkan key untuk mencegah peringatan di console
                                 >
-                                    <MapContainer center={[-1.83333, 115.55]} zoom={5} style={{ width: '100%', height: '100%' }}>
-                                        <TileLayer
-                                            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                                            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                                        />
+                                    <Typography
+                                        variant="h6"
+                                        color="textPrimary"
+                                        sx={{
+                                            fontSize: '1.3rem',
+                                            textAlign: 'center',
+                                            fontWeight: 'bold',
+                                            textShadow: '2px 2px 4px rgba(0, 0, 0, 0.5)',
+                                        }}
+                                    >
+                                        Location {unitId}
+                                    </Typography>
 
-                                        {/* Default Marker */}
-                                        <Marker position={[-1.83333, 115.55]} icon={defaultIcon}>
-                                            <Popup>
-                                                Location : -1.83333, 115.55
-                                            </Popup>
-                                        </Marker>
+                                    <Box
+                                        sx={{
+                                            height: '340px',
+                                            width: '100%',
+                                            border: '2px solid #4A90E2',
+                                            borderRadius: '20px',
+                                            overflow: 'hidden',
+                                        }}
+                                    >
+                                        <MapContainer center={[data.LAT, data.LONG]} zoom={5} style={{ width: '100%', height: '100%' }}>
+                                            <TileLayer
+                                                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                                                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                                            />
 
-                                        {/* Circle effect around the marker */}
-                                        <Circle
-                                            center={[-1.83333, 115.55]}  // Position of the circle
-                                            radius={200}  // Radius in meters
-                                            pathOptions={{
-                                                color: 'red',
-                                                weight: 1,
-                                                fillColor: 'red',
-                                                fillOpacity: 0.1, // 10% transparency
-                                            }}
-                                        />
-                                    </MapContainer>
+                                            {/* Marker dengan koordinat dari gpsData */}
+                                            <Marker position={[data.LAT, data.LONG]} icon={defaultIcon}>
+                                                <Popup>
+                                                    Location : {data.LAT}, {data.LONG}
+                                                </Popup>
+                                            </Marker>
+
+                                            {/* Circle effect around the marker */}
+                                            <Circle
+                                                center={[data.LAT, data.LONG]} // Menggunakan data LAT, LONG
+                                                radius={200} // Radius in meters
+                                                pathOptions={{
+                                                    color: 'red',
+                                                    weight: 1,
+                                                    fillColor: 'red',
+                                                    fillOpacity: 0.1, // 10% transparency
+                                                }}
+                                            />
+                                        </MapContainer>
+                                    </Box>
                                 </Box>
-                            </Box>
+                            ))}
                         </Grid>
 
 
@@ -737,21 +732,62 @@ const UnitPage = () => {
                                                 },
                                                 title: {
                                                     display: true,
-                                                    text: 'Monitoring Data Chart',
+                                                    text: 'Monitoring Pump Vibrations',
+                                                },
+                                                annotation: {
+                                                    annotations: {
+                                                        minLine: {
+                                                            type: 'line',
+                                                            scaleID: 'y',
+                                                            value: 1, // Garis batas bawah
+                                                            borderColor: 'green', // Warna garis bawah
+                                                            borderWidth: 2,
+                                                            label: {
+                                                                content: 'Min Value',
+                                                                enabled: true,
+                                                                position: 'start',
+                                                                font: {
+                                                                    size: 12,
+                                                                    style: 'italic',
+                                                                },
+                                                            },
+                                                        },
+                                                        maxLine: {
+                                                            type: 'line',
+                                                            scaleID: 'y',
+                                                            value: 3, // Garis batas atas
+                                                            borderColor: 'red', // Warna garis atas
+                                                            borderWidth: 2,
+                                                            label: {
+                                                                content: 'Max Value',
+                                                                enabled: true,
+                                                                position: 'start',
+                                                                font: {
+                                                                    size: 12,
+                                                                    style: 'italic',
+                                                                },
+                                                            },
+                                                        },
+                                                    },
                                                 },
                                             },
                                             scales: {
                                                 x: {
                                                     title: {
                                                         display: true,
-                                                        text: 'Time',
+                                                        text: '1 Days Data',
+                                                    },
+                                                    ticks: {
+                                                        display: false, // Menyembunyikan label pada sumbu X
                                                     },
                                                 },
                                                 y: {
                                                     title: {
                                                         display: true,
-                                                        text: 'Values',
+                                                        text: 'Values (mm/s)', // Label sumbu Y
                                                     },
+                                                    max: 4, // Nilai maksimum pada sumbu Y
+                                                    min: 0, // Nilai minimum pada sumbu Y
                                                 },
                                             },
                                         }}
