@@ -786,8 +786,6 @@ const UnitPage = () => {
                                                         display: true,
                                                         text: 'Values (mm/s)', // Label sumbu Y
                                                     },
-                                                    max: 4, // Nilai maksimum pada sumbu Y
-                                                    min: 0, // Nilai minimum pada sumbu Y
                                                 },
                                             },
                                         }}
