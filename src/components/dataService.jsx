@@ -38,8 +38,8 @@ export const fetchData = async (unitId) => {
 
         // Tentukan URL endpoint untuk GPS
         const gpsApiUrl = unitId.toLowerCase() === 'ksb-unit 64'
-            ? `https://en8wv6x739.execute-api.ap-southeast-1.amazonaws.com/KSB64/GPS`
-            : `https://jwvm7y7epd.execute-api.ap-southeast-1.amazonaws.com/KSB67/GPS`;
+            ? `https://en8wv6x739.execute-api.ap-southeast-1.amazonaws.com/${unit}/GPS`
+            : `https://jwvm7y7epd.execute-api.ap-southeast-1.amazonaws.com/${unit}/GPS`;
 
         // Ambil data GPS
         const gpsResponse = await fetch(gpsApiUrl, {

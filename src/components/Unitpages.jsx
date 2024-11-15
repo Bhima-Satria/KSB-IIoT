@@ -151,7 +151,7 @@ const Vacuum = ({ title, coilValue }) => {
     const isWarning = coilValue === 1; // Check if the coil value indicates a warning
     const iconBackgroundColor = isWarning ? '#008000' : '#FF0000'; // Red for warning, green for normal
 
-    const Icon = isWarning ? Icons.PowerSettingsNewOutlined: Icons.PowerSettingsNewOutlined; // Select icon based on warning
+    const Icon = isWarning ? Icons.PowerSettingsNewOutlined : Icons.CancelOutlined; // Select icon based on warning
 
     return (
         <Box
@@ -433,14 +433,11 @@ const UnitPage = () => {
         });
     };
 
-    // Fungsi untuk parse tanggal dari API ke objek Date UTC
     const parseDateUTC = (dateString) => {
-        const [datePart, timePart] = dateString.split(' ');
-        const [day, month, year] = datePart.split('/');
-        const [hours, minutes, seconds] = timePart.split(':');
-
-        return new Date(Date.UTC(year, month - 1, day, hours, minutes, seconds));
+        // Just return the date string directly as it is in the correct format.
+        return dateString;
     };
+
 
     useEffect(() => {
         const getData = async () => {
@@ -463,21 +460,11 @@ const UnitPage = () => {
 
                     const dateObj = parseDateUTC(response.date);
 
-                    const options = {
-                        year: 'numeric',
-                        month: '2-digit',
-                        day: '2-digit',
-                        hour: '2-digit',
-                        minute: '2-digit',
-                        second: '2-digit',
-                        hour12: false,
-                    };
-
-                    const formattedDate = dateObj.toLocaleString('id-ID', options);
-                    setParsedDate(formattedDate);
+                    // Just set the date directly, without converting
+                    setParsedDate(dateObj);
 
                     addData({
-                        label: dateObj.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false }),
+                        label: dateObj.split(' ')[1],  // Extract only time part from the date string
                         VibrationY: data.PUMP_DE_VIB_Y.toFixed(2),
                         VibrationX1: data.PUMP_NDE_VIB_X1.toFixed(2),
                         VibrationX2: data.PUMP_NDE_VIB_X2.toFixed(2),
@@ -491,99 +478,98 @@ const UnitPage = () => {
             }
         };
 
-        getData();
-        const intervalId = setInterval(getData, 1000);
-
-        return () => clearInterval(intervalId);
+        getData(); // Ensure to call the function
     }, [unitId]);
 
+
+
     const slideData = [
-            { 
-                title: "Flow", 
-                value: cardData[0]?.FLOW.toFixed(0),  // Mengambil nilai FLOW dari API dan mengatur menjadi integer (0 desimal)
-                unit: "m3/h", 
-                Icon: Icons.Water, 
-                Duty: "Duty Flow: 600 m3/h" 
-            },
-            { 
-                title: "Total Flow", 
-                value: cardData[0]?.FLOW_TOTAL.toFixed(0),  // Mengambil nilai FLOW_TOTAL dari API dan mengatur menjadi integer
-                unit: "m3", 
-                Icon: Icons.Water, 
-                Duty: "-" 
-            },
-            { 
-                title: "Discharge Pressure", 
-                value: cardData[0]?.DISCHARGE_PRESSURE.toFixed(2),  // Mengambil nilai DISCHARGE_PRESSURE dan mengatur menjadi 2 desimal
-                unit: "Bar", 
-                Icon: Icons.Commit, 
-                Duty: "Duty Pressure: 16.2 Bar" 
-            },
-            { 
-                title: "Engine Speed", 
-                value: cardData[0]?.ENGINE_SPEED.toFixed(0),  // Mengambil nilai ENGINE_SPEED dan mengatur menjadi integer (0 desimal)
-                unit: "RPM", 
-                Icon: Icons.Speed, 
-                Duty: "Duty Speed: 1450 RPM" 
-            },
-            { 
-                title: "Engine Load", 
-                value: cardData[0]?.ENGINE_LOAD.toFixed(0),  // Mengambil nilai ENGINE_LOAD dan mengatur menjadi integer
-                unit: "%", 
-                Icon: Icons.ElectricCar, 
-                Duty: "Duty Engine: 80%" 
-            },
-            { 
-                title: "Pump DE Temp", 
-                value: cardData[0]?.PUMP_DE_TEMP.toFixed(2),  // Mengambil nilai PUMP_DE_TEMP dari API dan mengatur menjadi integer
-                unit: "°C", 
-                Icon: Icons.Thermostat, 
-                Duty: "Temp Duty: 90°C" 
-            },
-            { 
-                title: "Engine Run Hour", 
-                value: cardData[0]?.ENGINE_RUN_HOUR.toFixed(2),  // Mengambil nilai ENGINE_RUN_HOUR dan mengatur menjadi integer
-                unit: "Hours", 
-                Icon: Icons.ManageHistory, 
-                Duty: "-" 
-            },
-            { 
-                title: "Fuel Rate", 
-                value: cardData[0]?.ENGINE_FUEL_CONSUMPTIONS.toFixed(1),  // Mengambil nilai ENGINE_FUEL_CONSUMPTIONS dan mengatur menjadi 1 desimal
-                unit: "L/h", 
-                Icon: Icons.LocalGasStation, 
-                Duty: "Duty Fuel: 10 L/h" 
-            },
-            { 
-                title: "Oil Lube Pressure", 
-                value: cardData[0]?.OIL_LUB_PRESS.toFixed(2),  // Mengambil nilai OIL_LUB_PRESS dan mengatur menjadi integer
-                unit: "Bar", 
-                Icon: Icons.Commit, 
-                Duty: "Duty Pressure: 2.5 Bar" 
-            },
-            { 
-                title: "Pump DE Vib Y", 
-                value: cardData[0]?.PUMP_DE_VIB_Y.toFixed(2),  // Mengambil nilai PUMP_DE_VIB_Y dan mengatur menjadi 1 desimal
-                unit: "mm/s", 
-                Icon: Icons.Sensors, 
-                Duty: "Duty Vib: 2.5 mm/s" 
-            },
-            { 
-                title: "Pump NDE Vib X1", 
-                value: cardData[0]?.PUMP_NDE_VIB_X1.toFixed(2),  // Mengambil nilai PUMP_NDE_VIB_X1 dan mengatur menjadi 1 desimal
-                unit: "mm/s", 
-                Icon: Icons.Sensors, 
-                Duty: "Duty Vib: 2.5 mm/s" 
-            },
-            { 
-                title: "Pump NDE Vib X2", 
-                value: cardData[0]?.PUMP_NDE_VIB_X2.toFixed(1),  // Mengambil nilai PUMP_NDE_VIB_X2 dan mengatur menjadi 1 desimal
-                unit: "mm/s", 
-                Icon: Icons.Sensors, 
-                Duty: "Duty Vib: 2.5 mm/s" 
-            }
-        ];
-        
+        {
+            title: "Flow",
+            value: cardData[0]?.FLOW.toFixed(0),  // Mengambil nilai FLOW dari API dan mengatur menjadi integer (0 desimal)
+            unit: "m3/h",
+            Icon: Icons.Water,
+            Duty: "Duty Flow: 600 m3/h"
+        },
+        {
+            title: "Total Flow",
+            value: cardData[0]?.FLOW_TOTAL.toFixed(0),  // Mengambil nilai FLOW_TOTAL dari API dan mengatur menjadi integer
+            unit: "m3",
+            Icon: Icons.Water,
+            Duty: "-"
+        },
+        {
+            title: "Discharge Pressure",
+            value: cardData[0]?.DISCHARGE_PRESSURE.toFixed(2),  // Mengambil nilai DISCHARGE_PRESSURE dan mengatur menjadi 2 desimal
+            unit: "Bar",
+            Icon: Icons.Commit,
+            Duty: "Duty Pressure: 16.2 Bar"
+        },
+        {
+            title: "Engine Speed",
+            value: cardData[0]?.ENGINE_SPEED.toFixed(0),  // Mengambil nilai ENGINE_SPEED dan mengatur menjadi integer (0 desimal)
+            unit: "RPM",
+            Icon: Icons.Speed,
+            Duty: "Duty Speed: 1450 RPM"
+        },
+        {
+            title: "Engine Load",
+            value: cardData[0]?.ENGINE_LOAD.toFixed(0),  // Mengambil nilai ENGINE_LOAD dan mengatur menjadi integer
+            unit: "%",
+            Icon: Icons.ElectricCar,
+            Duty: "Duty Engine: 80%"
+        },
+        {
+            title: "Pump DE Temp",
+            value: cardData[0]?.PUMP_DE_TEMP.toFixed(2),  // Mengambil nilai PUMP_DE_TEMP dari API dan mengatur menjadi integer
+            unit: "°C",
+            Icon: Icons.Thermostat,
+            Duty: "Temp Duty: 90°C"
+        },
+        {
+            title: "Engine Run Hour",
+            value: cardData[0]?.ENGINE_RUN_HOUR.toFixed(2),  // Mengambil nilai ENGINE_RUN_HOUR dan mengatur menjadi integer
+            unit: "Hours",
+            Icon: Icons.ManageHistory,
+            Duty: "-"
+        },
+        {
+            title: "Fuel Rate",
+            value: cardData[0]?.ENGINE_FUEL_CONSUMPTIONS.toFixed(1),  // Mengambil nilai ENGINE_FUEL_CONSUMPTIONS dan mengatur menjadi 1 desimal
+            unit: "L/h",
+            Icon: Icons.LocalGasStation,
+            Duty: "Duty Fuel: 10 L/h"
+        },
+        {
+            title: "Oil Lube Pressure",
+            value: cardData[0]?.OIL_LUB_PRESS.toFixed(2),  // Mengambil nilai OIL_LUB_PRESS dan mengatur menjadi integer
+            unit: "Bar",
+            Icon: Icons.Commit,
+            Duty: "Duty Pressure: 2.5 Bar"
+        },
+        {
+            title: "Pump DE Vib Y",
+            value: cardData[0]?.PUMP_DE_VIB_Y.toFixed(2),  // Mengambil nilai PUMP_DE_VIB_Y dan mengatur menjadi 1 desimal
+            unit: "mm/s",
+            Icon: Icons.Sensors,
+            Duty: "Duty Vib: 2.5 mm/s"
+        },
+        {
+            title: "Pump NDE Vib X1",
+            value: cardData[0]?.PUMP_NDE_VIB_X1.toFixed(2),  // Mengambil nilai PUMP_NDE_VIB_X1 dan mengatur menjadi 1 desimal
+            unit: "mm/s",
+            Icon: Icons.Sensors,
+            Duty: "Duty Vib: 2.5 mm/s"
+        },
+        {
+            title: "Pump NDE Vib X2",
+            value: cardData[0]?.PUMP_NDE_VIB_X2.toFixed(1),  // Mengambil nilai PUMP_NDE_VIB_X2 dan mengatur menjadi 1 desimal
+            unit: "mm/s",
+            Icon: Icons.Sensors,
+            Duty: "Duty Vib: 2.5 mm/s"
+        }
+    ];
+
 
     const groupedCards = [];
     for (let i = 0; i < slideData.length; i += 4) {
