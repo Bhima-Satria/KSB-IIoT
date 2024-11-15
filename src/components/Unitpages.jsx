@@ -5,7 +5,7 @@ import { useParams } from 'react-router-dom';
 import { fetchData } from './dataService';
 import { Line } from 'react-chartjs-2';
 import { Chart as ChartJS, LineElement, PointElement, LinearScale, CategoryScale, Title, Tooltip, Legend } from 'chart.js';
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, IconButton } from '@mui/material';
+import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper } from '@mui/material';
 import { MapContainer, TileLayer, Marker, Popup, Circle } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -65,6 +65,73 @@ const Bubble = ({ title, value, unit, Icon }) => {
             <Typography variant="h6" sx={{ color: 'white', textAlign: 'center' }}>
                 {value} {unit}
             </Typography>
+        </Box>
+    );
+};
+
+const Alarm = ({ title, coilValue }) => {
+    const isWarning = coilValue === 1; // Check if the coil value indicates a warning
+    const iconBackgroundColor = isWarning ? '#FF0000' : '#008000'; // Red for warning, green for normal
+    const [blinkStyle, setBlinkStyle] = useState({ opacity: 1 }); // State for blinking effect
+
+    useEffect(() => {
+        if (isWarning) {
+            const interval = setInterval(() => {
+                setBlinkStyle((prevStyle) => ({
+                    opacity: prevStyle.opacity === 1 ? 0 : 1, // Toggle opacity for blinking
+                }));
+            }, 300); // Blinking every 500ms
+
+            return () => clearInterval(interval); // Cleanup on unmount
+        } else {
+            setBlinkStyle({ opacity: 1 }); // Reset opacity when no warning
+        }
+    }, [isWarning]); // Dependency array to run effect when `isWarning` changes
+
+    const Icon = isWarning ? Icons.WarningAmberOutlined : Icons.GppGoodOutlined; // Select icon based on warning
+
+    return (
+        <Box
+            sx={{
+                width: { xs: '100%', sm: '240px' },
+                height: '70px',
+                backgroundColor: '#F5F5F5',
+                borderRadius: '5px',
+                display: 'flex',
+                flexDirection: 'row',
+                justifyContent: 'left',
+                alignItems: 'center',
+                boxShadow: '0px 4px 16px rgba(0, 0, 0, 0.3)',
+                padding: '0px',
+                marginBottom: 3,
+                border: '1px solid #DDDDDD',
+            }}
+        >
+            {/* Icon box */}
+            <Box
+                sx={{
+                    backgroundColor: iconBackgroundColor, // Red for warning, green for normal
+                    borderRadius: '5px',
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    width: '70px',
+                    height: '70px',
+                    marginRight: '5px' // Apply blinking effect only to the icon
+                }}
+            >
+                <Icon sx={{
+                    fontSize: '60px', color: 'white',
+                    ...blinkStyle,
+                }} /> {/* Icon size adjusted to 70px */}
+            </Box>
+
+            {/* Text box */}
+            <Box sx={{ display: 'flex', flexDirection: 'column', textAlign: 'left', marginLeft: '0px' }}>
+                <Typography variant="body1" sx={{ fontWeight: 'bold', color: 'black' }}>
+                    {title}
+                </Typography>
+            </Box>
         </Box>
     );
 };
@@ -755,7 +822,7 @@ const UnitPage = () => {
                                                         maxLine: {
                                                             type: 'line',
                                                             scaleID: 'y',
-                                                            value: 3, // Garis batas atas
+                                                            value: 5, // Garis batas atas
                                                             borderColor: 'red', // Warna garis atas
                                                             borderWidth: 2,
                                                             label: {
@@ -794,21 +861,24 @@ const UnitPage = () => {
                             </Box>
                         </Grid>
 
-                        {/* Kolom untuk Tombol Buka Kamera */}
+                        {/* Kolom kosong 4 diisi Alarm List */}
                         <Grid item xs={12} sm={12} md={4} lg={4}>
-                            <Box sx={{
-                                height: '400px',
-                                background: 'white',
-                                boxShadow: '0px 8px 24px rgba(0, 0, 0, 0.2)',
-                                borderRadius: '30px',
-                                margin: '5px',
-                                padding: '10px',
-                                display: 'flex',
-                                flexDirection: 'column',  // Menyusun konten secara vertikal
-                                justifyContent: 'flex-start',  // Judul di atas
-                                alignItems: 'center',
-                            }}>
-                                {/* Judul di bagian atas */}
+                            <Box
+                                sx={{
+                                    height: '400px',
+                                    backgroundColor: 'white',
+                                    boxShadow: '0px 4px 16px rgba(0, 0, 0, 0.2)',
+                                    borderRadius: '30px',
+                                    margin: '5px',
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    justifyContent: 'flex-start',  // Align content to the top
+                                    alignItems: 'center',  // Center content horizontally
+                                    overflow: 'auto',
+                                    padding: '10px',
+                                }}
+                            >
+                                {/* Title at the top */}
                                 <Typography
                                     variant="h6"
                                     sx={{
@@ -816,37 +886,39 @@ const UnitPage = () => {
                                         textAlign: 'center',
                                         fontWeight: 'bold',
                                         textShadow: '2px 2px 4px rgba(0, 0, 0, 0.5)',
+                                        marginBottom: '15px', // Add some spacing below the title
                                     }}
                                 >
-                                    IPC Camera {unitId}
+                                    Alarm List For {unitId}
                                 </Typography>
 
-                                {/* Memberikan ruang untuk ikon dan keterangan */}
-                                <Box sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-                                    <IconButton
-                                        onClick={() => window.open('https://ipc.bardi.co.id/login', '_blank')}
-                                        sx={{
-                                            padding: '0',  // Menghapus padding default
-                                            width: '80%',  // Mengatur lebar responsif
-                                            height: 'auto',  // Tinggi otomatis untuk menjaga proporsi
-                                        }}
-                                    >
-                                        <Icons.SmartDisplay sx={{ width: '100%', height: 'auto', color: '#336699' }} /> {/* Ikon responsif */}
-                                    </IconButton>
-                                    {/* Keterangan di bawah ikon */}
-                                    <Typography
-                                        variant="body2"
-                                        sx={{
-                                            marginTop: '5px',
-                                            textAlign: 'center',
-                                            color: 'gray', // Warna keterangan
-                                        }}
-                                    >
-                                        Click to open IPC camera.
-                                    </Typography>
+                                {/* Render each Alarm card with hardcoded titles and coilValue = 1 */}
+                                <Box sx={{
+                                    display: 'grid',
+                                    gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',  // Grid with auto-fill and dynamic width
+                                    gap: '5px',  // 5px space between each alarm card (top, bottom, left, right)
+                                    width: '100%',  // Full width of the box
+                                    flexGrow: 1, // Allow the Box to grow and fill available space
+                                    justifyItems: 'center',  // Center grid items horizontally
+                                    alignItems: 'start',  // Align grid items to the top
+                                }}>
+                                    {cardDataCoil.map((data, index) => (
+                                        <React.Fragment key={index}>
+                                            <Alarm title="Pump DE Temp" coilValue={data.PUMP_DE_TEMP} />
+                                            <Alarm title="Oil Lube Cloging" coilValue={data.OIL_LUB_CLOG} />
+                                            <Alarm title="Oil Lube No Flow" coilValue={data.OIL_LUB_NO_FLOW} />
+                                            <Alarm title="DE Vibration Y" coilValue={data.PUMP_ALARM_DE_VIB_Y1} />
+                                            <Alarm title="NDE Vibration X1" coilValue={data.PUMP_ALARM_NDE_VIB_X1} />
+                                            <Alarm title="NDE Vibration X2" coilValue={data.PUMP_ALARM_NDE_VIB_X2} />
+                                            <Alarm title="Engine Overload" coilValue={data.ENGINE_OVERLOAD} />
+                                            <Alarm title="Engine Overheat" coilValue={data.ENGINE_OVERHEAT} />
+                                            <Alarm title="Engine Overspeed" coilValue={data.ENGINE_OVERSPEED} />
+                                        </React.Fragment>
+                                    ))}
                                 </Box>
                             </Box>
                         </Grid>
+
 
                     </Grid>
                 </Grid>

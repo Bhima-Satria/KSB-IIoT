@@ -46,7 +46,7 @@ const Content = () => {
 
     const handleImageClick = (title) => {
         setIsZoomingIn(true); // Memulai animasi zoom in
-        document.title = title; // Ubah title halaman sesuai dengan title gambar
+        document.title = "KSB IoT"; // Ubah title halaman sesuai dengan title gambar
         setTimeout(() => {
             navigate(`/unit/${title}`); // Navigasi setelah animasi selesai
         }, 500); // Delay 500ms, sesuaikan dengan durasi animasi

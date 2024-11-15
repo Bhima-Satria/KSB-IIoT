@@ -25,11 +25,12 @@ const Header = () => {
     const navigate = useNavigate();
 
     const chartsData = [
-        { id: 1, title: 'KSB-Unit 64' },
-        { id: 2, title: 'KSB-Unit 67' },
-        { id: 3, title: 'KSB-Double Drive' },
-        { id: 4, title: 'Overview' },
-        { id: 5, title: 'Tes API' },
+        { id: 1, title: 'KSB-Unit 60' },
+        { id: 2, title: 'KSB-Unit 64' },
+        { id: 3, title: 'KSB-Unit 67' },
+        { id: 4, title: 'KSB-Double Drive' },
+        { id: 5, title: 'Overview' },
+        { id: 6, title: 'Tes API' },
     ];
 
     const handleDrawerToggle = () => {
