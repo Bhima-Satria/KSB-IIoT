@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Grid, Box, Card, CardContent, Typography, CircularProgress } from '@mui/material';
+import { Grid, Box, Card, CardContent, Typography, CircularProgress, Icon } from '@mui/material';
 import * as Icons from '@mui/icons-material';
 import { useParams } from 'react-router-dom';
 import { fetchData } from './dataService';
@@ -93,8 +93,8 @@ const Alarm = ({ title, coilValue }) => {
     return (
         <Box
             sx={{
-                width: { xs: '100%', sm: '240px' },
-                height: '70px',
+                width: { xs: '100%', sm: '200px' },  // Responsif width for small and large screens
+                height: { xs: '20px', sm: '50px' }, // Responsif height for small and large screens
                 backgroundColor: '#F5F5F5',
                 borderRadius: '5px',
                 display: 'flex',
@@ -102,7 +102,7 @@ const Alarm = ({ title, coilValue }) => {
                 justifyContent: 'left',
                 alignItems: 'center',
                 boxShadow: '0px 4px 16px rgba(0, 0, 0, 0.3)',
-                padding: '0px',
+                padding: { xs: '4px', sm: '0px' }, // Adjust padding based on screen size
                 marginBottom: 3,
                 border: '1px solid #DDDDDD',
             }}
@@ -115,20 +115,93 @@ const Alarm = ({ title, coilValue }) => {
                     display: 'flex',
                     justifyContent: 'center',
                     alignItems: 'center',
-                    width: '70px',
-                    height: '70px',
-                    marginRight: '5px' // Apply blinking effect only to the icon
+                    width: { xs: '20px', sm: '50px' },  // Responsif width for icon box
+                    height: { xs: '20px', sm: '50px' }, // Responsif height for icon box
+                    marginRight: '10px',
+                    padding: { xs: '5px', sm: '0' }, // Adjust padding based on screen size
                 }}
             >
                 <Icon sx={{
-                    fontSize: '60px', color: 'white',
+                    fontSize: { xs: '10px', sm: '40px' },  // Responsif icon size
+                    color: 'white',
                     ...blinkStyle,
-                }} /> {/* Icon size adjusted to 70px */}
+                }} />
             </Box>
 
             {/* Text box */}
-            <Box sx={{ display: 'flex', flexDirection: 'column', textAlign: 'left', marginLeft: '0px' }}>
-                <Typography variant="body1" sx={{ fontWeight: 'bold', color: 'black' }}>
+            <Box sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                textAlign: 'left',
+                marginLeft: { xs: '10px', sm: '0px' }, // Adjust text margin for smaller screens
+            }}>
+                <Typography variant="body1" sx={{
+                    fontWeight: 'bold',
+                    color: 'black',
+                    fontSize: { xs: '14px', sm: '16px' },  // Responsif font size
+                }}>
+                    {title}
+                </Typography>
+            </Box>
+        </Box>
+    );
+};
+
+const Vacuum = ({ title, coilValue }) => {
+    const isWarning = coilValue === 1; // Check if the coil value indicates a warning
+    const iconBackgroundColor = isWarning ? '#008000' : '#FF0000'; // Red for warning, green for normal
+
+    const Icon = isWarning ? Icons.PowerSettingsNewOutlined: Icons.PowerSettingsNewOutlined; // Select icon based on warning
+
+    return (
+        <Box
+            sx={{
+                width: { xs: '100%', sm: '200px' },  // Responsif width for small and large screens
+                height: { xs: '20px', sm: '50px' }, // Responsif height for small and large screens
+                backgroundColor: '#F5F5F5',
+                borderRadius: '5px',
+                display: 'flex',
+                flexDirection: 'row',
+                justifyContent: 'left',
+                alignItems: 'center',
+                boxShadow: '0px 4px 16px rgba(0, 0, 0, 0.3)',
+                padding: { xs: '4px', sm: '0px' }, // Adjust padding based on screen size
+                marginBottom: 3,
+                border: '1px solid #DDDDDD',
+            }}
+        >
+            {/* Icon box */}
+            <Box
+                sx={{
+                    backgroundColor: iconBackgroundColor, // Red for warning, green for normal
+                    borderRadius: '5px',
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    width: { xs: '20px', sm: '50px' },  // Responsif width for icon box
+                    height: { xs: '20px', sm: '50px' }, // Responsif height for icon box
+                    marginRight: '10px',
+                    padding: { xs: '5px', sm: '0' }, // Adjust padding based on screen size
+                }}
+            >
+                <Icon sx={{
+                    fontSize: { xs: '10px', sm: '40px' },  // Responsif icon size
+                    color: 'white',
+                }} />
+            </Box>
+
+            {/* Text box */}
+            <Box sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                textAlign: 'left',
+                marginLeft: { xs: '10px', sm: '0px' }, // Adjust text margin for smaller screens
+            }}>
+                <Typography variant="body1" sx={{
+                    fontWeight: 'bold',
+                    color: 'black',
+                    fontSize: { xs: '14px', sm: '16px' },  // Responsif font size
+                }}>
                     {title}
                 </Typography>
             </Box>
@@ -296,6 +369,7 @@ const UnitPage = () => {
     const [lastUpdated, setLastUpdated] = useState(null); // Waktu terakhir data diperbarui
     const [isDataEmpty, setIsDataEmpty] = useState(false); // Status apakah data kosong
     const [parsedDate, setParsedDate] = useState(''); // Waktu terformat
+    const [currentSlide, setCurrentSlide] = useState(0); // Slide yang aktif untuk slideshow
 
     const [chartData, setChartData] = useState({
         labels: [],
@@ -324,11 +398,11 @@ const UnitPage = () => {
     const getImageByUnitId = (id) => {
         switch (id) {
             case 'KSB-Unit 64':
-                return imageUnit1; // Pastikan imageUnit3 sudah didefinisikan
+                return imageUnit1;
             case 'KSB-Unit 67':
-                return imageUnit2; // Pastikan imageUnit1 sudah didefinisikan
+                return imageUnit2;
             case 'KSB-Unit 68':
-                return imageUnit3; // Pastikan imageUnit2 sudah didefinisikan
+                return imageUnit3;
             default:
                 return null;
         }
@@ -365,31 +439,29 @@ const UnitPage = () => {
         const [day, month, year] = datePart.split('/');
         const [hours, minutes, seconds] = timePart.split(':');
 
-        // Membuat objek Date sebagai UTC
         return new Date(Date.UTC(year, month - 1, day, hours, minutes, seconds));
     };
 
     useEffect(() => {
         const getData = async () => {
             try {
-                const response = await fetchData(unitId); // Ambil data API
-                console.log(response); // Melihat respon API
+                const response = await fetchData(unitId);
+                console.log(response);
 
-                const data = response.realTimeData; // Mengambil data READ_REAL dari respon API
-                const dataCoil = response.coilData; // Mengambil data READ_COIL dari respon API
-                const dataGPS = response.gpsData; // Mengambil data READ_GPS dari respon API
+                const data = response.realTimeData;
+                const dataCoil = response.coilData;
+                const dataGPS = response.gpsData;
 
                 if (!data) {
-                    setIsDataEmpty(true); // Menandakan data kosong
+                    setIsDataEmpty(true);
                 } else {
                     setIsDataEmpty(false);
-                    setCardData([data]); // Pastikan cardData adalah array meskipun hanya satu objek
-                    setCardDataCoil([dataCoil]); // Pastikan cardDataCoil adalah array meskipun hanya satu objek
-                    setGpsData([dataGPS]); // Set data GPS
+                    setCardData([data]);
+                    setCardDataCoil([dataCoil]);
+                    setGpsData([dataGPS]);
                     setLastUpdated(response.date);
 
-                    // Konversi waktu dari API ke waktu lokal pengguna
-                    const dateObj = parseDateUTC(response.date); // Menggunakan parseDateUTC untuk mengonversi tanggal API ke UTC
+                    const dateObj = parseDateUTC(response.date);
 
                     const options = {
                         year: 'numeric',
@@ -401,11 +473,9 @@ const UnitPage = () => {
                         hour12: false,
                     };
 
-                    // Memformat tanggal sesuai zona waktu lokal pengguna
                     const formattedDate = dateObj.toLocaleString('id-ID', options);
                     setParsedDate(formattedDate);
 
-                    // Menambahkan data ke chart
                     addData({
                         label: dateObj.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false }),
                         VibrationY: data.PUMP_DE_VIB_Y.toFixed(2),
@@ -415,18 +485,120 @@ const UnitPage = () => {
                 }
             } catch (error) {
                 console.error('Error fetching data:', error);
-                setIsDataEmpty(true); // Jika error, data dianggap kosong
+                setIsDataEmpty(true);
             } finally {
-                setLoading(false); // Menandakan bahwa loading selesai
+                setLoading(false);
             }
         };
 
-        getData(); // Ambil data pertama kali saat komponen dimuat
+        getData();
+        const intervalId = setInterval(getData, 1000);
 
-        const intervalId = setInterval(getData, 1000); // Refresh data setiap 1000ms (1 detik)
-
-        return () => clearInterval(intervalId); // Bersihkan interval ketika komponen di-unmount
+        return () => clearInterval(intervalId);
     }, [unitId]);
+
+    const slideData = [
+            { 
+                title: "Flow", 
+                value: cardData[0]?.FLOW.toFixed(0),  // Mengambil nilai FLOW dari API dan mengatur menjadi integer (0 desimal)
+                unit: "m3/h", 
+                Icon: Icons.Water, 
+                Duty: "Duty Flow: 600 m3/h" 
+            },
+            { 
+                title: "Total Flow", 
+                value: cardData[0]?.FLOW_TOTAL.toFixed(0),  // Mengambil nilai FLOW_TOTAL dari API dan mengatur menjadi integer
+                unit: "m3", 
+                Icon: Icons.Water, 
+                Duty: "-" 
+            },
+            { 
+                title: "Discharge Pressure", 
+                value: cardData[0]?.DISCHARGE_PRESSURE.toFixed(2),  // Mengambil nilai DISCHARGE_PRESSURE dan mengatur menjadi 2 desimal
+                unit: "Bar", 
+                Icon: Icons.Commit, 
+                Duty: "Duty Pressure: 16.2 Bar" 
+            },
+            { 
+                title: "Engine Speed", 
+                value: cardData[0]?.ENGINE_SPEED.toFixed(0),  // Mengambil nilai ENGINE_SPEED dan mengatur menjadi integer (0 desimal)
+                unit: "RPM", 
+                Icon: Icons.Speed, 
+                Duty: "Duty Speed: 1450 RPM" 
+            },
+            { 
+                title: "Engine Load", 
+                value: cardData[0]?.ENGINE_LOAD.toFixed(0),  // Mengambil nilai ENGINE_LOAD dan mengatur menjadi integer
+                unit: "%", 
+                Icon: Icons.ElectricCar, 
+                Duty: "Duty Engine: 80%" 
+            },
+            { 
+                title: "Pump DE Temp", 
+                value: cardData[0]?.PUMP_DE_TEMP.toFixed(2),  // Mengambil nilai PUMP_DE_TEMP dari API dan mengatur menjadi integer
+                unit: "°C", 
+                Icon: Icons.Thermostat, 
+                Duty: "Temp Duty: 90°C" 
+            },
+            { 
+                title: "Engine Run Hour", 
+                value: cardData[0]?.ENGINE_RUN_HOUR.toFixed(2),  // Mengambil nilai ENGINE_RUN_HOUR dan mengatur menjadi integer
+                unit: "Hours", 
+                Icon: Icons.ManageHistory, 
+                Duty: "-" 
+            },
+            { 
+                title: "Fuel Rate", 
+                value: cardData[0]?.ENGINE_FUEL_CONSUMPTIONS.toFixed(1),  // Mengambil nilai ENGINE_FUEL_CONSUMPTIONS dan mengatur menjadi 1 desimal
+                unit: "L/h", 
+                Icon: Icons.LocalGasStation, 
+                Duty: "Duty Fuel: 10 L/h" 
+            },
+            { 
+                title: "Oil Lube Pressure", 
+                value: cardData[0]?.OIL_LUB_PRESS.toFixed(2),  // Mengambil nilai OIL_LUB_PRESS dan mengatur menjadi integer
+                unit: "Bar", 
+                Icon: Icons.Commit, 
+                Duty: "Duty Pressure: 2.5 Bar" 
+            },
+            { 
+                title: "Pump DE Vib Y", 
+                value: cardData[0]?.PUMP_DE_VIB_Y.toFixed(2),  // Mengambil nilai PUMP_DE_VIB_Y dan mengatur menjadi 1 desimal
+                unit: "mm/s", 
+                Icon: Icons.Sensors, 
+                Duty: "Duty Vib: 2.5 mm/s" 
+            },
+            { 
+                title: "Pump NDE Vib X1", 
+                value: cardData[0]?.PUMP_NDE_VIB_X1.toFixed(2),  // Mengambil nilai PUMP_NDE_VIB_X1 dan mengatur menjadi 1 desimal
+                unit: "mm/s", 
+                Icon: Icons.Sensors, 
+                Duty: "Duty Vib: 2.5 mm/s" 
+            },
+            { 
+                title: "Pump NDE Vib X2", 
+                value: cardData[0]?.PUMP_NDE_VIB_X2.toFixed(1),  // Mengambil nilai PUMP_NDE_VIB_X2 dan mengatur menjadi 1 desimal
+                unit: "mm/s", 
+                Icon: Icons.Sensors, 
+                Duty: "Duty Vib: 2.5 mm/s" 
+            }
+        ];
+        
+
+    const groupedCards = [];
+    for (let i = 0; i < slideData.length; i += 4) {
+        groupedCards.push(slideData.slice(i, i + 4));
+    }
+
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setCurrentSlide((prevSlide) => (prevSlide + 1) % groupedCards.length);
+        }, 5000);
+
+        return () => clearInterval(interval);
+    }, [groupedCards.length]);
+
+    const displayedCards = groupedCards[currentSlide];
 
     if (loading) {
         return (
@@ -453,54 +625,28 @@ const UnitPage = () => {
                 </Box>
             ) : (
                 <Grid container spacing={2} justifyContent="center" direction="row">
+
+                    {/* Kolom untuk Card Status */}
                     <Grid item xs={12}>
-                        <Box sx={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between' }}>
-                            {cardDataCoil.map((data, index) => (
+                        <Box sx={{
+                            display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between'
+                        }}>
+                            {cardData.map((data, index) => (
                                 <CardStatus
                                     key={index}
                                     title="Unit Status"
-                                    value={data.ENGINE_RUN}
+                                    value={data.ENGINE_SPEED}
                                     lastUpdatedDate={parsedDate}
                                 />
                             ))}
-                            {cardData.map((data, index) => (
+                            {displayedCards.map((data, index) => (
                                 <DataCard
-                                    key={index}
-                                    title="Flow"
-                                    value={data.FLOW.toFixed(0)}
-                                    unit="m3/h"
-                                    Icon={Icons.Water}
-                                    Duty="Duty Flow : 600 m3/h"
-                                />
-                            ))}
-                            {cardData.map((data, index) => (
-                                <DataCard
-                                    key={index}
-                                    title="Discharge Pressure"
-                                    value={data.DISCHARGE_PRESSURE.toFixed(2)}
-                                    unit="Bar"
-                                    Icon={Icons.Commit}
-                                    Duty="Duty Pressure : 16.2 Bar"
-                                />
-                            ))}
-                            {cardData.map((data, index) => (
-                                <DataCard
-                                    key={index}
-                                    title="Engine Speed"
-                                    value={data.ENGINE_SPEED.toFixed(0)}
-                                    unit="RPM"
-                                    Icon={Icons.Speed}
-                                    Duty="Duty Speed : 1450 RPM"
-                                />
-                            ))}
-                            {cardData.map((data, index) => (
-                                <DataCard
-                                    key={index}
-                                    title="Engine Load"
-                                    value={data.ENGINE_LOAD}
-                                    unit="%"
-                                    Icon={Icons.ElectricCar}
-                                    Duty="Duty Engine : 80% "
+                                    key={`${data.title}-${index}`}
+                                    title={data.title}
+                                    value={data.value}
+                                    unit={data.unit}
+                                    Icon={data.Icon}
+                                    Duty={data.Duty}
                                 />
                             ))}
                         </Box>
@@ -792,7 +938,7 @@ const UnitPage = () => {
                                         data={chartData}
                                         options={{
                                             responsive: true,
-                                            maintainAspectRatio: false,
+                                            maintainAspectRatio: true,
                                             plugins: {
                                                 legend: {
                                                     position: 'top',
@@ -847,11 +993,17 @@ const UnitPage = () => {
                                                     ticks: {
                                                         display: false, // Menyembunyikan label pada sumbu X
                                                     },
+                                                    grid: {
+                                                        display: false, // Menghilangkan garis bantu pada sumbu X
+                                                    },
                                                 },
                                                 y: {
                                                     title: {
                                                         display: true,
                                                         text: 'Values (mm/s)', // Label sumbu Y
+                                                    },
+                                                    grid: {
+                                                        display: false, // Menghilangkan garis bantu pada sumbu Y
                                                     },
                                                 },
                                             },
@@ -865,59 +1017,115 @@ const UnitPage = () => {
                         <Grid item xs={12} sm={12} md={4} lg={4}>
                             <Box
                                 sx={{
-                                    height: '400px',
+                                    height: '400px',  // Mengatur tinggi otomatis, agar box tidak memaksa mengisi ruang
                                     backgroundColor: 'white',
                                     boxShadow: '0px 4px 16px rgba(0, 0, 0, 0.2)',
                                     borderRadius: '30px',
-                                    margin: '5px',
+                                    margin: '4px',  // Maximum margin around the Box
                                     display: 'flex',
                                     flexDirection: 'column',
                                     justifyContent: 'flex-start',  // Align content to the top
                                     alignItems: 'center',  // Center content horizontally
                                     overflow: 'auto',
-                                    padding: '10px',
+                                    padding: '15px',  // Mengurangi padding utama untuk lebih rapat
                                 }}
                             >
-                                {/* Title at the top */}
-                                <Typography
-                                    variant="h6"
+                                {/* Separator Box for Vacuum Pump & Level Sensor Status */}
+                                <Box
                                     sx={{
-                                        fontSize: '1.3rem',
-                                        textAlign: 'center',
-                                        fontWeight: 'bold',
-                                        textShadow: '2px 2px 4px rgba(0, 0, 0, 0.5)',
-                                        marginBottom: '15px', // Add some spacing below the title
+                                        backgroundColor: 'white',  // Color for embush (light yellow)
+                                        boxShadow: '0px 4px 20px rgba(0, 0, 0, 0.3)',  // Strong shadow for clear separation
+                                        borderRadius: '20px',
+                                        width: '100%',
+                                        margin: '5px 0',  // Mengurangi margin antar box
+                                        padding: '5px',
                                     }}
                                 >
-                                    Alarm List For {unitId}
-                                </Typography>
+                                    <Typography
+                                        variant="h6"
+                                        sx={{
+                                            fontSize: '1.3rem',
+                                            textAlign: 'center',
+                                            fontWeight: 'bold',
+                                            textShadow: '2px 2px 4px rgba(0, 0, 0, 0.5)',
+                                            marginTop: '5px', // Spacing sedikit di atas title
+                                            marginBottom: '12px', // Spacing sedikit di bawah title
+                                        }}
+                                    >
+                                        Vacuum Pump & Level Sensor Status
+                                    </Typography>
 
-                                {/* Render each Alarm card with hardcoded titles and coilValue = 1 */}
-                                <Box sx={{
-                                    display: 'grid',
-                                    gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',  // Grid with auto-fill and dynamic width
-                                    gap: '5px',  // 5px space between each alarm card (top, bottom, left, right)
-                                    width: '100%',  // Full width of the box
-                                    flexGrow: 1, // Allow the Box to grow and fill available space
-                                    justifyItems: 'center',  // Center grid items horizontally
-                                    alignItems: 'start',  // Align grid items to the top
-                                }}>
-                                    {cardDataCoil.map((data, index) => (
-                                        <React.Fragment key={index}>
-                                            <Alarm title="Pump DE Temp" coilValue={data.PUMP_DE_TEMP} />
-                                            <Alarm title="Oil Lube Cloging" coilValue={data.OIL_LUB_CLOG} />
-                                            <Alarm title="Oil Lube No Flow" coilValue={data.OIL_LUB_NO_FLOW} />
-                                            <Alarm title="DE Vibration Y" coilValue={data.PUMP_ALARM_DE_VIB_Y1} />
-                                            <Alarm title="NDE Vibration X1" coilValue={data.PUMP_ALARM_NDE_VIB_X1} />
-                                            <Alarm title="NDE Vibration X2" coilValue={data.PUMP_ALARM_NDE_VIB_X2} />
-                                            <Alarm title="Engine Overload" coilValue={data.ENGINE_OVERLOAD} />
-                                            <Alarm title="Engine Overheat" coilValue={data.ENGINE_OVERHEAT} />
-                                            <Alarm title="Engine Overspeed" coilValue={data.ENGINE_OVERSPEED} />
-                                        </React.Fragment>
-                                    ))}
+                                    <Box
+                                        sx={{
+                                            display: 'grid',
+                                            gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',  // Grid with auto-fill and dynamic width
+                                            gap: '0px',  // Mengurangi gap menjadi 0 untuk jarak antar card lebih rapat
+                                            width: '100%',  // Full width of the box
+                                            justifyItems: 'center',  // Center grid items horizontally
+                                            alignItems: 'start',  // Align grid items to the top
+                                        }}
+                                    >
+                                        {cardDataCoil.map((data, index) => (
+                                            <React.Fragment key={index}>
+                                                <Vacuum title="Vacuum Pump" coilValue={data.VACUM_ON} />
+                                                <Vacuum title="Low Level" coilValue={data.LOW_LEVEL} />
+                                                <Vacuum title="High Level" coilValue={data.HIGH_LEVEL} />
+                                            </React.Fragment>
+                                        ))}
+                                    </Box>
+                                </Box>
+
+                                {/* Box for Alarm List */}
+                                <Box
+                                    sx={{
+                                        backgroundColor: 'white',  // White background for Alarm List Box
+                                        boxShadow: '0px 4px 16px rgba(0, 0, 0, 0.2)',
+                                        borderRadius: '30px',
+                                        padding: '10px',  // Mengurangi padding untuk Box Alarm agar lebih rapat
+                                        width: '100%',
+                                        marginBottom: '5px',  // Margin sedikit antar box
+                                        marginTop: '5px',  // Margin sedikit antar box
+                                    }}
+                                >
+                                    <Typography
+                                        variant="h6"
+                                        sx={{
+                                            fontSize: '1.3rem',
+                                            textAlign: 'center',
+                                            fontWeight: 'bold',
+                                            textShadow: '2px 2px 4px rgba(0, 0, 0, 0.5)',
+                                            marginBottom: '12px', // Spacing sedikit di bawah title
+                                        }}
+                                    >
+                                        Alarm List For {unitId}
+                                    </Typography>
+
+                                    {/* Render each Alarm card with hardcoded titles and coilValue = 1 */}
+                                    <Box
+                                        sx={{
+                                            display: 'grid',
+                                            gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',  // Grid with auto-fill and dynamic width
+                                            gap: '0px',  // Mengurangi gap menjadi 0 untuk jarak antar card lebih rapat
+                                            width: '100%',  // Full width of the box
+                                            justifyItems: 'center',  // Center grid items horizontally
+                                            alignItems: 'start',  // Align grid items to the top
+                                        }}
+                                    >
+                                        {cardDataCoil.map((data, index) => (
+                                            <React.Fragment key={index}>
+                                                <Alarm title="Pump DE Temp" coilValue={data.PUMP_DE_OVER_TEMP} />
+                                                <Alarm title="Oil Lube Cloging" coilValue={data.OIL_LUB_CLOG} />
+                                                <Alarm title="Oil Lube No Flow" coilValue={data.OIL_LUB_NO_FLOW} />
+                                                <Alarm title="DE Vibration Y" coilValue={data.PUMP_ALARM_DE_VIB_Y1} />
+                                                <Alarm title="NDE Vibration X1" coilValue={data.PUMP_ALARM_NDE_VIB_X1} />
+                                                <Alarm title="NDE Vibration X2" coilValue={data.PUMP_ALARM_NDE_VIB_X2} />
+                                            </React.Fragment>
+                                        ))}
+                                    </Box>
                                 </Box>
                             </Box>
                         </Grid>
+
 
 
                     </Grid>
