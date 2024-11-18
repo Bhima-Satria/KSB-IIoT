@@ -151,7 +151,7 @@ const Vacuum = ({ title, coilValue }) => {
     const isWarning = coilValue === 1; // Check if the coil value indicates a warning
     const iconBackgroundColor = isWarning ? '#008000' : '#FF0000'; // Red for warning, green for normal
 
-    const Icon = isWarning ? Icons.PowerSettingsNewOutlined : Icons.CancelOutlined; // Select icon based on warning
+    const Icon = isWarning ? Icons.PowerSettingsNewOutlined : Icons.PowerSettingsNewOutlined; // Select icon based on warning
 
     return (
         <Box
@@ -209,6 +209,67 @@ const Vacuum = ({ title, coilValue }) => {
     );
 };
 
+const LevelSensor = ({ title, coilValue }) => {
+    const isWarning = coilValue === 1; // Check if the coil value indicates a warning
+    const iconBackgroundColor = isWarning ? '#008000' : '#FF0000'; // Red for warning, green for normal
+
+    const Icon = isWarning ? Icons.Opacity : Icons.Opacity; // Select icon based on warning
+
+    return (
+        <Box
+            sx={{
+                width: { xs: '100%', sm: '200px' },  // Responsif width for small and large screens
+                height: { xs: '20px', sm: '50px' }, // Responsif height for small and large screens
+                backgroundColor: '#F5F5F5',
+                borderRadius: '5px',
+                display: 'flex',
+                flexDirection: 'row',
+                justifyContent: 'left',
+                alignItems: 'center',
+                boxShadow: '0px 4px 16px rgba(0, 0, 0, 0.3)',
+                padding: { xs: '4px', sm: '0px' }, // Adjust padding based on screen size
+                marginBottom: 3,
+                border: '1px solid #DDDDDD',
+            }}
+        >
+            {/* Icon box */}
+            <Box
+                sx={{
+                    backgroundColor: iconBackgroundColor, // Red for warning, green for normal
+                    borderRadius: '5px',
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    width: { xs: '20px', sm: '50px' },  // Responsif width for icon box
+                    height: { xs: '20px', sm: '50px' }, // Responsif height for icon box
+                    marginRight: '10px',
+                    padding: { xs: '5px', sm: '0' }, // Adjust padding based on screen size
+                }}
+            >
+                <Icon sx={{
+                    fontSize: { xs: '10px', sm: '40px' },  // Responsif icon size
+                    color: 'white',
+                }} />
+            </Box>
+
+            {/* Text box */}
+            <Box sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                textAlign: 'left',
+                marginLeft: { xs: '10px', sm: '0px' }, // Adjust text margin for smaller screens
+            }}>
+                <Typography variant="body1" sx={{
+                    fontWeight: 'bold',
+                    color: 'black',
+                    fontSize: { xs: '14px', sm: '16px' },  // Responsif font size
+                }}>
+                    {title}
+                </Typography>
+            </Box>
+        </Box>
+    );
+};
 
 const DataCard = ({ title, value, unit, Icon, Duty }) => {
     return (
@@ -434,52 +495,27 @@ const UnitPage = () => {
     };
 
     const parseDateUTC = (dateString) => {
-        // Just return the date string directly as it is in the correct format.
-        return dateString;
+        try {
+            // Parse custom format "DD/MM/YYYY HH:mm:ss" to components
+            const [datePart, timePart] = dateString.split(" ");
+            const [day, month, year] = datePart.split("/").map(Number);
+            const [hour, minute, second] = timePart.split(":").map(Number);
+
+            // Create a Date object assuming the input is in UTC
+            const utcDate = new Date(Date.UTC(year, month - 1, day, hour, minute, second));
+
+            // Convert UTC date to local time and format as GMT string
+            const localDate = utcDate.toLocaleString("en-GB", {
+                timeZoneName: "short", // Include GMT offset
+                hour12: false,        // Use 24-hour format
+            });
+
+            return localDate; // Return the formatted date string
+        } catch (error) {
+            console.error("Error parsing date:", error);
+            return dateString; // Fallback to original string if parsing fails
+        }
     };
-
-
-    useEffect(() => {
-        const getData = async () => {
-            try {
-                const response = await fetchData(unitId);
-                console.log(response);
-
-                const data = response.realTimeData;
-                const dataCoil = response.coilData;
-                const dataGPS = response.gpsData;
-
-                if (!data) {
-                    setIsDataEmpty(true);
-                } else {
-                    setIsDataEmpty(false);
-                    setCardData([data]);
-                    setCardDataCoil([dataCoil]);
-                    setGpsData([dataGPS]);
-                    setLastUpdated(response.date);
-
-                    const dateObj = parseDateUTC(response.date);
-
-                    // Just set the date directly, without converting
-                    setParsedDate(dateObj);
-
-                    addData({
-                        label: dateObj.split(' ')[1],  // Extract only time part from the date string
-                        VibrationY: data.PUMP_DE_VIB_Y.toFixed(2),
-                        VibrationX1: data.PUMP_NDE_VIB_X1.toFixed(2),
-                        VibrationX2: data.PUMP_NDE_VIB_X2.toFixed(2),
-                    });
-                }
-            } catch (error) {
-                console.error('Error fetching data:', error);
-                setIsDataEmpty(true);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        getData(); // Ensure to call the function
-    }, [unitId]);
 
 
 
@@ -538,35 +574,35 @@ const UnitPage = () => {
             value: cardData[0]?.ENGINE_FUEL_CONSUMPTIONS.toFixed(1),  // Mengambil nilai ENGINE_FUEL_CONSUMPTIONS dan mengatur menjadi 1 desimal
             unit: "L/h",
             Icon: Icons.LocalGasStation,
-            Duty: "Duty Fuel: 10 L/h"
+            Duty: "Duty Fuel: 100 L/h"
         },
         {
             title: "Oil Lube Pressure",
             value: cardData[0]?.OIL_LUB_PRESS.toFixed(2),  // Mengambil nilai OIL_LUB_PRESS dan mengatur menjadi integer
             unit: "Bar",
             Icon: Icons.Commit,
-            Duty: "Duty Pressure: 2.5 Bar"
+            Duty: "Duty Pressure: - Bar"
         },
         {
             title: "Pump DE Vib Y",
             value: cardData[0]?.PUMP_DE_VIB_Y.toFixed(2),  // Mengambil nilai PUMP_DE_VIB_Y dan mengatur menjadi 1 desimal
             unit: "mm/s",
             Icon: Icons.Sensors,
-            Duty: "Duty Vib: 2.5 mm/s"
+            Duty: "Duty Vib: - mm/s"
         },
         {
             title: "Pump NDE Vib X1",
             value: cardData[0]?.PUMP_NDE_VIB_X1.toFixed(2),  // Mengambil nilai PUMP_NDE_VIB_X1 dan mengatur menjadi 1 desimal
             unit: "mm/s",
             Icon: Icons.Sensors,
-            Duty: "Duty Vib: 2.5 mm/s"
+            Duty: "Duty Vib: - mm/s"
         },
         {
             title: "Pump NDE Vib X2",
             value: cardData[0]?.PUMP_NDE_VIB_X2.toFixed(1),  // Mengambil nilai PUMP_NDE_VIB_X2 dan mengatur menjadi 1 desimal
             unit: "mm/s",
             Icon: Icons.Sensors,
-            Duty: "Duty Vib: 2.5 mm/s"
+            Duty: "Duty Vib: - mm/s"
         }
     ];
 
@@ -577,12 +613,60 @@ const UnitPage = () => {
     }
 
     useEffect(() => {
-        const interval = setInterval(() => {
-            setCurrentSlide((prevSlide) => (prevSlide + 1) % groupedCards.length);
-        }, 5000);
+        if (!unitId) return;
 
-        return () => clearInterval(interval);
-    }, [groupedCards.length]);
+        const fetchInterval = setInterval(async () => {
+            await getData();
+        }, 1000); // Interval untuk getData setiap 1 detik
+
+        const sliderInterval = setInterval(() => {
+            setCurrentSlide((prevSlide) => (prevSlide + 1) % groupedCards.length);
+        }, 10000); // Interval untuk slider setiap 10 detik
+
+        const getData = async () => {
+            try {
+                const response = await fetchData(unitId);
+                console.log(response);
+
+                const data = response.realTimeData;
+                const dataCoil = response.coilData;
+                const dataGPS = response.gpsData;
+
+                if (!data) {
+                    setIsDataEmpty(true);
+                } else {
+                    setIsDataEmpty(false);
+                    setCardData([data]);
+                    setCardDataCoil([dataCoil]);
+                    setGpsData([dataGPS]);
+                    setLastUpdated(response.date);
+
+                    const dateObj = parseDateUTC(response.date);
+
+                    setParsedDate(dateObj);
+
+                    addData({
+                        label: dateObj.split(' ')[1],
+                        VibrationY: data.PUMP_DE_VIB_Y.toFixed(2),
+                        VibrationX1: data.PUMP_NDE_VIB_X1.toFixed(2),
+                        VibrationX2: data.PUMP_NDE_VIB_X2.toFixed(2),
+                    });
+                }
+            } catch (error) {
+                console.error('Error fetching data:', error);
+                setIsDataEmpty(true);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        getData(); // Ambil data segera saat pertama kali
+
+        return () => {
+            clearInterval(fetchInterval); // Hentikan interval getData
+            clearInterval(sliderInterval); // Hentikan interval slider
+        };
+    }, [unitId, groupedCards.length]);
 
     const displayedCards = groupedCards[currentSlide];
 
@@ -617,11 +701,11 @@ const UnitPage = () => {
                         <Box sx={{
                             display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between'
                         }}>
-                            {cardData.map((data, index) => (
+                            {cardDataCoil.map((data, index) => (
                                 <CardStatus
                                     key={index}
                                     title="Unit Status"
-                                    value={data.ENGINE_SPEED}
+                                    value={data.ENGINE_RUN}
                                     lastUpdatedDate={parsedDate}
                                 />
                             ))}
@@ -1054,8 +1138,8 @@ const UnitPage = () => {
                                         {cardDataCoil.map((data, index) => (
                                             <React.Fragment key={index}>
                                                 <Vacuum title="Vacuum Pump" coilValue={data.VACUM_ON} />
-                                                <Vacuum title="Low Level" coilValue={data.LOW_LEVEL} />
-                                                <Vacuum title="High Level" coilValue={data.HIGH_LEVEL} />
+                                                <LevelSensor title="Low Level" coilValue={data.LOW_LEVEL} />
+                                                <LevelSensor title="High Level" coilValue={data.HIGH_LEVEL} />
                                             </React.Fragment>
                                         ))}
                                     </Box>
