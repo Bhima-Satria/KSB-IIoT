@@ -18,9 +18,7 @@ export const fetchData = async (unitId) => {
         }
 
         // Tentukan URL endpoint untuk real-time
-        const apiUrl = unitId.toLowerCase() === 'ksb-unit 64'
-            ? `https://en8wv6x739.execute-api.ap-southeast-1.amazonaws.com/${unit}/RealTime`
-            : `https://jwvm7y7epd.execute-api.ap-southeast-1.amazonaws.com/${unit}/RealTime`;
+        const apiUrl =  `https://8hzol8pmvh.execute-api.ap-southeast-1.amazonaws.com/DNDDieselStandard/${unit}/RealTime`
 
         // Ambil data real-time
         const response = await fetch(apiUrl, {
@@ -37,9 +35,7 @@ export const fetchData = async (unitId) => {
         const data = await response.json();
 
         // Tentukan URL endpoint untuk GPS
-        const gpsApiUrl = unitId.toLowerCase() === 'ksb-unit 64'
-            ? `https://en8wv6x739.execute-api.ap-southeast-1.amazonaws.com/${unit}/GPS`
-            : `https://jwvm7y7epd.execute-api.ap-southeast-1.amazonaws.com/${unit}/GPS`;
+        const gpsApiUrl = `https://8hzol8pmvh.execute-api.ap-southeast-1.amazonaws.com/DNDDieselStandard/${unit}/GPS`
 
         // Ambil data GPS
         const gpsResponse = await fetch(gpsApiUrl, {
