@@ -3,17 +3,12 @@ import { Typography, Button, Grid, Box } from '@mui/material';
 import { CSSTransition } from 'react-transition-group';
 import { useNavigate } from 'react-router-dom'; // Import useNavigate
 
-// Import gambar dari folder src/img/
-import pump1 from '../img/KSB67.webp';
-import pump2 from '../img/KSB64.webp';
-import pump3 from '../img/KSBDoubleDrive.webp';
-
 const Content = () => {
     const navigate = useNavigate(); // useNavigate untuk navigasi
     const chartsData = [
-        { id: 1, title: 'KSB-Unit 64', image: pump2 },
-        { id: 2, title: 'KSB-Unit 67', image: pump1 },
-        { id: 3, title: 'KSB-Double Drive', image: pump3 },
+        { id: 1, title: 'KSB-Unit 64', image: '/img/KSB64.webp' },
+        { id: 2, title: 'KSB-Unit 67', image: '/img/KSB67.webp' },
+        { id: 3, title: 'KSB-Double Drive', image: '/img/KSBDoubleDrive.webp' },
     ];
 
     const [currentIndex, setCurrentIndex] = useState(0);
