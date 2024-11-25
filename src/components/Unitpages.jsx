@@ -438,25 +438,6 @@ const UnitPage = () => {
     const [fade, setFade] = useState(true); // State untuk transisi gambar
 
 
-    const nonlinearCurveData = {
-        label: 'Performance Curve',
-        data: Array.from({ length: 701 }, (_, x) => {
-            const maxFlow = 700; // Flow maksimum
-            const maxHead = 170; // Head maksimum
-            const scale = 0.005; // Skala untuk kontrol kelengkungan
-    
-            // Fungsi eksponensial non-linear
-            const y = maxHead * (1 - Math.exp(-scale * x));
-    
-            return { x, y: y > 0 ? y : 0 }; // Pastikan nilai y positif
-        }),
-        borderColor: 'rgba(0,0,255,0.7)', // Warna kurva
-        borderWidth: 2, // Ketebalan garis
-        pointRadius: 0, // Hilangkan titik pada kurva
-        fill: false, // Tidak mengisi area di bawah kurva
-        tension: 0.4, // Menambahkan kelengkungan (smooth, jika data memungkinkan)
-    };
-    
 
     const [chartData, setChartData] = useState({
         labels: [], // Menyimpan waktu dalam detik (atau format lain)
@@ -468,31 +449,47 @@ const UnitPage = () => {
                 fill: false,
                 pointRadius: 5, // Radius titik pada grafik
             },
-            nonlinearCurveData, // Tambahkan dataset kurva
         ],
     });
 
     const addData = (data) => {
-        setChartData((prevState) => {
-            const updatedDatasets = prevState.datasets.map((dataset, index) => {
+        // Tambahkan data baru dengan efek blinking
+        setChartData((prevState) => ({
+            ...prevState,
+            datasets: prevState.datasets.map((dataset, index) => {
                 if (index === 0) {
                     return {
                         ...dataset,
-                        data: [
-                            ...dataset.data,
-                            { x: data.flow, y: data.head }, // Format data {x: flow, y: head}
-                        ],
+                        data: [{ x: data.flow, y: data.head }], // Ganti data lama dengan data baru
+                        pointBackgroundColor: 'green', // Warna titik untuk blinking
+                        pointBorderColor: 'green',
+                        pointRadius: 8, // Ukuran titik untuk efek blinking
                     };
                 }
                 return dataset;
-            });
+            }),
+        }));
 
-            return {
+        // Kembalikan ke tampilan normal setelah 500ms
+        setTimeout(() => {
+            setChartData((prevState) => ({
                 ...prevState,
-                datasets: updatedDatasets,
-            };
-        });
+                datasets: prevState.datasets.map((dataset, index) => {
+                    if (index === 0) {
+                        return {
+                            ...dataset,
+                            pointBackgroundColor: 'rgba(255,0,0,1)', // Warna asli titik
+                            pointBorderColor: 'rgba(255,0,0,1)',
+                            pointRadius: 5, // Ukuran asli titik
+                        };
+                    }
+                    return dataset;
+                }),
+            }));
+        }, 500); // Durasi blinking dalam milidetik
     };
+
+
 
 
     const parseDateUTC = (dateString) => {
@@ -661,7 +658,7 @@ const UnitPage = () => {
                     addData({
                         time: dateObj.split(' ')[1], // Waktu diambil dari respons
                         flow: parseFloat(data.FLOW.toFixed(2)), // Nilai flow
-                        head: parseFloat(data.DISCHARGE_PRESSURE * 10.2.toFixed(2)), // Nilai head
+                        head: parseFloat((data.DISCHARGE_PRESSURE * 10.2).toFixed(0)), // Nilai head
                     });
                 }
             } catch (error) {
@@ -840,32 +837,42 @@ const UnitPage = () => {
                                             </TableRow>
                                         </TableHead>
                                         <TableBody>
-                                            {[
-                                                { label: 'Unit Name', value: unitId }, // Make Bold Text
-                                                { label: 'Type Pump', value: 'ISP-D150' },
-                                                { label: 'Customer', value: 'PT Adaro Tirta Sarana' },
-                                                { label: 'Duty Flow', value: '600 m3/h' },
-                                                { label: 'Duty Head', value: '165.24 m' },
-                                                { label: 'Speed', value: '1450 RPM' },
-                                            ].map(({ label, value }, index) => (
-                                                <TableRow key={index}>
-                                                    <TableCell
-                                                        sx={{ padding: '13px', fontSize: '1.1rem' }}
-                                                    >
-                                                        {label}
-                                                    </TableCell>
-                                                    <TableCell
-                                                        sx={{ padding: '13px', fontSize: '1.1rem' }}
-                                                    >
-                                                        {value}
-                                                    </TableCell>
-                                                </TableRow>
-                                            ))}
+                                            {(() => {
+                                                // Tentukan data berdasarkan unitId
+                                                const unitDetails =
+                                                    unitId === 'KSB-Unit 64'
+                                                        ? [
+                                                            { label: 'Unit Name', value: 'KSB 64' },
+                                                            { label: 'Type Pump', value: 'ISP-D150' },
+                                                            { label: 'Customer', value: 'PT Adaro Tirta Sarana' },
+                                                            { label: 'Duty Flow', value: '600 m3/h' },
+                                                            { label: 'Duty Head', value: '165.24 m' },
+                                                            { label: 'Speed', value: '1450 RPM' },
+                                                        ]
+                                                        : unitId === 'KSB-Unit 67'
+                                                            ? [
+                                                                { label: 'Unit Name', value: 'KSB 67' },
+                                                                { label: 'Type Pump', value: 'ISP-D200' },
+                                                                { label: 'Customer', value: 'PT TRB (Tanjung Raya Bersama)' },
+                                                                { label: 'Duty Flow', value: '800 m3/h' },
+                                                                { label: 'Duty Head', value: '160 m' },
+                                                                { label: 'Speed', value: '1500 RPM' },
+                                                            ]
+                                                            : []; // Default kosong jika unitId tidak sesuai
+
+                                                return unitDetails.map(({ label, value }, index) => (
+                                                    <TableRow key={index}>
+                                                        <TableCell sx={{ padding: '13px', fontSize: '1.1rem' }}>{label}</TableCell>
+                                                        <TableCell sx={{ padding: '13px', fontSize: '1.1rem' }}>{value}</TableCell>
+                                                    </TableRow>
+                                                ));
+                                            })()}
                                         </TableBody>
                                     </Table>
                                 </TableContainer>
                             </Box>
                         </Grid>
+
 
 
 
@@ -907,28 +914,28 @@ const UnitPage = () => {
                                                 <Bubble title="Flow" value={data.FLOW.toFixed(0)} unit="m3/h" Icon={Icons.Water} />
                                             </Grid>
                                             <Grid item xs={6} sm={4} md={6} lg={4} container justifyContent="center">
-                                                <Bubble title="Pump DE Temp" value={data.PUMP_DE_TEMP.toFixed(2)} unit="°C" Icon={Icons.Thermostat} />
+                                                <Bubble title="Engine Load" value={data.ENGINE_LOAD.toFixed(2)} unit="%" Icon={Icons.ElectricCar} />
                                             </Grid>
                                             <Grid item xs={6} sm={4} md={6} lg={4} container justifyContent="center">
-                                                <Bubble title="Engine Run Hour" value={data.ENGINE_RUN_HOUR.toFixed(2)} unit="Hours" Icon={Icons.ManageHistory} />
+                                                <Bubble title="Pump DE Vib X1" value={data.PUMP_NDE_VIB_X1.toFixed(2)} unit="mm/s" Icon={Icons.Sensors} />
+                                            </Grid>
+                                            <Grid item xs={6} sm={4} md={6} lg={4} container justifyContent="center">
+                                                <Bubble title="Discharge Pressure" value={data.DISCHARGE_PRESSURE.toFixed(2)} unit="Bar" Icon={Icons.Commit} />
                                             </Grid>
                                             <Grid item xs={6} sm={4} md={6} lg={4} container justifyContent="center">
                                                 <Bubble title="Engine Speed" value={data.ENGINE_SPEED} unit="RPM" Icon={Icons.Speed} />
                                             </Grid>
                                             <Grid item xs={6} sm={4} md={6} lg={4} container justifyContent="center">
-                                                <Bubble title="Engine Load" value={data.ENGINE_LOAD} unit="%" Icon={Icons.ElectricCar} />
+                                                <Bubble title="Pump NDE VIb X2" value={data.PUMP_NDE_VIB_X2.toFixed(2)} unit="mm/s" Icon={Icons.Sensors} />
+                                            </Grid>
+                                            <Grid item xs={6} sm={4} md={6} lg={4} container justifyContent="center">
+                                                <Bubble title="Total Head" value={(data.DISCHARGE_PRESSURE * 10.2).toFixed(2)} unit="m" Icon={Icons.AirlineStopsOutlined} />
                                             </Grid>
                                             <Grid item xs={6} sm={4} md={6} lg={4} container justifyContent="center">
                                                 <Bubble title="Fuel Rate" value={data.ENGINE_FUEL_CONSUMPTIONS.toFixed(2)} unit="L/h" Icon={Icons.LocalGasStation} />
                                             </Grid>
                                             <Grid item xs={6} sm={4} md={6} lg={4} container justifyContent="center">
-                                                <Bubble title="Pump DE Vib Y" value={data.PUMP_DE_VIB_Y.toFixed(2)} unit="mm/s" Icon={Icons.Sensors} />
-                                            </Grid>
-                                            <Grid item xs={6} sm={4} md={6} lg={4} container justifyContent="center">
-                                                <Bubble title="Pump NDE Vib X1" value={data.PUMP_NDE_VIB_X1.toFixed(2)} unit="mm/s" Icon={Icons.Sensors} />
-                                            </Grid>
-                                            <Grid item xs={6} sm={4} md={6} lg={4} container justifyContent="center">
-                                                <Bubble title="Pump NDE Vib X2" value={data.PUMP_NDE_VIB_X2.toFixed(2)} unit="mm/s" Icon={Icons.Sensors} />
+                                                <Bubble title="Pump NDE Vib Y" value={data.PUMP_DE_VIB_Y.toFixed(2)} unit="mm/s" Icon={Icons.Sensors} />
                                             </Grid>
                                             {/* Additional Bubbles */}
                                         </React.Fragment>
@@ -1005,25 +1012,28 @@ const UnitPage = () => {
                         </Grid>
 
 
-                        {/* Kolom kosong 3 diisi Chart*/}
                         <Grid item xs={12} sm={12} md={4} lg={4}>
-                            <Box sx={{
-                                backgroundColor: 'white',
-                                boxShadow: '0px 4px 16px rgba(0, 0, 0, 0.2)',
-                                borderRadius: '30px',
-                                height: '400px',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                margin: '5px',
-                            }}>
-                                <Box sx={{
-                                    height: '100%',
-                                    width: '100%',
-                                    padding: '12px',
+                            <Box
+                                sx={{
+                                    backgroundColor: 'white',
                                     boxShadow: '0px 4px 16px rgba(0, 0, 0, 0.2)',
                                     borderRadius: '30px',
-                                }}>
+                                    height: '400px',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    margin: '5px',
+                                }}
+                            >
+                                <Box
+                                    sx={{
+                                        height: '100%',
+                                        width: '100%',
+                                        padding: '12px',
+                                        boxShadow: '0px 4px 16px rgba(0, 0, 0, 0.2)',
+                                        borderRadius: '30px',
+                                    }}
+                                >
                                     <Line
                                         data={chartData}
                                         options={{
@@ -1036,6 +1046,27 @@ const UnitPage = () => {
                                                 title: {
                                                     display: true,
                                                     text: 'Performance Curve', // Judul grafik
+                                                },
+                                                tooltip: {
+                                                    enabled: false, // Nonaktifkan tooltip default
+                                                },
+                                                annotation: {
+                                                    annotations: chartData.datasets[0].data.map((point, index) => ({
+                                                        type: 'label',
+                                                        xValue: point.x,
+                                                        yValue: point.y,
+                                                        backgroundColor: 'rgba(200, 200, 200, 0.8)', // Latar belakang abu-abu muda
+                                                        borderColor: 'rgba(0,0,0,0.3)', // Garis border abu-abu
+                                                        borderWidth: 1,
+                                                        content: [`Flow: ${point.x} L/s`, `Head: ${point.y} m`],
+                                                        font: {
+                                                            size: 12, // Ukuran font
+                                                            weight: 'bold',
+                                                        },
+                                                        display: true,
+                                                        xAdjust: 50, // Tetap di tengah secara horizontal
+                                                        yAdjust: 30 // Geser lebih jauh ke atas
+                                                    })),
                                                 },
                                             },
                                             scales: {
@@ -1052,8 +1083,8 @@ const UnitPage = () => {
                                                         autoSkip: true,
                                                         maxTicksLimit: 10,
                                                     },
-                                                    min: 0, // Rentang minimum untuk sumbu Y
-                                                    max: 800, // Rentang maksimum untuk sumbu Y
+                                                    min: 0, // Rentang minimum untuk sumbu X
+                                                    max: 800, // Rentang maksimum untuk sumbu X
                                                 },
                                                 y: {
                                                     title: {
@@ -1069,10 +1100,12 @@ const UnitPage = () => {
                                             },
                                         }}
                                     />
-
                                 </Box>
                             </Box>
                         </Grid>
+
+
+
 
                         {/* Kolom kosong 4 diisi Alarm List */}
                         <Grid item xs={12} sm={12} md={4} lg={4}>
