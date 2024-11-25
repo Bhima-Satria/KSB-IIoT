@@ -923,7 +923,7 @@ const UnitPage = () => {
                                                 <Bubble title="Discharge Pressure" value={data.DISCHARGE_PRESSURE.toFixed(2)} unit="Bar" Icon={Icons.Commit} />
                                             </Grid>
                                             <Grid item xs={6} sm={4} md={6} lg={4} container justifyContent="center">
-                                                <Bubble title="Engine Speed" value={data.ENGINE_SPEED} unit="RPM" Icon={Icons.Speed} />
+                                                <Bubble title="Bearing Temp" value={data.PUMP_NDE_TEMP.toFixed(2)} unit="°C" Icon={Icons.Thermostat} />
                                             </Grid>
                                             <Grid item xs={6} sm={4} md={6} lg={4} container justifyContent="center">
                                                 <Bubble title="Pump NDE VIb X2" value={data.PUMP_NDE_VIB_X2.toFixed(2)} unit="mm/s" Icon={Icons.Sensors} />
@@ -1058,7 +1058,7 @@ const UnitPage = () => {
                                                         backgroundColor: 'rgba(200, 200, 200, 0.8)', // Latar belakang abu-abu muda
                                                         borderColor: 'rgba(0,0,0,0.3)', // Garis border abu-abu
                                                         borderWidth: 1,
-                                                        content: [`Flow: ${point.x} L/s`, `Head: ${point.y} m`],
+                                                        content: [`Flow: ${point.x} m3/h`, `Head: ${point.y} m`],
                                                         font: {
                                                             size: 12, // Ukuran font
                                                             weight: 'bold',
@@ -1074,7 +1074,7 @@ const UnitPage = () => {
                                                     type: 'linear', // Skala linear untuk flow
                                                     title: {
                                                         display: true,
-                                                        text: 'Flow (L/s)', // Label untuk sumbu X
+                                                        text: 'Flow (m3/h)', // Label untuk sumbu X
                                                     },
                                                     grid: {
                                                         display: true,
