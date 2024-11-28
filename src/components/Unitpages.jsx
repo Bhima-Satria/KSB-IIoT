@@ -5,7 +5,7 @@ import { useParams } from 'react-router-dom';
 import { fetchData } from './dataService';
 import { Line } from 'react-chartjs-2';
 import { Chart as ChartJS, LineElement, PointElement, LinearScale, CategoryScale, Title, Tooltip, Legend } from 'chart.js';
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper } from '@mui/material';
+import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Modal, Button } from '@mui/material';
 import { MapContainer, TileLayer, Marker, Popup, Circle } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -70,28 +70,58 @@ const Alarm = ({ title, coilValue }) => {
     const isWarning = coilValue === 1; // Check if the coil value indicates a warning
     const iconBackgroundColor = isWarning ? '#FF0000' : '#008000'; // Red for warning, green for normal
     const [blinkStyle, setBlinkStyle] = useState({ opacity: 1 }); // State for blinking effect
+    const [showPopup, setShowPopup] = useState(false); // State for popup visibility
+    const [blinkTextStyle, setBlinkTextStyle] = useState({ opacity: 1 }); // State for blinking text effect
 
     useEffect(() => {
+        let blinkInterval;
         if (isWarning) {
-            const interval = setInterval(() => {
+            blinkInterval = setInterval(() => {
                 setBlinkStyle((prevStyle) => ({
-                    opacity: prevStyle.opacity === 1 ? 0 : 1, // Toggle opacity for blinking
+                    opacity: prevStyle.opacity === 1 ? 0 : 1, // Toggle opacity for blinking icon
                 }));
-            }, 300); // Blinking every 500ms
+            }, 300); // Blinking every 300ms
 
-            return () => clearInterval(interval); // Cleanup on unmount
+            setShowPopup(true); // Show popup when warning occurs
         } else {
-            setBlinkStyle({ opacity: 1 }); // Reset opacity when no warning
+            setBlinkStyle({ opacity: 1 }); // Reset icon opacity
+            setShowPopup(false); // Hide popup when no warning
         }
-    }, [isWarning]); // Dependency array to run effect when `isWarning` changes
+
+        return () => clearInterval(blinkInterval); // Cleanup on unmount
+    }, [isWarning]);
+
+    useEffect(() => {
+        let blinkTextInterval;
+        if (isWarning && showPopup) {
+            blinkTextInterval = setInterval(() => {
+                setBlinkTextStyle((prevStyle) => ({
+                    opacity: prevStyle.opacity === 1 ? 0 : 1, // Toggle opacity for blinking text
+                }));
+            }, 500); // Blinking text every 1 second
+        }
+
+        return () => clearInterval(blinkTextInterval); // Cleanup on unmount
+    }, [isWarning, showPopup]);
+
+    useEffect(() => {
+        let timeout;
+        if (isWarning && !showPopup) {
+            timeout = setTimeout(() => {
+                setShowPopup(true); // Re-show popup after 5 minutes if warning persists
+            }, 3 * 60 * 1000); // 5 minutes
+        }
+
+        return () => clearTimeout(timeout); // Cleanup timeout on unmount or state change
+    }, [isWarning, showPopup]);
 
     const Icon = isWarning ? Icons.WarningAmberOutlined : Icons.GppGoodOutlined; // Select icon based on warning
 
     return (
         <Box
             sx={{
-                width: { xs: '100%', sm: '200px' },  // Responsif width for small and large screens
-                height: { xs: '20px', sm: '50px' }, // Responsif height for small and large screens
+                width: { xs: '100%', sm: '200px' },  // Responsive width for small and large screens
+                height: { xs: '20px', sm: '50px' }, // Responsive height for small and large screens
                 backgroundColor: '#F5F5F5',
                 borderRadius: '5px',
                 display: 'flex',
@@ -112,14 +142,14 @@ const Alarm = ({ title, coilValue }) => {
                     display: 'flex',
                     justifyContent: 'center',
                     alignItems: 'center',
-                    width: { xs: '20px', sm: '50px' },  // Responsif width for icon box
-                    height: { xs: '20px', sm: '50px' }, // Responsif height for icon box
+                    width: { xs: '20px', sm: '50px' },  // Responsive width for icon box
+                    height: { xs: '20px', sm: '50px' }, // Responsive height for icon box
                     marginRight: '10px',
                     padding: { xs: '5px', sm: '0' }, // Adjust padding based on screen size
                 }}
             >
                 <Icon sx={{
-                    fontSize: { xs: '10px', sm: '40px' },  // Responsif icon size
+                    fontSize: { xs: '10px', sm: '40px' },  // Responsive icon size
                     color: 'white',
                     ...blinkStyle,
                 }} />
@@ -135,11 +165,67 @@ const Alarm = ({ title, coilValue }) => {
                 <Typography variant="body1" sx={{
                     fontWeight: 'bold',
                     color: 'black',
-                    fontSize: { xs: '14px', sm: '16px' },  // Responsif font size
+                    fontSize: { xs: '14px', sm: '16px' },  // Responsive font size
                 }}>
                     {title}
                 </Typography>
             </Box>
+
+            {/* Error Popup */}
+            <Modal
+                open={showPopup}
+                onClose={() => setShowPopup(false)} // Close popup on user action
+                aria-labelledby="error-modal-title"
+                aria-describedby="error-modal-description"
+            >
+                <Box
+                    sx={{
+                        position: 'absolute',
+                        top: '50%',
+                        left: '50%',
+                        transform: 'translate(-50%, -50%)',
+                        width: { xs: 300, sm: 400 },
+                        bgcolor: 'white',
+                        border: '2px solid #000',
+                        boxShadow: 24,
+                        borderRadius: 2,
+                        p: 3,
+                    }}
+                >
+                    <Typography
+                        id="error-modal-title"
+                        variant="h4"
+                        sx={{
+                            color: '#FF0000',
+                            fontWeight: 'bold',
+                            textAlign: 'center',
+                            mb: 2,
+                            ...blinkTextStyle, // Apply blinking text effect
+                        }}
+                    >
+                        Warning!
+                    </Typography>
+                    <Typography
+                        id="error-modal-description"
+                        sx={{ color: 'black', mb: 3, textAlign: 'center' }}
+                    >
+                        {title} requires immediate attention!
+                    </Typography>
+                    <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+                        <Button
+                            variant="contained"
+                            onClick={() => setShowPopup(false)} // Close button
+                            sx={{
+                                bgcolor: '#FF0000',
+                                color: 'white',
+                                '&:hover': { bgcolor: '#cc0000' },
+                            }}
+                        >
+                            OK
+                        </Button>
+                    </Box>
+                </Box>
+            </Modal>
         </Box>
     );
 };
@@ -436,6 +522,7 @@ const UnitPage = () => {
     const [currentSlide, setCurrentSlide] = useState(0); // Slide yang aktif untuk slideshow
     const [currentImageIndex, setCurrentImageIndex] = useState(0); // Indeks gambar aktif
     const [fade, setFade] = useState(true); // State untuk transisi gambar
+    const [headerTitle, setHeaderTitle] = useState(''); // Judul awal kosong
 
 
 
@@ -449,6 +536,7 @@ const UnitPage = () => {
                 fill: false,
                 pointRadius: 5, // Radius titik pada grafik
             },
+
         ],
     });
 
@@ -614,7 +702,7 @@ const UnitPage = () => {
 
     useEffect(() => {
         if (!unitId) return;
-
+        setHeaderTitle(`${unitId}`); // Set judul berdasarkan unitId
         const fetchInterval = setInterval(async () => {
             await getData();
         }, 1000); // Interval untuk getData setiap 1 detik
@@ -735,8 +823,25 @@ const UnitPage = () => {
                         </Box>
                     </Grid>
 
-                    <Grid container spacing={0} sx={{ padding: '20px' }}>
+                    {/* Menampilkan Judul Unit di Header */}
+                    {headerTitle && (
+                        <Box sx={{
+                            position: 'absolute',
+                            top: 0,
+                            left: '50%',
+                            transform: 'translateX(-50%)',
+                            fontWeight: 'bold',
+                            color: '#fff',
+                            textAlign: 'center', // Menyejajarkan teks ke tengah
+                            fontSize: '7rem', // Ukuran font lebih besar
+                            padding: '20px', // Padding yang lebih besar
+                        }}>
+                            <Typography><strong>{headerTitle}</strong></Typography>
+                        </Box>
+                    )}
 
+
+                    <Grid container spacing={0} sx={{ padding: '20px' }}>
                         {/* Kolom untuk gambar */}
                         {window.innerWidth >= 600 && (
                             <Grid item xs={12} sm={12} md={4} lg={4}>
@@ -840,7 +945,7 @@ const UnitPage = () => {
                                             {(() => {
                                                 // Tentukan data berdasarkan unitId
                                                 const unitDetails =
-                                                    unitId === 'KSB-Unit 67'
+                                                    unitId === 'KSB 67'
                                                         ? [
                                                             { label: 'Unit Name', value: 'KSB 67' },
                                                             { label: 'Type Pump', value: 'ISP-D150' },
@@ -849,7 +954,7 @@ const UnitPage = () => {
                                                             { label: 'Duty Head', value: '165.24 m' },
                                                             { label: 'Speed', value: '1450 RPM' },
                                                         ]
-                                                        : unitId === 'KSB-Unit 64'
+                                                        : unitId === 'KSB 64'
                                                             ? [
                                                                 { label: 'Unit Name', value: 'KSB 64' },
                                                                 { label: 'Type Pump', value: 'ISP-D200' },
@@ -1011,7 +1116,7 @@ const UnitPage = () => {
                             ))}
                         </Grid>
 
-
+                        {/* Kolom kosong 5 diisi Chart */}
                         <Grid item xs={12} sm={12} md={4} lg={4}>
                             <Box
                                 sx={{
@@ -1050,24 +1155,26 @@ const UnitPage = () => {
                                                 tooltip: {
                                                     enabled: false, // Nonaktifkan tooltip default
                                                 },
-                                                annotation: {
-                                                    annotations: chartData.datasets[0].data.map((point, index) => ({
-                                                        type: 'label',
-                                                        xValue: point.x,
-                                                        yValue: point.y,
-                                                        backgroundColor: 'rgba(200, 200, 200, 0.8)', // Latar belakang abu-abu muda
-                                                        borderColor: 'rgba(0,0,0,0.3)', // Garis border abu-abu
-                                                        borderWidth: 1,
-                                                        content: [`Flow: ${point.x} m3/h`, `Head: ${point.y} m`],
-                                                        font: {
-                                                            size: 12, // Ukuran font
-                                                            weight: 'bold',
-                                                        },
-                                                        display: true,
-                                                        xAdjust: 50, // Tetap di tengah secara horizontal
-                                                        yAdjust: 30 // Geser lebih jauh ke atas
-                                                    })),
-                                                },
+                                                annotation: chartData.datasets[0]?.data.length
+                                                    ? {
+                                                        annotations: chartData.datasets[0].data.map((point, index) => ({
+                                                            type: 'label',
+                                                            xValue: point.x,
+                                                            yValue: point.y,
+                                                            backgroundColor: 'rgba(200, 200, 200, 0.8)', // Latar belakang abu-abu muda
+                                                            borderColor: 'rgba(0,0,0,0.3)', // Garis border abu-abu
+                                                            borderWidth: 1,
+                                                            content: [`Flow: ${point.x} m3/h`, `Head: ${point.y} m`],
+                                                            font: {
+                                                                size: 12, // Ukuran font
+                                                                weight: 'bold',
+                                                            },
+                                                            display: true,
+                                                            xAdjust: 50, // Tetap di tengah secara horizontal
+                                                            yAdjust: 30, // Geser lebih jauh ke atas
+                                                        })),
+                                                    }
+                                                    : undefined,
                                             },
                                             scales: {
                                                 x: {
@@ -1084,7 +1191,9 @@ const UnitPage = () => {
                                                         maxTicksLimit: 10,
                                                     },
                                                     min: 0, // Rentang minimum untuk sumbu X
-                                                    max: 800, // Rentang maksimum untuk sumbu X
+                                                    max: chartData.datasets[0]?.data.length
+                                                        ? Math.max(...chartData.datasets[0].data.map((d) => d.x)) + 150
+                                                        : undefined, // Tambahkan offset 100 jika data tersedia
                                                 },
                                                 y: {
                                                     title: {
@@ -1103,8 +1212,6 @@ const UnitPage = () => {
                                 </Box>
                             </Box>
                         </Grid>
-
-
 
 
                         {/* Kolom kosong 4 diisi Alarm List */}
@@ -1207,7 +1314,7 @@ const UnitPage = () => {
                                     >
                                         {cardDataCoil.map((data, index) => (
                                             <React.Fragment key={index}>
-                                                <Alarm title="Pump DE Temp" coilValue={data.PUMP_DE_OVER_TEMP} />
+                                                <Alarm title="Pump DE Temp" coilValue={1} />
                                                 <Alarm title="Oil Lube Cloging" coilValue={data.OIL_LUB_CLOG} />
                                                 <Alarm title="Oil Lube No Flow" coilValue={data.OIL_LUB_NO_FLOW} />
                                                 <Alarm title="DE Vibration Y" coilValue={data.PUMP_ALARM_DE_VIB_Y1} />

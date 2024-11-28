@@ -6,9 +6,9 @@ import { useNavigate } from 'react-router-dom'; // Import useNavigate
 const Content = () => {
     const navigate = useNavigate(); // useNavigate untuk navigasi
     const chartsData = [
-        { id: 1, title: 'KSB-Unit 64', image: '/img/KSB64.webp' },
-        { id: 2, title: 'KSB-Unit 67', image: '/img/KSB67.webp' },
-        { id: 3, title: 'KSB-Double Drive', image: '/img/KSBDoubleDrive.webp' },
+        { id: 1, title: 'KSB 64', image: '/img/KSB64.webp' },
+        { id: 2, title: 'KSB 67', image: '/img/KSB67.webp' },
+        { id: 3, title: 'KSB Double Drive', image: '/img/KSBDoubleDrive.webp' },
     ];
 
     const [currentIndex, setCurrentIndex] = useState(0);

@@ -1,7 +1,7 @@
 export const fetchData = async (unitId) => {
     try {
         // Ambil hanya 'ksb' dan angkanya dari unitId
-        const parsedUnitId = unitId.match(/ksb-unit\s*(\d+)/i);
+        const parsedUnitId = unitId.match(/ksb \s*(\d+)/i);
         let unit;
         
         if (!parsedUnitId || parsedUnitId.length < 2) {
@@ -11,7 +11,7 @@ export const fetchData = async (unitId) => {
         const unitNumber = parsedUnitId[1];
 
         // Cek jika unitId adalah 'KSB-Unit 64' dan ubah endpoint
-        if (unitId.toLowerCase() === 'ksb-unit 64') {
+        if (unitId.toLowerCase() === 'ksb 64') {
             unit = `KSB${unitNumber}`;
         } else {
             unit = `KSB${unitNumber}`;
