@@ -840,7 +840,7 @@ const UnitPage = () => {
                                             {(() => {
                                                 // Tentukan data berdasarkan unitId
                                                 const unitDetails =
-                                                    unitId === 'KSB-Unit 64'
+                                                    unitId === 'KSB-Unit 67'
                                                         ? [
                                                             { label: 'Unit Name', value: 'KSB 64' },
                                                             { label: 'Type Pump', value: 'ISP-D150' },
@@ -849,7 +849,7 @@ const UnitPage = () => {
                                                             { label: 'Duty Head', value: '165.24 m' },
                                                             { label: 'Speed', value: '1450 RPM' },
                                                         ]
-                                                        : unitId === 'KSB-Unit 67'
+                                                        : unitId === 'KSB-Unit 64'
                                                             ? [
                                                                 { label: 'Unit Name', value: 'KSB 67' },
                                                                 { label: 'Type Pump', value: 'ISP-D200' },
