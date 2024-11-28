@@ -842,16 +842,16 @@ const UnitPage = () => {
                                                 const unitDetails =
                                                     unitId === 'KSB-Unit 67'
                                                         ? [
-                                                            { label: 'Unit Name', value: 'KSB 64' },
+                                                            { label: 'Unit Name', value: 'KSB 67' },
                                                             { label: 'Type Pump', value: 'ISP-D150' },
-                                                            { label: 'Customer', value: 'PT Adaro Tirta Sarana' },
+                                                            { label: 'Customer', value: 'PT Adaro Tirta Sarana (Sera)' },
                                                             { label: 'Duty Flow', value: '600 m3/h' },
                                                             { label: 'Duty Head', value: '165.24 m' },
                                                             { label: 'Speed', value: '1450 RPM' },
                                                         ]
                                                         : unitId === 'KSB-Unit 64'
                                                             ? [
-                                                                { label: 'Unit Name', value: 'KSB 67' },
+                                                                { label: 'Unit Name', value: 'KSB 64' },
                                                                 { label: 'Type Pump', value: 'ISP-D200' },
                                                                 { label: 'Customer', value: 'PT TRB (Tanjung Raya Bersama)' },
                                                                 { label: 'Duty Flow', value: '800 m3/h' },
