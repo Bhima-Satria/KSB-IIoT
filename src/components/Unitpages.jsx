@@ -1314,7 +1314,7 @@ const UnitPage = () => {
                                     >
                                         {cardDataCoil.map((data, index) => (
                                             <React.Fragment key={index}>
-                                                <Alarm title="Pump DE Temp" coilValue={1} />
+                                                <Alarm title="Pump DE Temp" coilValue={data.PUMP_DE_TEMP} />
                                                 <Alarm title="Oil Lube Cloging" coilValue={data.OIL_LUB_CLOG} />
                                                 <Alarm title="Oil Lube No Flow" coilValue={data.OIL_LUB_NO_FLOW} />
                                                 <Alarm title="DE Vibration Y" coilValue={data.PUMP_ALARM_DE_VIB_Y1} />
