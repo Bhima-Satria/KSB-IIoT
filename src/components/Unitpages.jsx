@@ -10,6 +10,7 @@ import { MapContainer, TileLayer, Marker, Popup, Circle } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import annotationPlugin from 'chartjs-plugin-annotation';
+import dayjs from 'dayjs'; // For date and time formatting
 
 // Daftarkan plugin
 ChartJS.register(annotationPlugin);
@@ -66,166 +67,83 @@ const Bubble = ({ title, value, unit, Icon }) => {
     );
 };
 
-const Alarm = ({ title, coilValue }) => {
-    const isWarning = coilValue === 1; // Check if the coil value indicates a warning
-    const iconBackgroundColor = isWarning ? '#FF0000' : '#008000'; // Red for warning, green for normal
-    const [blinkStyle, setBlinkStyle] = useState({ opacity: 1 }); // State for blinking effect
-    const [showPopup, setShowPopup] = useState(false); // State for popup visibility
-    const [blinkTextStyle, setBlinkTextStyle] = useState({ opacity: 1 }); // State for blinking text effect
+const Alarm = ({ title, coilValue, onAlarmUpdate }) => {
+    const isWarning = coilValue === 1; // Active alarm if coilValue is 1
+    const iconBackgroundColor = isWarning ? '#FF0000' : '#008000'; // Red for active, green for normal
+    const [blinkStyle, setBlinkStyle] = useState({ opacity: 1 });
 
     useEffect(() => {
         let blinkInterval;
         if (isWarning) {
             blinkInterval = setInterval(() => {
-                setBlinkStyle((prevStyle) => ({
-                    opacity: prevStyle.opacity === 1 ? 0 : 1, // Toggle opacity for blinking icon
+                setBlinkStyle((prev) => ({
+                    opacity: prev.opacity === 1 ? 0 : 1,
                 }));
-            }, 300); // Blinking every 300ms
-
-            setShowPopup(true); // Show popup when warning occurs
+            }, 300);
         } else {
-            setBlinkStyle({ opacity: 1 }); // Reset icon opacity
-            setShowPopup(false); // Hide popup when no warning
+            setBlinkStyle({ opacity: 1 });
         }
 
-        return () => clearInterval(blinkInterval); // Cleanup on unmount
-    }, [isWarning]);
+        // Notify parent about the alarm status
+        onAlarmUpdate(title, isWarning);
 
-    useEffect(() => {
-        let blinkTextInterval;
-        if (isWarning && showPopup) {
-            blinkTextInterval = setInterval(() => {
-                setBlinkTextStyle((prevStyle) => ({
-                    opacity: prevStyle.opacity === 1 ? 0 : 1, // Toggle opacity for blinking text
-                }));
-            }, 500); // Blinking text every 1 second
-        }
-
-        return () => clearInterval(blinkTextInterval); // Cleanup on unmount
-    }, [isWarning, showPopup]);
-
-    useEffect(() => {
-        let timeout;
-        if (isWarning && !showPopup) {
-            timeout = setTimeout(() => {
-                setShowPopup(true); // Re-show popup after 5 minutes if warning persists
-            }, 3 * 60 * 1000); // 5 minutes
-        }
-
-        return () => clearTimeout(timeout); // Cleanup timeout on unmount or state change
-    }, [isWarning, showPopup]);
-
-    const Icon = isWarning ? Icons.WarningAmberOutlined : Icons.GppGoodOutlined; // Select icon based on warning
+        return () => {
+            clearInterval(blinkInterval);
+            onAlarmUpdate(title, false); // Cleanup to remove alarm
+        };
+    }, [isWarning, onAlarmUpdate, title]);
 
     return (
         <Box
             sx={{
-                width: { xs: '100%', sm: '200px' },  // Responsive width for small and large screens
-                height: { xs: '20px', sm: '50px' }, // Responsive height for small and large screens
+                width: { xs: '100%', sm: '200px' },
+                height: { xs: '20px', sm: '50px' },
                 backgroundColor: '#F5F5F5',
                 borderRadius: '5px',
                 display: 'flex',
                 flexDirection: 'row',
-                justifyContent: 'left',
                 alignItems: 'center',
-                boxShadow: '0px 4px 16px rgba(0, 0, 0, 0.3)',
-                padding: { xs: '4px', sm: '0px' }, // Adjust padding based on screen size
+                padding: { xs: '4px', sm: '0px' },
                 marginBottom: 3,
+                boxShadow: '0px 4px 16px rgba(0, 0, 0, 0.3)',
                 border: '1px solid #DDDDDD',
             }}
         >
-            {/* Icon box */}
+            {/* Icon Box */}
             <Box
                 sx={{
-                    backgroundColor: iconBackgroundColor, // Red for warning, green for normal
+                    backgroundColor: iconBackgroundColor,
                     borderRadius: '5px',
                     display: 'flex',
                     justifyContent: 'center',
                     alignItems: 'center',
-                    width: { xs: '20px', sm: '50px' },  // Responsive width for icon box
-                    height: { xs: '20px', sm: '50px' }, // Responsive height for icon box
+                    width: { xs: '20px', sm: '50px' },
+                    height: { xs: '20px', sm: '50px' },
                     marginRight: '10px',
-                    padding: { xs: '5px', sm: '0' }, // Adjust padding based on screen size
                 }}
             >
-                <Icon sx={{
-                    fontSize: { xs: '10px', sm: '40px' },  // Responsive icon size
-                    color: 'white',
-                    ...blinkStyle,
-                }} />
+                <Icons.WarningAmberOutlined
+                    sx={{
+                        fontSize: { xs: '10px', sm: '40px' }, // Responsive icon size
+                        color: 'white',
+                        ...blinkStyle,
+                    }}
+                />
             </Box>
 
-            {/* Text box */}
-            <Box sx={{
-                display: 'flex',
-                flexDirection: 'column',
-                textAlign: 'left',
-                marginLeft: { xs: '10px', sm: '0px' }, // Adjust text margin for smaller screens
-            }}>
-                <Typography variant="body1" sx={{
-                    fontWeight: 'bold',
-                    color: 'black',
-                    fontSize: { xs: '14px', sm: '16px' },  // Responsive font size
-                }}>
+            {/* Text Box */}
+            <Box sx={{ textAlign: 'left', marginLeft: { xs: '10px', sm: '0px' } }}>
+                <Typography
+                    variant="body1"
+                    sx={{
+                        fontWeight: 'bold',
+                        color: isWarning ? '#FF0000' : '#000',
+                        fontSize: { xs: '14px', sm: '16px' }, // Responsive font size
+                    }}
+                >
                     {title}
                 </Typography>
             </Box>
-
-            {/* Error Popup */}
-            <Modal
-                open={showPopup}
-                onClose={() => setShowPopup(false)} // Close popup on user action
-                aria-labelledby="error-modal-title"
-                aria-describedby="error-modal-description"
-            >
-                <Box
-                    sx={{
-                        position: 'absolute',
-                        top: '50%',
-                        left: '50%',
-                        transform: 'translate(-50%, -50%)',
-                        width: { xs: 300, sm: 400 },
-                        bgcolor: 'white',
-                        border: '2px solid #000',
-                        boxShadow: 24,
-                        borderRadius: 2,
-                        p: 3,
-                    }}
-                >
-                    <Typography
-                        id="error-modal-title"
-                        variant="h4"
-                        sx={{
-                            color: '#FF0000',
-                            fontWeight: 'bold',
-                            textAlign: 'center',
-                            mb: 2,
-                            ...blinkTextStyle, // Apply blinking text effect
-                        }}
-                    >
-                        Warning!
-                    </Typography>
-                    <Typography
-                        id="error-modal-description"
-                        sx={{ color: 'black', mb: 3, textAlign: 'center' }}
-                    >
-                        {title} requires immediate attention!
-                    </Typography>
-                    <Box sx={{ display: 'flex', justifyContent: 'center' }}>
-                        <Button
-                            variant="contained"
-                            onClick={() => setShowPopup(false)} // Close button
-                            sx={{
-                                bgcolor: '#FF0000',
-                                color: 'white',
-                                '&:hover': { bgcolor: '#cc0000' },
-                            }}
-                        >
-                            OK
-                        </Button>
-                    </Box>
-                </Box>
-            </Modal>
         </Box>
     );
 };
@@ -523,7 +441,49 @@ const UnitPage = () => {
     const [currentImageIndex, setCurrentImageIndex] = useState(0); // Indeks gambar aktif
     const [fade, setFade] = useState(true); // State untuk transisi gambar
     const [headerTitle, setHeaderTitle] = useState(''); // Judul awal kosong
+    const [activeAlarms, setActiveAlarms] = useState([]);
+    const [dismissed, setDismissed] = useState(false); // Tambahkan state untuk dismiss status
 
+    // Fungsi untuk mengupdate alarm
+    const updateAlarms = (title, isActive) => {
+        setActiveAlarms((prevAlarms) => {
+            // Jika alarm aktif, tambahkan ke daftar jika belum ada
+            if (isActive) {
+                if (!prevAlarms.some((alarm) => alarm.title === title)) {
+                    return [...prevAlarms, { title, timestamp: dayjs().format('YYYY-MM-DD HH:mm:ss') }];
+                }
+            }
+
+            // Tidak menghapus alarm jika coil status berubah menjadi tidak aktif
+            return prevAlarms;
+        });
+    };
+
+    // Fungsi untuk dismiss alarm
+    const handleDismiss = () => {
+        setDismissed(true); // Menyembunyikan popup dengan set dismissed menjadi true
+        setActiveAlarms([]); // Menghapus semua alarm yang aktif
+
+        // Set timeout untuk 5 menit
+        setTimeout(() => {
+            // Memeriksa apakah ada alarm yang masih aktif setelah 5 menit
+            const stillActiveAlarms = cardDataCoil.some((data) => {
+                return (
+                    data.OIL_LUB_NO_FLOW === 1 ||
+                    data.PUMP_ALARM_DE_VIB_Y1 === 1 ||
+                    data.PUMP_ALARM_NDE_VIB_X1 === 1 ||
+                    data.PUMP_ALARM_NDE_VIB_X2 === 1
+                );
+            });
+
+            if (stillActiveAlarms) {
+                setActiveAlarms((prev) => [...prev]); // Update alarm jika masih ada yang aktif
+            }
+
+            // Reset dismissed menjadi false setelah 5 menit
+            setDismissed(false);
+        }, 5 * 60 * 1000); // Tunggu selama 5 menit
+    };
 
 
     const [chartData, setChartData] = useState({
@@ -1309,19 +1269,141 @@ const UnitPage = () => {
                                             gap: '0px',  // Mengurangi gap menjadi 0 untuk jarak antar card lebih rapat
                                             width: '100%',  // Full width of the box
                                             justifyItems: 'center',  // Center grid items horizontally
-                                            alignItems: 'start',  // Align grid items to the top
+                                            alignItems: 'start',  // Align grid items to the top data.PUMP_DE_OVER_TEMP
                                         }}
                                     >
                                         {cardDataCoil.map((data, index) => (
                                             <React.Fragment key={index}>
-                                                <Alarm title="Pump DE Temp" coilValue={data.PUMP_DE_TEMP} />
-                                                <Alarm title="Oil Lube Cloging" coilValue={data.OIL_LUB_CLOG} />
-                                                <Alarm title="Oil Lube No Flow" coilValue={data.OIL_LUB_NO_FLOW} />
-                                                <Alarm title="DE Vibration Y" coilValue={data.PUMP_ALARM_DE_VIB_Y1} />
-                                                <Alarm title="NDE Vibration X1" coilValue={data.PUMP_ALARM_NDE_VIB_X1} />
-                                                <Alarm title="NDE Vibration X2" coilValue={data.PUMP_ALARM_NDE_VIB_X2} />
+                                                <Alarm
+                                                    title="Pump DE Temp"
+                                                    coilValue={data.PUMP_DE_OVER_TEMP}
+                                                    onAlarmUpdate={updateAlarms}
+                                                />
+                                                <Alarm
+                                                    title="Oil Lube Clogging"
+                                                    coilValue={data.OIL_LUB_CLOG}
+                                                    onAlarmUpdate={updateAlarms}
+                                                />
+                                                <Alarm
+                                                    title="Oil Lube No Flow"
+                                                    coilValue={data.OIL_LUB_NO_FLOW}
+                                                    onAlarmUpdate={updateAlarms}
+                                                />
+                                                <Alarm
+                                                    title="DE Vibration Y"
+                                                    coilValue={data.PUMP_ALARM_DE_VIB_Y1}
+                                                    onAlarmUpdate={updateAlarms}
+                                                />
+                                                <Alarm
+                                                    title="NDE Vibration X1"
+                                                    coilValue={data.PUMP_ALARM_NDE_VIB_X1}
+                                                    onAlarmUpdate={updateAlarms}
+                                                />
+                                                <Alarm
+                                                    title="NDE Vibration X2"
+                                                    coilValue={data.PUMP_ALARM_NDE_VIB_X2}
+                                                    onAlarmUpdate={updateAlarms}
+                                                />
                                             </React.Fragment>
                                         ))}
+
+                                        {/* Popup for Active Alarms */}
+                                        {activeAlarms.length > 0 && !dismissed && (
+                                            <Modal
+                                                open={true}
+                                                onClose={() => setDismissed(false)} // Jangan tutup popup kecuali lewat "Dismiss"
+                                                aria-labelledby="active-alarms-popup"
+                                            >
+                                                <Box
+                                                    sx={{
+                                                        position: 'absolute',
+                                                        top: '50%',
+                                                        left: '50%',
+                                                        transform: 'translate(-50%, -50%)',
+                                                        bgcolor: 'white',
+                                                        padding: 3,
+                                                        borderRadius: 2,
+                                                        boxShadow: 24,
+                                                        maxWidth: 800,
+                                                        overflowY: 'auto',
+                                                    }}
+                                                >
+                                                    {/* Teks Warning */}
+                                                    <Typography
+                                                        id="active-alarms-popup"
+                                                        variant="h4"
+                                                        sx={{
+                                                            fontWeight: 'bold',
+                                                            textAlign: 'center',
+                                                            color: '#FF0000',
+                                                            marginBottom: 2,
+                                                            animation: 'blinking 1s infinite',
+                                                            fontSize: '40px',
+                                                        }}
+                                                    >
+                                                        Warning!
+                                                    </Typography>
+
+                                                    <Box sx={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center' }}>
+                                                        {activeAlarms.map((alarm, idx) => (
+                                                            <Box
+                                                                key={idx}
+                                                                sx={{
+                                                                    display: 'flex',
+                                                                    flexDirection: 'column',
+                                                                    alignItems: 'center',
+                                                                    marginRight: 3,
+                                                                    marginBottom: 3,
+                                                                    padding: 2,
+                                                                    borderRadius: 2,
+                                                                    backgroundColor: '#f8d7da',
+                                                                    width: '200px',
+                                                                }}
+                                                            >
+                                                                {/* Judul Alarm */}
+                                                                <Typography
+                                                                    sx={{
+                                                                        fontWeight: 'bold',
+                                                                        color: '#FF0000',
+                                                                        fontSize: '16px',
+                                                                        textAlign: 'center',
+                                                                        marginBottom: 1,
+                                                                    }}
+                                                                >
+                                                                    {alarm.title}
+                                                                </Typography>
+
+                                                                {/* Waktu Alarm Terakhir */}
+                                                                <Typography
+                                                                    sx={{
+                                                                        color: '#555',
+                                                                        fontSize: '12px',
+                                                                        textAlign: 'center',
+                                                                    }}
+                                                                >
+                                                                    Last Alarm: {alarm.timestamp}
+                                                                </Typography>
+                                                            </Box>
+                                                        ))}
+                                                    </Box>
+
+                                                    <Box sx={{ textAlign: 'center' }}>
+                                                        <Button
+                                                            variant="contained"
+                                                            onClick={handleDismiss}
+                                                            sx={{
+                                                                bgcolor: '#FF0000',
+                                                                color: 'white',
+                                                                '&:hover': { bgcolor: '#cc0000' },
+                                                            }}
+                                                        >
+                                                            Dismiss
+                                                        </Button>
+                                                    </Box>
+                                                </Box>
+                                            </Modal>
+                                        )}
+
                                     </Box>
                                 </Box>
                             </Box>
