@@ -33,8 +33,17 @@ const defaultIcon = new L.Icon({
     shadowAnchor: [12, 41], // Where the shadow is anchored
 });
 
-// Komponen Bubble untuk menampilkan data (Atur agar menyesuaikan layar)
+// Komponen Bubble
 const Bubble = ({ title, value, unit, Icon }) => {
+    const [maxValue, setMaxValue] = useState(value); // State untuk menyimpan nilai maksimum
+
+    // Periksa apakah value baru lebih besar dari maxValue
+    useEffect(() => {
+        if (value > maxValue) {
+            setMaxValue(value); // Perbarui nilai maksimum
+        }
+    }, [value, maxValue]);
+
     return (
         <Box
             sx={{
@@ -60,8 +69,11 @@ const Bubble = ({ title, value, unit, Icon }) => {
             <Typography variant="body2" sx={{ color: 'white', fontWeight: 'bold', textAlign: 'center' }}>
                 {title}
             </Typography>
-            <Typography variant="h6" sx={{ color: 'white', textAlign: 'center' }}>
+            <Typography variant="body1" sx={{ color: 'white', textAlign: 'center', }}>
                 {value} {unit}
+            </Typography>
+            <Typography variant="caption" sx={{ color: '#FFD700', textAlign: 'center' }}>
+                Highest Value: {maxValue} {unit}
             </Typography>
         </Box>
     );
@@ -274,50 +286,104 @@ const LevelSensor = ({ title, coilValue }) => {
 
 const DataCard = ({ title, value, unit, Icon, Duty }) => {
     return (
-        <Card sx={{
-            backgroundColor: 'white',
-            boxShadow: '0px 4px 16px rgba(0, 0, 0, 0.2)',
-            display: 'flex',
-            flexDirection: 'column',
-            padding: { xs: 1, sm: 2 }, // Padding responsif
-            margin: 1,
-            flex: 1,
-            minWidth: { xs: '120px', sm: '200px' },
-            maxWidth: '100%', // Membatasi lebar maksimal
-        }}>
-            <CardContent sx={{ display: 'flex', alignItems: 'center', width: '100%' }}>
-                <Box sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
-                    <Typography variant="body2" color="textSecondary" sx={{ fontSize: { xs: '1rem', sm: '1.2rem' } }}>
+        <Card
+            sx={{
+                backgroundColor: 'white',
+                boxShadow: '0px 4px 16px rgba(0, 0, 0, 0.2)',
+                display: 'flex',
+                flexDirection: 'column',
+                padding: { xs: 1, sm: 2 }, // Padding responsif
+                margin: 1,
+                flex: 1,
+                minWidth: { xs: '120px', sm: '200px' },
+                maxWidth: '100%', // Membatasi lebar maksimal
+            }}
+        >
+            <CardContent
+                sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    width: '100%',
+                    paddingBottom: '8px', // Kurangi jarak bawah
+                    paddingTop: '8px', // Kurangi jarak atas
+                }}
+            >
+                <Box
+                    sx={{
+                        flexGrow: 1,
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '4px', // Kurangi jarak antar teks
+                    }}
+                >
+                    <Typography
+                        variant="body2"
+                        color="textSecondary"
+                        sx={{
+                            fontSize: { xs: '1rem', sm: '1.2rem' },
+                            marginBottom: '4px', // Jarak bawah kecil
+                        }}
+                    >
                         {title}
                     </Typography>
-                    <Typography variant="h5" sx={{ fontWeight: 'bold', fontSize: { xs: '1.2rem', sm: '1.5rem' } }}>
+                    <Typography
+                        variant="h5"
+                        sx={{
+                            fontWeight: 'bold',
+                            fontSize: { xs: '1.2rem', sm: '1.5rem' },
+                            marginTop: '4px', // Jarak atas kecil
+                        }}
+                    >
                         {value} {unit}
                     </Typography>
                 </Box>
-                <Box sx={{
-                    width: { xs: '50px', sm: '80px' }, // Responsif lebar ikon
-                    height: { xs: '50px', sm: '80px' }, // Responsif tinggi ikon
-                    borderRadius: '50%',
-                    backgroundColor: '#f5f5f5',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    marginLeft: 2
-                }}>
-                    <Icon sx={{
-                        fontSize: { xs: '40px', sm: '70px' }, // Responsif ukuran ikon
-                        color: '#FF8A00',
-                    }} />
+                <Box
+                    sx={{
+                        width: { xs: '50px', sm: '80px' }, // Responsif lebar ikon
+                        height: { xs: '50px', sm: '80px' }, // Responsif tinggi ikon
+                        borderRadius: '50%',
+                        backgroundColor: '#f5f5f5',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        marginLeft: 1, // Kurangi margin kiri
+                    }}
+                >
+                    <Icon
+                        sx={{
+                            fontSize: { xs: '40px', sm: '70px' }, // Responsif ukuran ikon
+                            color: '#FF8A00',
+                        }}
+                    />
                 </Box>
             </CardContent>
-            <Box sx={{
-                borderTop: '1px solid #e0e0e0', width: '100%',
-                textAlign: 'center', marginTop: 1, display: 'flex',
-                justifyContent: 'space-between', alignItems: 'center',
-                padding: { xs: '0.5rem', sm: '1rem' }, // Responsif padding bawah
-            }}>
-                <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                    <Typography variant="body2" color="textSecondary" sx={{ fontSize: { xs: '0.8rem', sm: '1rem' } }}>
+
+            {/* Kurangi marginTop untuk mengurangi ruang kosong bawah */}
+            <Box
+                sx={{
+                    borderTop: '1px solid #e0e0e0',
+                    width: '100%',
+                    textAlign: 'center',
+                    marginTop: '4px', // Kurangi margin atas
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    padding: { xs: '4px', sm: '8px' }, // Responsif padding bawah
+                }}
+            >
+                <Box
+                    sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                    }}
+                >
+                    <Typography
+                        variant="body2"
+                        color="textSecondary"
+                        sx={{
+                            fontSize: { xs: '0.8rem', sm: '1rem' },
+                        }}
+                    >
                         {Duty}
                     </Typography>
                 </Box>
@@ -354,13 +420,13 @@ const CardStatus = ({ title, value, lastUpdatedDate }) => {
     const statusIcon = isOn ? (
         <Icons.PowerSettingsNew sx={{
             color: '#4CAF50',
-            fontSize: { xs: '50px', sm: '70px', md: '100px' }, // Ukuran responsif
+            fontSize: { xs: '40px', sm: '60px', md: '80px' }, // Ukuran responsif lebih kecil
             opacity: blinkStyle.opacity,
         }} />
     ) : (
         <Icons.PowerSettingsNew sx={{
             color: '#FF0000',
-            fontSize: { xs: '50px', sm: '70px', md: '100px' }, // Ukuran responsif
+            fontSize: { xs: '40px', sm: '60px', md: '80px' }, // Ukuran responsif lebih kecil
         }} />
     );
 
@@ -379,28 +445,31 @@ const CardStatus = ({ title, value, lastUpdatedDate }) => {
             maxWidth: '100%', // Membatasi lebar maksimal agar sesuai dengan layar
         }}>
             <CardContent sx={{ display: 'flex', alignItems: 'center', width: '100%' }}>
-                <Box sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
-                    <Typography variant="body2" color="textSecondary" sx={{ fontSize: { xs: '1rem', sm: '1.2rem' } }}>
+                <Box sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                    <Typography variant="body2" color="textSecondary" sx={{
+                        fontSize: { xs: '0.9rem', sm: '1.1rem' }, // Ukuran responsif lebih kecil
+                        marginBottom: '4px',
+                    }}>
                         {title}
                     </Typography>
                     <Typography variant="h5" sx={{
                         fontWeight: 'bold',
-                        fontSize: { xs: '1rem', sm: '1.5rem' }, // Ukuran teks responsif
+                        fontSize: { xs: '0.9rem', sm: '1.3rem' }, // Ukuran responsif lebih kecil
                     }}>
                         {statusText}
                     </Typography>
                 </Box>
                 <Box sx={{
-                    width: { xs: '40px', sm: '80px' },
-                    height: { xs: '40px', sm: '80px' },
+                    width: { xs: '40px', sm: '60px' },
+                    height: { xs: '40px', sm: '60px' },
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                     marginLeft: 2
                 }}>
                     <Box sx={{
-                        width: { xs: '60px', sm: '80px', md: '100px' },
-                        height: { xs: '60px', sm: '80px', md: '100px' },
+                        width: { xs: '50px', sm: '70px', md: '80px' },
+                        height: { xs: '50px', sm: '70px', md: '80px' },
                         borderRadius: '50%',
                         backgroundColor: '#f5f5f5',
                         display: 'flex',
@@ -415,10 +484,12 @@ const CardStatus = ({ title, value, lastUpdatedDate }) => {
                 borderTop: '1px solid #e0e0e0', width: '100%',
                 textAlign: 'center', marginTop: 1, display: 'flex',
                 justifyContent: 'space-between', alignItems: 'center',
-                padding: 1
+                padding: { xs: '0.5rem', sm: '0.8rem' }, // Padding responsif lebih kecil
             }}>
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                    <Typography variant="body2" color="textSecondary" sx={{ fontSize: { xs: '0.8rem', sm: '1rem' } }}>
+                    <Typography variant="body2" color="textSecondary" sx={{
+                        fontSize: { xs: '0.7rem', sm: '0.9rem' }, // Ukuran responsif lebih kecil
+                    }}>
                         Latest Online: {lastUpdatedDate}
                     </Typography>
                 </Box>
@@ -427,6 +498,72 @@ const CardStatus = ({ title, value, lastUpdatedDate }) => {
     );
 };
 
+
+const TotalFlowCalculator = ({ title, value, unit }) => {
+    // State untuk menyimpan total flow
+    const [totalFlow, setTotalFlow] = useState(0);
+
+    // Menghitung aliran per detik
+    const flowRatePerSecond = value / 3600; // Konversi m³/jam ke m³/detik
+
+    // Mengupdate total flow setiap detik
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setTotalFlow((prevTotalFlow) => prevTotalFlow + flowRatePerSecond);
+        }, 1000); // Update setiap detik
+
+        // Bersihkan interval saat komponen di-unmount
+        return () => clearInterval(interval);
+    }, [value]);
+
+    // Fungsi untuk mereset total flow
+    const resetTotalFlow = () => {
+        setTotalFlow(0);
+    };
+
+    return (
+        <div
+            style={{
+                display: 'flex',
+                justifyContent: 'space-between', // Menjaga elemen agar berjajar kiri-kanan
+                alignItems: 'center',
+                backgroundColor: 'white',
+                boxShadow: '0px 4px 16px rgba(0, 0, 0, 0.2)',
+                borderRadius: '10px',
+                padding: '10px',
+                margin: '5px',
+                width: '350px', // Ukuran box
+            }}
+        >
+            {/* Menampilkan Total Flow dan Value */}
+            <div
+                style={{
+                    fontSize: '1rem', // Ukuran font sesuai dengan desain
+                    fontWeight: 'bold',
+                    marginRight: '15px', // Memberikan ruang antara total flow dan tombol reset
+                }}
+            >
+                {title}: {totalFlow.toFixed(2)} {unit}
+            </div>
+
+            {/* Tombol untuk reset total flow */}
+            <button
+                onClick={resetTotalFlow}
+                style={{
+                    backgroundColor: 'red',
+                    color: 'white',
+                    border: 'none',
+                    padding: '5px 10px', // Ukuran tombol lebih kecil
+                    borderRadius: '10px',
+                    cursor: 'pointer',
+                    fontSize: '0.9rem', // Ukuran font tombol sedikit lebih kecil
+                }}
+            >
+                Reset
+            </button>
+        </div>
+    );
+};
 
 const UnitPage = () => {
     const { unitId } = useParams(); // Mendapatkan unitId dari params URL
@@ -683,8 +820,8 @@ const UnitPage = () => {
         const getData = async () => {
             try {
                 const response = await fetchData(unitId);
-                console.log(response);
-                console.log(unitId);
+                // console.log(response);
+                // console.log(unitId);
 
                 const data = response.realTimeData;
                 const dataCoil = response.coilData;
@@ -785,18 +922,27 @@ const UnitPage = () => {
 
                     {/* Menampilkan Judul Unit di Header */}
                     {headerTitle && (
-                        <Box sx={{
-                            position: 'absolute',
-                            top: 0,
-                            left: '50%',
-                            transform: 'translateX(-50%)',
-                            fontWeight: 'bold',
-                            color: '#fff',
-                            textAlign: 'center', // Menyejajarkan teks ke tengah
-                            fontSize: '7rem', // Ukuran font lebih besar
-                            padding: '20px', // Padding yang lebih besar
-                        }}>
-                            <Typography><strong>{headerTitle}</strong></Typography>
+                        <Box
+                            sx={{
+                                position: 'absolute',
+                                top: 0,
+                                left: '50%',
+                                transform: 'translateX(-50%)',
+                                textAlign: 'center', // Menyejajarkan teks ke tengah
+                                padding: '20px', // Padding yang lebih besar
+                            }}
+                        >
+                            <Typography
+                                sx={{
+                                    fontSize: '1.6rem', // Ukuran font lebih besar
+                                    fontWeight: 'bold', // Bold teks
+                                    color: '#fff', // Warna putih
+                                    lineHeight: 1.2, // Mengontrol jarak antar baris
+                                    wordBreak: 'break-word', // Memastikan teks besar tidak melanggar container
+                                }}
+                            >
+                                {headerTitle}
+                            </Typography>
                         </Box>
                     )}
 
@@ -1269,7 +1415,7 @@ const UnitPage = () => {
                                             gap: '0px',  // Mengurangi gap menjadi 0 untuk jarak antar card lebih rapat
                                             width: '100%',  // Full width of the box
                                             justifyItems: 'center',  // Center grid items horizontally
-                                            alignItems: 'start',  // Align grid items to the top data.PUMP_DE_OVER_TEMP
+                                            alignItems: 'start',  // Align grid items to the top 
                                         }}
                                     >
                                         {cardDataCoil.map((data, index) => (
@@ -1281,7 +1427,7 @@ const UnitPage = () => {
                                                 />
                                                 <Alarm
                                                     title="Oil Lube Clogging"
-                                                    coilValue={data.OIL_LUB_CLOG}
+                                                    coilValue={data.OIL_LUB_CLOGGING}
                                                     onAlarmUpdate={updateAlarms}
                                                 />
                                                 <Alarm
@@ -1316,89 +1462,109 @@ const UnitPage = () => {
                                             >
                                                 <Box
                                                     sx={{
+                                                        display: 'flex', // Gunakan flexbox untuk alignment
+                                                        justifyContent: 'center', // Pusatkan secara horizontal
+                                                        alignItems: 'center', // Pusatkan secara vertikal
                                                         position: 'absolute',
-                                                        top: '50%',
-                                                        left: '50%',
-                                                        transform: 'translate(-50%, -50%)',
-                                                        bgcolor: 'white',
+                                                        top: 0,
+                                                        left: 0,
+                                                        width: '100vw', // Pastikan lebar box penuh
+                                                        height: '100vh', // Pastikan tinggi box penuh
+                                                        bgcolor: 'rgba(0, 0, 0, 0.5)', // Latar belakang transparan
                                                         padding: 3,
-                                                        borderRadius: 2,
-                                                        boxShadow: 24,
-                                                        maxWidth: 800,
-                                                        overflowY: 'auto',
                                                     }}
                                                 >
-                                                    {/* Teks Warning */}
-                                                    <Typography
-                                                        id="active-alarms-popup"
-                                                        variant="h4"
+                                                    <Box
                                                         sx={{
-                                                            fontWeight: 'bold',
-                                                            textAlign: 'center',
-                                                            color: '#FF0000',
-                                                            marginBottom: 2,
-                                                            animation: 'blinking 1s infinite',
-                                                            fontSize: '40px',
+                                                            bgcolor: 'white',
+                                                            borderRadius: 2,
+                                                            boxShadow: 24,
+                                                            maxWidth: 800,
+                                                            width: '100%',
+                                                            overflowY: 'auto',
+                                                            padding: 3,
                                                         }}
                                                     >
-                                                        Warning!
-                                                    </Typography>
-
-                                                    <Box sx={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center' }}>
-                                                        {activeAlarms.map((alarm, idx) => (
-                                                            <Box
-                                                                key={idx}
-                                                                sx={{
-                                                                    display: 'flex',
-                                                                    flexDirection: 'column',
-                                                                    alignItems: 'center',
-                                                                    marginRight: 3,
-                                                                    marginBottom: 3,
-                                                                    padding: 2,
-                                                                    borderRadius: 2,
-                                                                    backgroundColor: '#f8d7da',
-                                                                    width: '200px',
-                                                                }}
-                                                            >
-                                                                {/* Judul Alarm */}
-                                                                <Typography
-                                                                    sx={{
-                                                                        fontWeight: 'bold',
-                                                                        color: '#FF0000',
-                                                                        fontSize: '16px',
-                                                                        textAlign: 'center',
-                                                                        marginBottom: 1,
-                                                                    }}
-                                                                >
-                                                                    {alarm.title}
-                                                                </Typography>
-
-                                                                {/* Waktu Alarm Terakhir */}
-                                                                <Typography
-                                                                    sx={{
-                                                                        color: '#555',
-                                                                        fontSize: '12px',
-                                                                        textAlign: 'center',
-                                                                    }}
-                                                                >
-                                                                    Last Alarm: {alarm.timestamp}
-                                                                </Typography>
-                                                            </Box>
-                                                        ))}
-                                                    </Box>
-
-                                                    <Box sx={{ textAlign: 'center' }}>
-                                                        <Button
-                                                            variant="contained"
-                                                            onClick={handleDismiss}
+                                                        {/* Teks Warning */}
+                                                        <Typography
+                                                            id="active-alarms-popup"
+                                                            variant="h4"
                                                             sx={{
-                                                                bgcolor: '#FF0000',
-                                                                color: 'white',
-                                                                '&:hover': { bgcolor: '#cc0000' },
+                                                                fontWeight: 'bold',
+                                                                textAlign: 'center',
+                                                                color: '#FF0000',
+                                                                marginBottom: 2,
+                                                                animation: 'blinking 1s infinite',
+                                                                fontSize: '50px',
                                                             }}
                                                         >
-                                                            Dismiss
-                                                        </Button>
+                                                            Warning!
+                                                        </Typography>
+
+                                                        {/* Daftar Alarm */}
+                                                        <Box
+                                                            sx={{
+                                                                display: 'flex',
+                                                                flexWrap: 'wrap',
+                                                                justifyContent: 'center',
+                                                                gap: 2, // Tambahkan jarak antar card
+                                                            }}
+                                                        >
+                                                            {activeAlarms.map((alarm, idx) => (
+                                                                <Box
+                                                                    key={idx}
+                                                                    sx={{
+                                                                        display: 'flex',
+                                                                        flexDirection: 'column',
+                                                                        alignItems: 'center',
+                                                                        padding: 2,
+                                                                        borderRadius: 2,
+                                                                        backgroundColor: '#f8d7da',
+                                                                        width: '200px',
+                                                                    }}
+                                                                >
+                                                                    {/* Judul Alarm */}
+                                                                    <Typography
+                                                                        sx={{
+                                                                            fontWeight: 'bold',
+                                                                            color: '#FF0000',
+                                                                            fontSize: '20px',
+                                                                            textAlign: 'center',
+                                                                            marginBottom: 1,
+                                                                        }}
+                                                                    >
+                                                                        {alarm.title}
+                                                                    </Typography>
+
+                                                                    {/* Waktu Alarm Terakhir */}
+                                                                    <Typography
+                                                                        sx={{
+                                                                            color: '#555',
+                                                                            fontSize: '15px',
+                                                                            textAlign: 'center',
+                                                                        }}
+                                                                    >
+                                                                        Last Alarm: <br />
+                                                                        {alarm.timestamp}
+                                                                    </Typography>
+                                                                </Box>
+                                                            ))}
+                                                        </Box>
+
+                                                        {/* Tombol Dismiss */}
+                                                        <Box sx={{ textAlign: 'center', marginTop: 3 }}>
+                                                            <Button
+                                                                variant="contained"
+                                                                onClick={handleDismiss}
+                                                                sx={{
+                                                                    bgcolor: '#FF0000',
+                                                                    color: 'white',
+                                                                    '&:hover': { bgcolor: '#cc0000' },
+                                                                }}
+                                                            >
+                                                                Dismiss
+                                                            </Button>
+                                                        </Box>
                                                     </Box>
                                                 </Box>
                                             </Modal>
@@ -1409,7 +1575,44 @@ const UnitPage = () => {
                             </Box>
                         </Grid>
 
+                        {/* Kolom kosong 5 diisi Total Flow dan Total Fuel */}
+                        <Grid item xs={12} sm={12} md={4} lg={4}>
+                            <Box
+                                sx={{
+                                    height: '140px', // Total tinggi box (2 baris)
+                                    width: '400px',  // Lebar box
+                                    backgroundColor: 'white',
+                                    boxShadow: '0px 4px 16px rgba(0, 0, 0, 0.2)',
+                                    borderRadius: '30px',
+                                    margin: '5px',
+                                    padding: '10px',
+                                }}
+                            >
+                                {/* Mengatur isi box menjadi dua baris */}
+                                <Box
+                                    sx={{
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        alignItems: 'center',
+                                        height: '100%',  // Menggunakan seluruh tinggi yang ada
+                                    }}
+                                >
+                                    {cardData.map((data, index) => (
+                                        <React.Fragment key={index}>
+                                            {/* Baris pertama: Total Flow */}
+                                            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '5px' }}>
+                                                <TotalFlowCalculator title="Total Flow" value={data.FLOW_TOTAL.toFixed(0)} unit='m3' />
+                                            </Box>
 
+                                            {/* Baris kedua: Total Fuel */}
+                                            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                                                <TotalFlowCalculator title="Total Fuel" value={data.ENGINE_FUEL_CONSUMPTIONS.toFixed(1)} unit='L' />
+                                            </Box>
+                                        </React.Fragment>
+                                    ))}
+                                </Box>
+                            </Box>
+                        </Grid>
 
                     </Grid>
                 </Grid>
