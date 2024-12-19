@@ -1601,7 +1601,7 @@ const UnitPage = () => {
                                         <React.Fragment key={index}>
                                             {/* Baris pertama: Total Flow */}
                                             <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '5px' }}>
-                                                <TotalFlowCalculator title="Total Flow" value={data.FLOW_TOTAL.toFixed(0)} unit='m3' />
+                                                <TotalFlowCalculator title="Total Flow" value={data.FLOW.toFixed(0)} unit='m3' />
                                             </Box>
 
                                             {/* Baris kedua: Total Fuel */}
