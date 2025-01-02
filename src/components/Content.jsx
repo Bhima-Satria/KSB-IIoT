@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Typography, Button, Grid, Box } from '@mui/material';
 import { CSSTransition } from 'react-transition-group';
 import { useNavigate } from 'react-router-dom'; // Import useNavigate
 
 const Content = () => {
-    const navigate = useNavigate(); // useNavigate untuk navigasi
+    const navigate = useNavigate(); // useNavigate for navigation
     const chartsData = [
         { id: 1, title: 'KSB 64', image: '/img/KSB64.webp' },
         { id: 2, title: 'KSB 67', image: '/img/KSB67.webp' },
@@ -13,14 +13,16 @@ const Content = () => {
 
     const [currentIndex, setCurrentIndex] = useState(0);
     const [inProp, setInProp] = useState(true);
-    const [isZoomingIn, setIsZoomingIn] = useState(false); // Kontrol animasi zoom in
+    const [isZoomingIn, setIsZoomingIn] = useState(false); // Control zoom in animation
+
+    const imageRef = useRef(null); // Create a ref for the image container
 
     useEffect(() => {
         const interval = setInterval(() => {
             handleNext();
-        }, 20000); // Ganti gambar setiap 5 detik
+        }, 20000); // Change image every 20 seconds
 
-        return () => clearInterval(interval); // Membersihkan interval saat komponen unmounted
+        return () => clearInterval(interval); // Clear interval on component unmount
     }, []);
 
     const handleNext = () => {
@@ -40,11 +42,11 @@ const Content = () => {
     };
 
     const handleImageClick = (title) => {
-        setIsZoomingIn(true); // Memulai animasi zoom in
-        document.title = "KSB IoT"; // Ubah title halaman sesuai dengan title gambar
+        setIsZoomingIn(true); // Start zoom-in animation
+        document.title = "KSB IoT"; // Change page title
         setTimeout(() => {
-            navigate(`/unit/${title}`); // Navigasi setelah animasi selesai
-        }, 500); // Delay 500ms, sesuaikan dengan durasi animasi
+            navigate(`/unit/${title}`); // Navigate after animation completes
+        }, 500); // Delay navigation to match animation duration
     };
 
     return (
@@ -57,10 +59,10 @@ const Content = () => {
                             display: 'flex',
                             flexDirection: 'column',
                             alignItems: 'center',
-                            position: 'relative', // Membuat posisi tombol relatif terhadap gambar
+                            position: 'relative', // Create position for the buttons
                         }}
                     >
-                        {/* Judul di bawah gambar */}
+                        {/* Title below image */}
                         <Typography
                             variant="h4"
                             align="center"
@@ -68,11 +70,11 @@ const Content = () => {
                             sx={{
                                 color: 'black',
                                 fontWeight: 'bold',
-                                textShadow: '2px 2px 4px rgba(0, 0, 0, 0.5)', // Shadow untuk efek lebih menarik
-                                mb: 0, // Mengurangi margin bawah untuk mendekatkan teks ke gambar
-                                zIndex: 10, // Agar teks di atas tombol
+                                textShadow: '2px 2px 4px rgba(0, 0, 0, 0.5)', // Shadow for visual effect
+                                mb: 0, // Remove bottom margin to bring text closer to image
+                                zIndex: 10, // Ensure text appears above the buttons
                                 '&:hover': {
-                                    textDecoration: 'underline', // Menambahkan efek underline saat hover
+                                    textDecoration: 'underline', // Underline on hover
                                 },
                             }}
                         >
@@ -81,16 +83,16 @@ const Content = () => {
 
                         <Box
                             sx={{
-                                height: 800, // Ukuran gambar 2x lipat
-                                width: 800, // Ukuran gambar 2x lipat
+                                height: 800,
+                                width: 800,
                                 my: 2,
-                                transition: 'transform 0.5s ease, opacity 0.5s ease', // Animasi saat hover dan transisi opacity
-                                transform: isZoomingIn ? 'scale(1.2)' : 'scale(1)', // Zoom in jika diklik
-                                opacity: isZoomingIn ? 0 : 1, // Menghilang setelah zoom in
-                                '&:hover': { transform: 'scale(1.1)' }, // Memperbesar gambar saat hover
-                                cursor: 'pointer', // Mengubah kursor saat hover
+                                transition: 'transform 0.5s ease, opacity 0.5s ease', // Smooth transition for hover effects
+                                transform: isZoomingIn ? 'scale(1.2)' : 'scale(1)', // Zoom-in effect
+                                opacity: isZoomingIn ? 0 : 1, // Fade out after zoom
+                                '&:hover': { transform: 'scale(1.1)' }, // Enlarge image on hover
+                                cursor: 'pointer',
                             }}
-                            onClick={() => handleImageClick(chartsData[currentIndex].title)} // Pindah halaman saat di-klik
+                            onClick={() => handleImageClick(chartsData[currentIndex].title)} // Navigate on image click
                         >
                             <CSSTransition
                                 in={inProp}
@@ -99,35 +101,36 @@ const Content = () => {
                                 unmountOnExit
                             >
                                 <img
+                                    ref={imageRef} // Apply the ref directly
                                     src={chartsData[currentIndex].image}
                                     alt={chartsData[currentIndex].title}
                                     style={{
                                         width: '100%',
                                         height: '100%',
-                                        objectFit: 'contain',  // Menggunakan 'contain' agar gambar tetap utuh tanpa cropping
+                                        objectFit: 'contain', // Keep image intact without cropping
                                     }}
                                 />
                             </CSSTransition>
                         </Box>
 
-                        {/* Tombol di samping gambar */}
+                        {/* Navigation buttons */}
                         <Button
                             variant="contained"
                             onClick={handlePrev}
                             sx={{
                                 backgroundColor: 'transparent',
                                 color: 'black',
-                                fontSize: '8rem', // Ukuran tombol
-                                position: 'absolute', // Menggunakan posisi absolute
-                                left: '-30%', // Jarak 10% dari kiri
-                                top: '50%', // Menempatkan tombol di tengah gambar
-                                transform: 'translateY(-50%)', // Memastikan tombol berada tepat di tengah
-                                opacity: 0.08, // Transparansi 70%
-                                '&:hover': { backgroundColor: 'transparent' }, // Transparan saat hover
-                                border: 'none', // Tidak ada border
+                                fontSize: '8rem',
+                                position: 'absolute',
+                                left: '-30%',
+                                top: '50%',
+                                transform: 'translateY(-50%)',
+                                opacity: 0.08,
+                                '&:hover': { backgroundColor: 'transparent' },
+                                border: 'none',
                             }}
                         >
-                            &#9664; {/* Ikon panah kiri */}
+                            &#9664; {/* Left arrow icon */}
                         </Button>
 
                         <Button
@@ -136,17 +139,17 @@ const Content = () => {
                             sx={{
                                 backgroundColor: 'transparent',
                                 color: 'black',
-                                fontSize: '8rem', // Ukuran tombol
-                                position: 'absolute', // Menggunakan posisi absolute
-                                right: '-30%', // Jarak 10% dari kanan
-                                top: '50%', // Menempatkan tombol di tengah gambar
-                                transform: 'translateY(-50%)', // Memastikan tombol berada tepat di tengah
-                                opacity: 0.08, // Transparansi 70%
-                                '&:hover': { backgroundColor: 'transparent' }, // Transparan saat hover
-                                border: 'none', // Tidak ada border
+                                fontSize: '8rem',
+                                position: 'absolute',
+                                right: '-30%',
+                                top: '50%',
+                                transform: 'translateY(-50%)',
+                                opacity: 0.08,
+                                '&:hover': { backgroundColor: 'transparent' },
+                                border: 'none',
                             }}
                         >
-                            &#9654; {/* Ikon panah kanan */}
+                            &#9654; {/* Right arrow icon */}
                         </Button>
                     </Box>
                 </Grid>

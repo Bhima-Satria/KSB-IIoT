@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { AppBar, Toolbar, IconButton, Box, Button, Drawer, List, ListItem, ListItemText, useMediaQuery, useTheme } from '@mui/material';
+import { AppBar, Toolbar, IconButton, Box, Button, Drawer, List, ListItem, ListItemText, Menu, MenuItem, useMediaQuery, useTheme } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { useNavigate } from 'react-router-dom';
 import MenuIcon from '@mui/icons-material/Menu';
+import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown'; // Import ikon dropdown
 
 const Logo = '../img/ksblogo.png';
 
@@ -26,8 +27,9 @@ const MenuButton = styled(Button)(({ theme }) => ({
 const Header = () => {
     const [activeMenu, setActiveMenu] = useState('');
     const [drawerOpen, setDrawerOpen] = useState(false); // Untuk membuka/menutup drawer
+    const [anchorEl, setAnchorEl] = useState(null); // Untuk dropdown menu
     const navigate = useNavigate();
-    
+
     const theme = useTheme();
     const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm')); // Menentukan apakah ukuran layar kecil
 
@@ -43,11 +45,31 @@ const Header = () => {
         setActiveMenu(title); // Menandai menu yang aktif
         if (title === 'Overview') {
             navigate('/Overview');
-        } else if (title === 'Tes API') {
-            navigate('/API');
         } else {
             navigate(`/unit/${title}`);
         }
+    };
+
+    // Fungsi untuk logout
+    const handleLogout = () => {
+        // Hapus token dari localStorage
+        localStorage.removeItem('token');
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('headerTitle');
+        localStorage.removeItem('lastData');
+        localStorage.removeItem('refreshToken');
+        localStorage.removeItem('ksbengdevLastLoginTime');
+        // Redirect ke halaman login setelah logout
+        navigate('/login');
+    };
+
+    // Fungsi untuk membuka dan menutup dropdown menu
+    const handleClick = (event) => {
+        setAnchorEl(event.currentTarget); // Set anchorEl untuk posisi menu
+    };
+
+    const handleClose = () => {
+        setAnchorEl(null); // Menutup dropdown menu
     };
 
     // Toggle drawer (sidebar)
@@ -76,24 +98,34 @@ const Header = () => {
 
                 {/* Menu Items yang hanya ditampilkan di layar besar */}
                 {!isSmallScreen && (
-                    <Box
-                        sx={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            position: 'relative',
-                            overflowX: 'auto',
-                            whiteSpace: 'nowrap',
-                        }}
-                    >
+                    <Box sx={{ display: 'flex', alignItems: 'center', position: 'relative', overflowX: 'auto', whiteSpace: 'nowrap' }}>
                         {chartsData.map((item) => (
                             <MenuButton
                                 key={item.id}
                                 onClick={() => handleMenuClick(item.title)}
                                 className={activeMenu === item.title ? 'active' : ''}
+                                sx={{
+                                    backgroundColor: activeMenu === item.title ? 'rgba(255, 255, 255, 0.2)' : 'transparent',
+                                    '&:hover': {
+                                        backgroundColor: 'rgba(255, 255, 255, 0.3)',
+                                    }
+                                }}
                             >
                                 {item.title}
                             </MenuButton>
                         ))}
+                        {/* Tombol Dropdown dengan ikon panah */}
+                        <IconButton onClick={handleClick} color="inherit">
+                            <ArrowDropDownIcon />
+                        </IconButton>
+                        <Menu
+                            anchorEl={anchorEl}
+                            open={Boolean(anchorEl)}
+                            onClose={handleClose}
+                        >
+                            {/* Opsi Logout */}
+                            <MenuItem onClick={handleLogout}>Logout</MenuItem>
+                        </Menu>
                     </Box>
                 )}
             </Toolbar>
@@ -125,6 +157,10 @@ const Header = () => {
                                 <ListItemText primary={item.title} />
                             </ListItem>
                         ))}
+                        {/* Tombol Logout di Sidebar */}
+                        <ListItem button onClick={handleLogout}>
+                            <ListItemText primary="Logout" />
+                        </ListItem>
                     </List>
                 </Box>
             </Drawer>
