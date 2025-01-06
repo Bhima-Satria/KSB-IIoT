@@ -1,23 +1,28 @@
-// Simpan referensi untuk timeout
+// Global timeouts
 let refreshTokenTimeout;
 let activityTimeout;
 let autoLoginTimeout;
 
-// Fungsi untuk login
+// Login function
 export const login = async (username, password) => {
-    if (username === 'ksbengdev') {
-        localStorage.setItem('currentUsername', 'ksbengdev');
+    if (username === 'ksbengdev' && password === 'zWb3Uktb-NGK!vc') {
         const token = await loginKsbengdev();
-        setupAutoLoginForKsbengdev(); // Atur auto-login setiap 4 hari
+        setupAutoLoginForKsbengdev();
         return token;
     } else {
-        localStorage.setItem('currentUsername', username);
-        const token = await loginUserPribadi(username, password);
-        return token;
+        return await loginUserPribadi(username, password);
     }
 };
 
-// Fungsi untuk login ksbengdev
+// Helper function to set timeout for refreshing the token
+const setRefreshTimeout = (callback, delay) => {
+    if (refreshTokenTimeout) {
+        clearTimeout(refreshTokenTimeout);
+    }
+    refreshTokenTimeout = setTimeout(callback, delay);
+};
+
+// Login function for ksbengdev
 export const loginKsbengdev = async () => {
     const username = 'ksbengdev';
     const password = 'zWb3Uktb-NGK!vc';
@@ -25,56 +30,69 @@ export const loginKsbengdev = async () => {
         const loginUrl = 'https://8hzol8pmvh.execute-api.ap-southeast-1.amazonaws.com/DNDDieselStandard/login';
         const response = await fetch(loginUrl, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ username, password }),
         });
 
-        if (!response.ok) {
-            throw new Error('Failed to login: Invalid credentials or server error');
-        }
+        if (!response.ok) throw new Error('Failed to login');
 
         const data = await response.json();
-
-        if (data.access_token && data.refresh_token) {
-            localStorage.setItem('accessToken', data.access_token);
-            localStorage.setItem('refreshToken', data.refresh_token);
-            localStorage.setItem('ksbengdevLastLoginTime', Date.now());
-            setRefreshTimeout(refreshKsbengdevToken, 270 * 1000); // Refresh setiap 4.5 menit
-            return data.access_token;
-        } else {
-            throw new Error('No access token or refresh token found in the response');
-        }
+        saveTokenData(data);
+        setRefreshTimeout(refreshKsbengdevToken, 270 * 1000); // 4.5 minutes
+        return data.access_token;
     } catch (error) {
-        console.error('Login error:', error.message || error);
+        console.error('Login error:', error);
         throw error;
     }
 };
 
-// Fungsi untuk setup auto-login ksbengdev setiap 4 hari
-const setupAutoLoginForKsbengdev = () => {
-    if (autoLoginTimeout) {
-        clearTimeout(autoLoginTimeout);
-    }
+// Login function for personal users
+export const loginUserPribadi = async (username, password) => {
+    try {
+        const loginUrl = 'https://8hzol8pmvh.execute-api.ap-southeast-1.amazonaws.com/DNDDieselStandard/login';
+        const response = await fetch(loginUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, password }),
+        });
 
-    const fourDaysInMs = 4 * 24 * 60 * 60 * 1000; // 4 hari dalam milidetik
-    autoLoginTimeout = setTimeout(async () => {
-        console.log('Auto-login initiated for ksbengdev after 4 days.');
-        await loginKsbengdev();
-        setupAutoLoginForKsbengdev(); // Reset auto-login timer
-    }, fourDaysInMs);
+        if (!response.ok) throw new Error('Failed to login');
+
+        const data = await response.json();
+        saveTokenData(data);
+        return data.access_token;
+    } catch (error) {
+        console.error('Login error:', error);
+        throw error;
+    }
 };
 
-// Fungsi untuk refresh token ksbengdev
+// Save token data to localStorage
+const saveTokenData = (data) => {
+    if (data.access_token && data.refresh_token) {
+        localStorage.setItem('accessToken', data.access_token);
+        localStorage.setItem('refreshToken', data.refresh_token);
+        localStorage.setItem('lastLoginTime', Date.now());
+    }
+};
+
+// Auto-login setup for ksbengdev
+const setupAutoLoginForKsbengdev = () => {
+    if (autoLoginTimeout) clearTimeout(autoLoginTimeout);
+    autoLoginTimeout = setTimeout(async () => {
+        await loginKsbengdev();
+        setupAutoLoginForKsbengdev();
+    }, 4 * 24 * 60 * 60 * 1000); // 4 days
+};
+
+// Refresh token for ksbengdev (continuous refresh)
 const refreshKsbengdevToken = async () => {
     try {
         const refreshToken = localStorage.getItem('refreshToken');
         if (!refreshToken) {
-            console.warn('Refresh token not found for ksbengdev.');
+            console.warn('No refresh token available.');
             return;
         }
-
         const refreshUrl = 'https://ap-southeast-1bjzveseue.auth.ap-southeast-1.amazoncognito.com/oauth2/token';
         const clientCredentials = 'Basic cmhtOGw2YmEwZGo2YzVobXZ1OWkwMDRwaDoxZmUxbTI0ZWtxNWJkZ3B2MmwzY3RvbW9jZmQ1MGVvOTFocXE3NnNmYmE0czczZWQxc28w';
 
@@ -84,140 +102,100 @@ const refreshKsbengdevToken = async () => {
                 'Content-Type': 'application/x-www-form-urlencoded',
                 'Authorization': clientCredentials,
             },
-            body: new URLSearchParams({
-                grant_type: 'refresh_token',
-                refresh_token: refreshToken,
-            }),
+            body: new URLSearchParams({ grant_type: 'refresh_token', refresh_token: refreshToken }),
         });
 
-        if (!response.ok) {
-            throw new Error('Failed to refresh token.');
-        }
+        if (!response.ok) throw new Error('Failed to refresh token.');
 
         const data = await response.json();
-
-        if (data.access_token && data.expires_in) {
-            localStorage.setItem('accessToken', data.access_token);
-
-            // Set timeout untuk refresh berikutnya
-            setRefreshTimeout(refreshKsbengdevToken, data.expires_in * 1000);
-        } else {
-            throw new Error('No access token in refresh response');
-        }
+        localStorage.setItem('accessToken', data.access_token);
+        setRefreshTimeout(refreshKsbengdevToken, data.expires_in * 1000);
     } catch (error) {
-        console.error('Refresh token error for ksbengdev:', error.message || error);
-        await loginKsbengdev(); // Lakukan login ulang jika refresh gagal
+        console.error('Refresh error:', error);
     }
 };
 
-// Helper untuk set timeout refresh token
-const setRefreshTimeout = (callback, delay) => {
-    if (refreshTokenTimeout) {
-        clearTimeout(refreshTokenTimeout);
-    }
-    refreshTokenTimeout = setTimeout(callback, delay);
-};
-
-// Refresh token saat window load
-window.addEventListener('load', () => {
-    const currentUsername = localStorage.getItem('currentUsername');
-    if (currentUsername === 'ksbengdev') {
-        setupAutoLoginForKsbengdev();
-        refreshKsbengdevToken();
-    } else {
-        refreshAccessToken();
-    }
-});
-
-// Fungsi untuk menangani aktivitas pengguna
-const resetActivityTimeout = () => {
-    if (activityTimeout) {
-        clearTimeout(activityTimeout); // Hapus timer sebelumnya
-    }
-
-    // Set timer baru untuk logout setelah 5 menit (300.000 ms)
-    activityTimeout = setTimeout(() => {
-        const currentUsername = localStorage.getItem('currentUsername');
-        if (currentUsername === 'ksbengdev') {
-            refreshKsbengdevToken(); // Jangan logout, hanya refresh token
-        } else {
-            logoutUser(); // Logout otomatis setelah 5 menit tidak ada aktivitas
+// Refresh token for personal users (depends on activity)
+const refreshAccessToken = async () => {
+    try {
+        const refreshToken = localStorage.getItem('refreshToken');
+        if (!refreshToken) {
+            console.warn('No refresh token available.');
+            return;
         }
-    }, 5 * 60 * 1000);
+        const refreshUrl = 'https://ap-southeast-1bjzveseue.auth.ap-southeast-1.amazoncognito.com/oauth2/token';
+        const clientCredentials = 'Basic cmhtOGw2YmEwZGo2YzVobXZ1OWkwMDRwaDoxZmUxbTI0ZWtxNWJkZ3B2MmwzY3RvbW9jZmQ1MGVvOTFocXE3NnNmYmE0czczZWQxc28w';
+
+        const response = await fetch(refreshUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'Authorization': clientCredentials,
+            },
+            body: new URLSearchParams({ grant_type: 'refresh_token', refresh_token: refreshToken }),
+        });
+
+        if (!response.ok) throw new Error('Failed to refresh token.');
+
+        const data = await response.json();
+        localStorage.setItem('accessToken', data.access_token);
+        setRefreshTimeout(refreshAccessToken, data.expires_in * 1000);
+    } catch (error) {
+        console.error('Refresh error:', error);
+        logoutUser();
+    }
 };
 
-// Tambahkan event listener untuk mendeteksi aktivitas
-window.addEventListener('mousemove', resetActivityTimeout);
-window.addEventListener('keydown', resetActivityTimeout);
-window.addEventListener('click', resetActivityTimeout);
-
-// Memastikan timer di-reset ketika halaman dimuat
-window.addEventListener('load', resetActivityTimeout);
-
-// Fungsi untuk mengambil data
+// Fetch real-time data and GPS
 export const fetchData = async (unitId) => {
     try {
-        let token = localStorage.getItem('accessToken');
-        if (!token) {
-            throw new Error('Access token not found');
-        }
+        const token = localStorage.getItem('accessToken');
+        if (!token) throw new Error('No access token found');
 
         const parsedUnitId = unitId.match(/ksb\s*(\d+)/i);
-        if (!parsedUnitId || parsedUnitId.length < 2) {
-            throw new Error('Invalid unitId format');
-        }
+        if (!parsedUnitId || parsedUnitId.length < 2) throw new Error('Invalid unitId format');
 
         const unit = `KSB${parsedUnitId[1]}`;
         const apiUrl = `https://8hzol8pmvh.execute-api.ap-southeast-1.amazonaws.com/DNDDieselStandard/${unit}/RealTime`;
-
-        const response = await fetch(apiUrl, {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`,
-            },
-        });
-
-        if (!response.ok) {
-            throw new Error('Failed to fetch real-time data');
-        }
-
-        const data = await response.json();
-
         const gpsApiUrl = `https://8hzol8pmvh.execute-api.ap-southeast-1.amazonaws.com/DNDDieselStandard/${unit}/GPS`;
-        const gpsResponse = await fetch(gpsApiUrl, {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`,
-            },
-        });
 
-        if (!gpsResponse.ok) {
-            throw new Error('Failed to fetch GPS data');
-        }
+        const [realTimeResponse, gpsResponse] = await Promise.all([
+            fetch(apiUrl, {
+                method: 'GET',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+            }),
+            fetch(gpsApiUrl, {
+                method: 'GET',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+            }),
+        ]);
 
-        const gpsData = await gpsResponse.json();
+        if (!realTimeResponse.ok || !gpsResponse.ok) throw new Error('Failed to fetch data');
+
+        const [realTimeData, gpsData] = await Promise.all([
+            realTimeResponse.json(),
+            gpsResponse.json(),
+        ]);
 
         return {
-            realTimeData: data.READ_REAL || {},
-            coilData: data.READ_COIL || {},
+            realTimeData: realTimeData.READ_REAL || {},
+            coilData: realTimeData.READ_COIL || {},
             gpsData: gpsData.READ_GPS || {},
-            serverName: data.server_name || '',
-            date: data.date || '',
+            serverName: realTimeData.server_name || '',
+            date: realTimeData.date || '',
         };
     } catch (error) {
-        console.error('Fetch data error:', error.message || error);
+        console.error('Fetch data error:', error);
         throw error;
     }
 };
 
-// Refresh token saat window load
-window.addEventListener('load', () => {
-    const currentUsername = localStorage.getItem('currentUsername');
-    if (currentUsername === 'ksbengdev') {
-        refreshKsbengdevToken();
-    } else {
-        refreshAccessToken();
-    }
-});
+// Logout user
+export const logoutUser = () => {
+    localStorage.clear();
+    clearTimeout(refreshTokenTimeout);
+    clearTimeout(activityTimeout);
+    clearTimeout(autoLoginTimeout);
+    console.log('User logged out.');
+    window.location.href = '/login';
+};
