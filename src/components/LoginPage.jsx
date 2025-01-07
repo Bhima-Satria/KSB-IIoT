@@ -1,32 +1,41 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { login } from './dataService'; // Sesuaikan path sesuai struktur Anda
+import { login } from './dataService'; // Sesuaikan path dengan struktur proyek Anda
 
 const KSBLogo = '../img/ksblogo.png';
-const RightBackgroundImage = '../img/KSBDoubleDrive.webp'; // Replace with the actual path of your image
+const RightBackgroundImage = '../img/KSBDoubleDrive.webp';
 
 const LoginPage = () => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState(null);
-    const navigate = useNavigate(); // Untuk redirect pengguna
+    const [loading, setLoading] = useState(false);
+    const navigate = useNavigate();
+
+    // Cek apakah user sudah login dan redirect jika sudah ada token
+    useEffect(() => {
+        const token = localStorage.getItem('accessToken');
+        if (token) {
+            navigate('/', { replace: true }); // Jika sudah login, langsung ke halaman utama
+        }
+    }, [navigate]);
 
     const handleLogin = async (e) => {
         e.preventDefault();
+        setLoading(true);
+        setError(null); // Reset error sebelum mencoba login
+
         try {
-            // Panggil fungsi login untuk mendapatkan token
-            const token = await login(username, password);
+            // Panggil fungsi login dan dapatkan token
+            await login(username, password);
 
-            // Cetak token atau data API yang diterima
-            console.log('Token received:', token); // Menampilkan hasil token di console
-
-            // Simpan token ke localStorage
-            localStorage.setItem('token', token);
-
-            // Redirect ke halaman UnitPage dengan ID yang sudah di-encode
-            navigate(`/`);
+            // Redirect ke halaman utama (ganti '/' sesuai kebutuhan)
+            navigate('/', { replace: true }); // Mengganti history agar tidak bisa kembali ke login
         } catch (err) {
-            setError('Login failed. Please check your credentials.');
+            console.error('❌ Login failed:', err);
+            setError('Login gagal. Periksa kembali username dan password Anda.');
+        } finally {
+            setLoading(false);
         }
     };
 

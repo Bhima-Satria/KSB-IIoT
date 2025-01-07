@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Typography, Button, Grid, Box } from '@mui/material';
-import { CSSTransition } from 'react-transition-group';
 import { useNavigate } from 'react-router-dom'; // Import useNavigate
+import { useSpring, animated } from 'react-spring'; // Import react-spring
 
 const Content = () => {
     const navigate = useNavigate(); // useNavigate for navigation
@@ -12,10 +12,15 @@ const Content = () => {
     ];
 
     const [currentIndex, setCurrentIndex] = useState(0);
-    const [inProp, setInProp] = useState(true);
     const [isZoomingIn, setIsZoomingIn] = useState(false); // Control zoom in animation
 
     const imageRef = useRef(null); // Create a ref for the image container
+
+    // Handle image transition (animating opacity)
+    const fadeProps = useSpring({
+        opacity: isZoomingIn ? 0 : 1, // Fading effect when zooming
+        config: { duration: 300 },
+    });
 
     useEffect(() => {
         const interval = setInterval(() => {
@@ -26,19 +31,11 @@ const Content = () => {
     }, []);
 
     const handleNext = () => {
-        setInProp(false);
-        setTimeout(() => {
-            setCurrentIndex((prevIndex) => (prevIndex + 1) % chartsData.length);
-            setInProp(true);
-        }, 300); // Delay for animation
+        setCurrentIndex((prevIndex) => (prevIndex + 1) % chartsData.length);
     };
 
     const handlePrev = () => {
-        setInProp(false);
-        setTimeout(() => {
-            setCurrentIndex((prevIndex) => (prevIndex - 1 + chartsData.length) % chartsData.length);
-            setInProp(true);
-        }, 300); // Delay for animation
+        setCurrentIndex((prevIndex) => (prevIndex - 1 + chartsData.length) % chartsData.length);
     };
 
     const handleImageClick = (title) => {
@@ -94,12 +91,8 @@ const Content = () => {
                             }}
                             onClick={() => handleImageClick(chartsData[currentIndex].title)} // Navigate on image click
                         >
-                            <CSSTransition
-                                in={inProp}
-                                timeout={300}
-                                classNames="fade"
-                                unmountOnExit
-                            >
+                            {/* Use animated.div from react-spring for animated transitions */}
+                            <animated.div style={fadeProps}>
                                 <img
                                     ref={imageRef} // Apply the ref directly
                                     src={chartsData[currentIndex].image}
@@ -110,7 +103,7 @@ const Content = () => {
                                         objectFit: 'contain', // Keep image intact without cropping
                                     }}
                                 />
-                            </CSSTransition>
+                            </animated.div>
                         </Box>
 
                         {/* Navigation buttons */}
@@ -154,26 +147,6 @@ const Content = () => {
                     </Box>
                 </Grid>
             </Grid>
-
-            {/* Animation CSS */}
-            <style>
-                {`
-                    .fade-enter {
-                        opacity: 0;
-                    }
-                    .fade-enter-active {
-                        opacity: 1;
-                        transition: opacity 300ms;
-                    }
-                    .fade-exit {
-                        opacity: 1;
-                    }
-                    .fade-exit-active {
-                        opacity: 0;
-                        transition: opacity 300ms;
-                    }
-                `}
-            </style>
         </Box>
     );
 };

@@ -3,6 +3,7 @@ import { AppBar, Toolbar, IconButton, Box, Button, Drawer, List, ListItem, ListI
 import { styled } from '@mui/material/styles';
 import { useNavigate } from 'react-router-dom';
 import MenuIcon from '@mui/icons-material/Menu';
+import { logout } from './dataService'; // Sesuaikan path dengan struktur proyek Anda
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown'; // Import ikon dropdown
 
 const Logo = '../img/ksblogo.png';
@@ -51,16 +52,8 @@ const Header = () => {
     };
 
     // Fungsi untuk logout
-    const handleLogout = () => {
-        // Hapus token dari localStorage
-        localStorage.removeItem('token');
-        localStorage.removeItem('accessToken');
-        localStorage.removeItem('headerTitle');
-        localStorage.removeItem('lastData');
-        localStorage.removeItem('refreshToken');
-        localStorage.removeItem('ksbengdevLastLoginTime');
-        // Redirect ke halaman login setelah logout
-        navigate('/login');
+    const handleLogout = async () => {
+        await logout(navigate);
     };
 
     // Fungsi untuk membuka dan menutup dropdown menu

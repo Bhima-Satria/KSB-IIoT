@@ -1,31 +1,83 @@
-// Global timeouts
-let refreshTokenTimeout;
-let activityTimeout;
-let autoLoginTimeout;
+// Variabel global untuk timer dan waktu idle
+let idleTimer;
+let refreshTokenTimer;
+let idleTimeLeft;  // Waktu idle dinamis sesuai dengan jenis pengguna
+let refreshTimeLeft = 86000; // Default 1 menit (refresh token time)
 
-// Login function
+// Menjalankan fungsi setelah halaman dimuat
+window.addEventListener('load', () => {
+    console.log("Page loaded, starting timers...");
+    
+    const refreshToken = localStorage.getItem('refreshToken');
+    idleTimeLeft = parseInt(localStorage.getItem('idleTimeLeft')) || idleTimeLeft;  // Mengambil waktu idle dari localStorage jika ada
+    // Jangan mengambil refreshTimeLeft dari localStorage, reset ke default untuk menghindari penumpukan
+    refreshTimeLeft = 86000; // Set ke nilai default saat halaman dimuat (menghindari penumpukan)
+
+    // Jika refreshToken ada, mulai timer
+    if (refreshToken) {
+        startIdleTimer(idleTimeLeft);  // Mulai timer idle
+        startRefreshTokenTimer(refreshToken, refreshTimeLeft);  // Mulai timer refresh token
+    }
+});
+
+// Fungsi untuk login
 export const login = async (username, password) => {
-    if (username === 'ksbengdev' && password === 'zWb3Uktb-NGK!vc') {
-        const token = await loginKsbengdev();
-        setupAutoLoginForKsbengdev();
+    try {
+        const token = (username === 'ksbengdev') ? await loginKsbengdev() : await loginUserPribadi(username, password);
+        localStorage.setItem('username', username);  // Simpan username untuk menentukan jenis user
         return token;
-    } else {
-        return await loginUserPribadi(username, password);
+    } catch (error) {
+        console.error('Login error:', error);
+        return Promise.reject(error);
     }
 };
 
-// Helper function to set timeout for refreshing the token
-const setRefreshTimeout = (callback, delay) => {
-    if (refreshTokenTimeout) {
-        clearTimeout(refreshTokenTimeout);
+// Fungsi untuk loginKsbengdev (login otomatis dengan kredensial tetap)
+const loginKsbengdev = async () => {
+    try {
+        const username = 'ksbengdev';
+        const password = 'zWb3Uktb-NGK!vc';
+
+        // Menggunakan kredensial tetap untuk login
+        const loginUrl = 'https://8hzol8pmvh.execute-api.ap-southeast-1.amazonaws.com/DNDDieselStandard/login';
+        const response = await fetch(loginUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, password }),
+        });
+
+        if (!response.ok) throw new Error('Failed to login');
+
+        const data = await response.json();
+
+        // Menghapus seluruh data dari localStorage
+        localStorage.clear();
+
+        // Menyimpan token baru ke localStorage
+        saveTokenData(data.access_token, data.refresh_token);
+
+        const accessToken = data.access_token;
+
+        // Tentukan idleTimeLeft untuk login ksbengdev (4 hari)
+        idleTimeLeft = 96 * 60 * 60;   // 4 hari idle time untuk ksbengdev
+        // Set refreshTimeLeft ke nilai default (1 menit) untuk menghindari penumpukan
+        refreshTimeLeft = 86000;  // Set ke default refresh time
+        // Pastikan timer dimulai saat login dan juga setelah halaman di-refresh
+        if (accessToken) {
+            console.log("Starting idle and refresh token timers...");
+            startIdleTimer(idleTimeLeft);   // Memastikan timer mulai dengan 4 hari idle time
+            startRefreshTokenTimer(data.refresh_token, refreshTimeLeft); // Memastikan refresh token timer mulai
+        }
+
+        return accessToken;
+    } catch (error) {
+        console.error('Login error:', error);
+        return Promise.reject(error);
     }
-    refreshTokenTimeout = setTimeout(callback, delay);
 };
 
-// Login function for ksbengdev
-export const loginKsbengdev = async () => {
-    const username = 'ksbengdev';
-    const password = 'zWb3Uktb-NGK!vc';
+// Fungsi untuk loginUserPribadi
+const loginUserPribadi = async (username, password) => {
     try {
         const loginUrl = 'https://8hzol8pmvh.execute-api.ap-southeast-1.amazonaws.com/DNDDieselStandard/login';
         const response = await fetch(loginUrl, {
@@ -37,62 +89,109 @@ export const loginKsbengdev = async () => {
         if (!response.ok) throw new Error('Failed to login');
 
         const data = await response.json();
-        saveTokenData(data);
-        setRefreshTimeout(refreshKsbengdevToken, 270 * 1000); // 4.5 minutes
-        return data.access_token;
-    } catch (error) {
-        console.error('Login error:', error);
-        throw error;
-    }
-};
 
-// Login function for personal users
-export const loginUserPribadi = async (username, password) => {
-    try {
-        const loginUrl = 'https://8hzol8pmvh.execute-api.ap-southeast-1.amazonaws.com/DNDDieselStandard/login';
-        const response = await fetch(loginUrl, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ username, password }),
-        });
+        // Menghapus seluruh data dari localStorage
+        localStorage.clear();
 
-        if (!response.ok) throw new Error('Failed to login');
+        // Menyimpan token baru ke localStorage
+        saveTokenData(data.access_token, data.refresh_token);
 
-        const data = await response.json();
-        saveTokenData(data);
-        return data.access_token;
-    } catch (error) {
-        console.error('Login error:', error);
-        throw error;
-    }
-};
+        const accessToken = data.access_token;
 
-// Save token data to localStorage
-const saveTokenData = (data) => {
-    if (data.access_token && data.refresh_token) {
-        localStorage.setItem('accessToken', data.access_token);
-        localStorage.setItem('refreshToken', data.refresh_token);
-        localStorage.setItem('lastLoginTime', Date.now());
-    }
-};
-
-// Auto-login setup for ksbengdev
-const setupAutoLoginForKsbengdev = () => {
-    if (autoLoginTimeout) clearTimeout(autoLoginTimeout);
-    autoLoginTimeout = setTimeout(async () => {
-        await loginKsbengdev();
-        setupAutoLoginForKsbengdev();
-    }, 4 * 24 * 60 * 60 * 1000); // 4 days
-};
-
-// Refresh token for ksbengdev (continuous refresh)
-const refreshKsbengdevToken = async () => {
-    try {
-        const refreshToken = localStorage.getItem('refreshToken');
-        if (!refreshToken) {
-            console.warn('No refresh token available.');
-            return;
+        // Tentukan idleTimeLeft untuk user pribadi (15 menit)
+        idleTimeLeft = 15 * 60;  // 15 menit idle time untuk user pribadi
+        // Set refreshTimeLeft ke nilai default (1 menit) untuk menghindari penumpukan
+        refreshTimeLeft = 86000;  // Set ke default refresh time
+        // Pastikan timer dimulai saat login dan juga setelah halaman di-refresh
+        if (accessToken) {
+            console.log("Starting idle and refresh token timers...");
+            startIdleTimer(idleTimeLeft);   // Memastikan timer mulai dengan 15 menit idle time untuk user pribadi
+            startRefreshTokenTimer(data.refresh_token, refreshTimeLeft); // Memastikan refresh token timer mulai
         }
+
+        return accessToken;
+    } catch (error) {
+        console.error('Login error:', error);
+        return Promise.reject(error);
+    }
+};
+
+// Fungsi untuk menyimpan token baru
+function saveTokenData(accessToken, refreshToken) {
+    localStorage.setItem('accessToken', accessToken);  // Menyimpan access token baru
+    localStorage.setItem('refreshToken', refreshToken);  // Menyimpan refresh token yang lama
+    localStorage.setItem('refreshTimeLeft', 86000);  // Menyimpan waktu refresh token dengan nilai default (misal 1 menit)
+    console.log('Access token and refresh token saved.');
+}
+
+// Fungsi untuk mulai menghitung mundur (idle time)
+function startIdleTimer(idleTimeLeft) {
+    console.log("startIdleTimer called");
+
+    // Menghentikan interval sebelumnya jika ada
+    if (idleTimer) clearInterval(idleTimer);
+
+    // Mengatur ulang timer
+    idleTimer = setInterval(() => {
+        idleTimeLeft--;
+        localStorage.setItem('idleTimeLeft', idleTimeLeft);  // Simpan waktu sisa
+        console.log(`Idle Timer: ${idleTimeLeft} seconds`);
+
+        if (idleTimeLeft <= 0) {
+            clearInterval(idleTimer);  // Menghentikan timer ketika waktu habis
+            // Mengecek jenis user dan melakukan login otomatis yang sesuai
+            if (localStorage.getItem('username') === 'ksbengdev') {
+                console.log("Idle time expired, auto logging in as ksbengdev...");
+                loginKsbengdev();  // Login otomatis untuk ksbengdev
+            } else {
+                console.log("Idle time expired, user is not ksbengdev, redirecting to login...");
+                logout();  // Redirect ke halaman login jika bukan ksbengdev
+            }
+        }
+    }, 1000);  // Update setiap detik
+
+    // Reset idle timer jika ada aktivitas pengguna
+    window.addEventListener('mousemove', () => resetIdleTimer());
+    window.addEventListener('keydown', () => resetIdleTimer());
+
+    function resetIdleTimer() {
+        // Reset ke idleTimeLeft sesuai dengan jenis user (4 hari untuk ksbengdev, 15 menit untuk user pribadi)
+        idleTimeLeft = (localStorage.getItem('username') === 'ksbengdev') ? 96 * 60 * 60 : 15 * 60; 
+        localStorage.setItem('idleTimeLeft', idleTimeLeft);  // Simpan waktu reset
+        console.log("Idle timer reset due to user activity");
+    }
+}
+
+// Fungsi untuk melakukan refresh token setiap 1 menit (60 detik)
+function startRefreshTokenTimer(refreshToken, refreshTimeLeft) {
+    console.log("startRefreshTokenTimer called");
+
+    // Menghentikan interval sebelumnya jika ada
+    if (refreshTokenTimer) clearInterval(refreshTokenTimer);
+
+    // Mengatur ulang timer
+    refreshTokenTimer = setInterval(() => {
+        refreshTokenApi(refreshToken);  // Panggil API refresh token
+    }, refreshTimeLeft * 1000);  // Interval berdasarkan refreshTimeLeft (dalam detik)
+
+    // Menambahkan log untuk melihat waktu refresh token
+    setInterval(() => {
+        refreshTimeLeft--;
+        localStorage.setItem('refreshTimeLeft', refreshTimeLeft);  // Simpan waktu sisa
+        console.log(`Refresh Token Timer: ${refreshTimeLeft} seconds`);
+
+        if (refreshTimeLeft <= 0) {
+            refreshTimeLeft = 86000;  // Reset ke 1 menit setelah refresh
+            localStorage.setItem('refreshTimeLeft', refreshTimeLeft);  // Reset juga di localStorage
+        }
+    }, 1000);  // Update setiap detik
+}
+
+// Fungsi untuk refresh token melalui API
+async function refreshTokenApi(refreshToken) {
+    try {
+        console.log("Refreshing token...");
+
         const refreshUrl = 'https://ap-southeast-1bjzveseue.auth.ap-southeast-1.amazoncognito.com/oauth2/token';
         const clientCredentials = 'Basic cmhtOGw2YmEwZGo2YzVobXZ1OWkwMDRwaDoxZmUxbTI0ZWtxNWJkZ3B2MmwzY3RvbW9jZmQ1MGVvOTFocXE3NnNmYmE0czczZWQxc28w';
 
@@ -102,49 +201,33 @@ const refreshKsbengdevToken = async () => {
                 'Content-Type': 'application/x-www-form-urlencoded',
                 'Authorization': clientCredentials,
             },
-            body: new URLSearchParams({ grant_type: 'refresh_token', refresh_token: refreshToken }),
+            body: new URLSearchParams({
+                grant_type: 'refresh_token',
+                refresh_token: refreshToken
+            }),
         });
 
-        if (!response.ok) throw new Error('Failed to refresh token.');
-
-        const data = await response.json();
-        localStorage.setItem('accessToken', data.access_token);
-        setRefreshTimeout(refreshKsbengdevToken, data.expires_in * 1000);
-    } catch (error) {
-        console.error('Refresh error:', error);
-    }
-};
-
-// Refresh token for personal users (depends on activity)
-const refreshAccessToken = async () => {
-    try {
-        const refreshToken = localStorage.getItem('refreshToken');
-        if (!refreshToken) {
-            console.warn('No refresh token available.');
-            return;
+        if (!response.ok) {
+            const errorData = await response.json();
+            console.error(`Error refreshing token:`, errorData);
+            throw new Error('Failed to refresh token');
         }
-        const refreshUrl = 'https://ap-southeast-1bjzveseue.auth.ap-southeast-1.amazoncognito.com/oauth2/token';
-        const clientCredentials = 'Basic cmhtOGw2YmEwZGo2YzVobXZ1OWkwMDRwaDoxZmUxbTI0ZWtxNWJkZ3B2MmwzY3RvbW9jZmQ1MGVvOTFocXE3NnNmYmE0czczZWQxc28w';
-
-        const response = await fetch(refreshUrl, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-                'Authorization': clientCredentials,
-            },
-            body: new URLSearchParams({ grant_type: 'refresh_token', refresh_token: refreshToken }),
-        });
-
-        if (!response.ok) throw new Error('Failed to refresh token.');
 
         const data = await response.json();
-        localStorage.setItem('accessToken', data.access_token);
-        setRefreshTimeout(refreshAccessToken, data.expires_in * 1000);
+        saveTokenData(data.access_token, refreshToken); // Simpan token baru
+        console.log('Token refreshed successfully');
     } catch (error) {
-        console.error('Refresh error:', error);
-        logoutUser();
+        console.error('Error refreshing token:', error);
     }
-};
+}
+
+// Fungsi untuk logout
+export function logout() {
+    console.log("Logging out...");
+    localStorage.clear();  // Menghapus seluruh data dari localStorage
+    window.location.href = '/login';  // Ganti dengan navigasi ke halaman login
+}
+
 
 // Fetch real-time data and GPS
 export const fetchData = async (unitId) => {
@@ -188,14 +271,4 @@ export const fetchData = async (unitId) => {
         console.error('Fetch data error:', error);
         throw error;
     }
-};
-
-// Logout user
-export const logoutUser = () => {
-    localStorage.clear();
-    clearTimeout(refreshTokenTimeout);
-    clearTimeout(activityTimeout);
-    clearTimeout(autoLoginTimeout);
-    console.log('User logged out.');
-    window.location.href = '/login';
 };

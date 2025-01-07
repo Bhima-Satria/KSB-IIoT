@@ -1,16 +1,21 @@
-import React from 'react';
-import { Navigate } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 
 const ProtectedRoute = ({ children }) => {
-    // Cek apakah token tersedia
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('accessToken');
+    const location = useLocation();
+    const navigate = useNavigate();
 
-    // Jika token tidak ada, redirect ke halaman login
+    useEffect(() => {
+        if (token && location.pathname === '/login') {
+            navigate('/', { replace: true }); // Paksa user tetap di halaman utama
+        }
+    }, [token, location, navigate]);
+
     if (!token) {
-        return <Navigate to="/login" />;
+        return <Navigate to="/login" replace />;
     }
 
-    // Jika token ada, render komponen anak
     return children;
 };
 
