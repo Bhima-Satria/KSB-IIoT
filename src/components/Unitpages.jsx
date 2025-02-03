@@ -542,7 +542,7 @@ const TotalFlowCalculator = ({ title, value, unit }) => {
             }}
         >
             <Typography variant="body2" sx={{ color: 'white', fontWeight: 'bold', textAlign: 'center', fontSize: '0.85rem' }}>
-                {title}
+               Counting {title}
             </Typography>
 
             <Typography variant="h6" sx={{ color: 'white', fontWeight: 'bold', textAlign: 'center', marginY: 1, fontSize: '1rem' }}>
@@ -1102,7 +1102,38 @@ const UnitPage = () => {
                                             </TableRow>
                                         </TableHead>
                                         <TableBody>
-                                            <UnitInfoTable unitId={unitId} />
+                                        {(() => {
+                                                // Tentukan data berdasarkan unitId
+                                                const unitDetails =
+                                                    unitId === 'KSB 67'
+                                                        ? [
+                                                            { label: 'Unit Name', value: 'KSB 67' },
+                                                            { label: 'Type Pump', value: 'ISP-D150' },
+                                                            { label: 'Customer', value: 'PT Adaro Tirta Sarana (Sera)' },
+                                                            { label: 'Duty Flow', value: '600 m3/h' },
+                                                            { label: 'Duty Head', value: '165.24 m' },
+                                                            { label: 'Speed', value: '1450 RPM' },
+                                                        ]
+                                                        : unitId === 'KSB 64'
+                                                            ? [
+                                                                { label: 'Unit Name', value: 'KSB 64' },
+                                                                { label: 'Type Pump', value: 'ISP-D200' },
+                                                                { label: 'Customer', value: 'PT TRB (Tanjung Raya Bersama)' },
+                                                                { label: 'Duty Flow', value: '800 m3/h' },
+                                                                { label: 'Duty Head', value: '160 m' },
+                                                                { label: 'Speed', value: '1500 RPM' },
+                                                            ]
+                                                            : []; // Default kosong jika unitId tidak sesuai
+
+                                                return unitDetails.map(({ label, value }, index) => (
+                                                    <TableRow key={index}>
+                                                        <TableCell sx={{ padding: '13px', fontSize: '1.1rem' }}>{label}</TableCell>
+                                                        <TableCell sx={{ padding: '13px', fontSize: '1.1rem' }}>{value}</TableCell>
+                                                    </TableRow>
+                                                ));
+                                            })()}
+                                            
+                                            {/* <UnitInfoTable unitId={unitId} /> */}
                                         </TableBody>
                                     </Table>
                                 </TableContainer>
