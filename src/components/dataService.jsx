@@ -2,7 +2,7 @@
 let idleTimer;
 let refreshTokenTimer;
 let idleTimeLeft;  // Waktu idle dinamis sesuai dengan jenis pengguna
-let refreshTimeLeft = 86000; // Default 1 menit (refresh token time)
+let refreshTimeLeft = 8600; // Default 1 menit (refresh token time)
 
 // Menjalankan fungsi setelah halaman dimuat
 window.addEventListener('load', () => {
@@ -11,7 +11,7 @@ window.addEventListener('load', () => {
     const refreshToken = localStorage.getItem('refreshToken');
     idleTimeLeft = parseInt(localStorage.getItem('idleTimeLeft')) || idleTimeLeft;  // Mengambil waktu idle dari localStorage jika ada
     // Jangan mengambil refreshTimeLeft dari localStorage, reset ke default untuk menghindari penumpukan
-    refreshTimeLeft = 86000; // Set ke nilai default saat halaman dimuat (menghindari penumpukan)
+    refreshTimeLeft = 8600; // Set ke nilai default saat halaman dimuat (menghindari penumpukan)
 
     // Jika refreshToken ada, mulai timer
     if (refreshToken) {
@@ -33,7 +33,7 @@ export const login = async (username, password) => {
 };
 
 // Fungsi untuk loginKsbengdev (login otomatis dengan kredensial tetap)
-const loginKsbengdev = async () => {
+export const loginKsbengdev = async () => {
     try {
         const username = 'ksbengdev';
         const password = 'zWb3Uktb-NGK!vc';
@@ -58,10 +58,13 @@ const loginKsbengdev = async () => {
 
         const accessToken = data.access_token;
 
+        // Simpan username di localStorage
+        localStorage.setItem('username', username);
+
         // Tentukan idleTimeLeft untuk login ksbengdev (4 hari)
         idleTimeLeft = 96 * 60 * 60;   // 4 hari idle time untuk ksbengdev
         // Set refreshTimeLeft ke nilai default (1 menit) untuk menghindari penumpukan
-        refreshTimeLeft = 86000;  // Set ke default refresh time
+        refreshTimeLeft = 8600;  // Set ke default refresh time
         // Pastikan timer dimulai saat login dan juga setelah halaman di-refresh
         if (accessToken) {
             console.log("Starting idle and refresh token timers...");
@@ -98,10 +101,13 @@ const loginUserPribadi = async (username, password) => {
 
         const accessToken = data.access_token;
 
+        // Simpan username di localStorage
+        localStorage.setItem('username', username);
+
         // Tentukan idleTimeLeft untuk user pribadi (15 menit)
-        idleTimeLeft = 15 * 60;  // 15 menit idle time untuk user pribadi
+        idleTimeLeft = 0.5 * 60;  // 15 menit idle time untuk user pribadi
         // Set refreshTimeLeft ke nilai default (1 menit) untuk menghindari penumpukan
-        refreshTimeLeft = 86000;  // Set ke default refresh time
+        refreshTimeLeft = 8600;  // Set ke default refresh time
         // Pastikan timer dimulai saat login dan juga setelah halaman di-refresh
         if (accessToken) {
             console.log("Starting idle and refresh token timers...");
@@ -120,10 +126,11 @@ const loginUserPribadi = async (username, password) => {
 function saveTokenData(accessToken, refreshToken) {
     localStorage.setItem('accessToken', accessToken);  // Menyimpan access token baru
     localStorage.setItem('refreshToken', refreshToken);  // Menyimpan refresh token yang lama
-    localStorage.setItem('refreshTimeLeft', 86000);  // Menyimpan waktu refresh token dengan nilai default (misal 1 menit)
+    localStorage.setItem('refreshTimeLeft', 8600);  // Menyimpan waktu refresh token dengan nilai default (misal 1 menit)
     console.log('Access token and refresh token saved.');
 }
 
+// Fungsi untuk mulai menghitung mundur (idle time)
 // Fungsi untuk mulai menghitung mundur (idle time)
 function startIdleTimer(idleTimeLeft) {
     console.log("startIdleTimer called");
@@ -181,7 +188,7 @@ function startRefreshTokenTimer(refreshToken, refreshTimeLeft) {
         console.log(`Refresh Token Timer: ${refreshTimeLeft} seconds`);
 
         if (refreshTimeLeft <= 0) {
-            refreshTimeLeft = 86000;  // Reset ke 1 menit setelah refresh
+            refreshTimeLeft = 8600;  // Reset ke 1 menit setelah refresh
             localStorage.setItem('refreshTimeLeft', refreshTimeLeft);  // Reset juga di localStorage
         }
     }, 1000);  // Update setiap detik
@@ -241,8 +248,10 @@ export const fetchData = async (unitId) => {
         const unit = `KSB${parsedUnitId[1]}`;
         const apiUrl = `https://8hzol8pmvh.execute-api.ap-southeast-1.amazonaws.com/DNDDieselStandard/${unit}/RealTime`;
         const gpsApiUrl = `https://8hzol8pmvh.execute-api.ap-southeast-1.amazonaws.com/DNDDieselStandard/${unit}/GPS`;
+        const unitInfoUrl = `https://8hzol8pmvh.execute-api.ap-southeast-1.amazonaws.com/DNDDieselStandard/${unit}/UnitInformation`;
 
-        const [realTimeResponse, gpsResponse] = await Promise.all([
+        // Gunakan Promise.allSettled untuk menangani fetch terpisah
+        const responses = await Promise.allSettled([
             fetch(apiUrl, {
                 method: 'GET',
                 headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
@@ -251,24 +260,44 @@ export const fetchData = async (unitId) => {
                 method: 'GET',
                 headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
             }),
+            fetch(unitInfoUrl, {
+                method: 'GET',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+            }),
         ]);
 
-        if (!realTimeResponse.ok || !gpsResponse.ok) throw new Error('Failed to fetch data');
+        // Parsing hasil fetch yang berhasil, dan handle yang gagal
+        const realTimeResponse = responses[0].status === 'fulfilled' ? await responses[0].value.json() : {};
+        const gpsResponse = responses[1].status === 'fulfilled' ? await responses[1].value.json() : {};
+        const unitInfoResponse = responses[2].status === 'fulfilled' ? await responses[2].value.json() : {};
 
-        const [realTimeData, gpsData] = await Promise.all([
-            realTimeResponse.json(),
-            gpsResponse.json(),
-        ]);
+        // Log jika ada request yang gagal
+        if (responses[0].status === 'rejected') {
+            console.error('Failed to fetch real-time data:', responses[0].reason);
+        }
+        if (responses[1].status === 'rejected') {
+            console.error('Failed to fetch GPS data:', responses[1].reason);
+        }
+        if (responses[2].status === 'rejected') {
+            console.error('Failed to fetch Unit Information:', responses[2].reason);
+        }
+
+        // Simpan unitInfoData di localStorage dengan key unik berdasarkan unit
+        if (Object.keys(unitInfoResponse).length) {
+            localStorage.setItem(`unitInfo_${unit}`, JSON.stringify(unitInfoResponse));
+        }
 
         return {
-            realTimeData: realTimeData.READ_REAL || {},
-            coilData: realTimeData.READ_COIL || {},
-            gpsData: gpsData.READ_GPS || {},
-            serverName: realTimeData.server_name || '',
-            date: realTimeData.date || '',
+            realTimeData: realTimeResponse.READ_REAL || {},
+            coilData: realTimeResponse.READ_COIL || {},
+            gpsData: gpsResponse.READ_GPS || {},
+            serverName: realTimeResponse.server_name || '',
+            date: realTimeResponse.date || '',
+            unitInfo: unitInfoResponse || {},
         };
     } catch (error) {
         console.error('Fetch data error:', error);
         throw error;
     }
 };
+

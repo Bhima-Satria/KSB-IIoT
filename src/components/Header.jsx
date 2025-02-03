@@ -1,10 +1,13 @@
 import React, { useState } from 'react';
-import { AppBar, Toolbar, IconButton, Box, Button, Drawer, List, ListItem, ListItemText, Menu, MenuItem, useMediaQuery, useTheme } from '@mui/material';
+import {
+    AppBar, Toolbar, IconButton, Box, Button, Drawer, List,
+    ListItem, ListItemText, Menu, MenuItem, useMediaQuery, useTheme
+} from '@mui/material';
 import { styled } from '@mui/material/styles';
-import { useNavigate } from 'react-router-dom';
 import MenuIcon from '@mui/icons-material/Menu';
+import { useNavigate } from 'react-router-dom';
+import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import { logout } from './dataService'; // Sesuaikan path dengan struktur proyek Anda
-import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown'; // Import ikon dropdown
 
 const Logo = '../img/ksblogo.png';
 
@@ -20,21 +23,19 @@ const MenuButton = styled(Button)(({ theme }) => ({
     textTransform: 'none',
     fontWeight: 'bold',
     '&:hover': {
-        backgroundColor: 'rgba(255, 255, 255, 0.1)', // Warna hover tetap ada
+        backgroundColor: 'rgba(255, 255, 255, 0.1)',
     },
-    transition: 'box-shadow 0.3s ease', // Transisi halus untuk bayangan
+    transition: 'box-shadow 0.3s ease',
 }));
 
 const Header = () => {
     const [activeMenu, setActiveMenu] = useState('');
-    const [drawerOpen, setDrawerOpen] = useState(false); // Untuk membuka/menutup drawer
-    const [anchorEl, setAnchorEl] = useState(null); // Untuk dropdown menu
-    const navigate = useNavigate();
+    const [drawerOpen, setDrawerOpen] = useState(false);
+    const [anchorEl, setAnchorEl] = useState(null);
 
     const theme = useTheme();
-    const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm')); // Menentukan apakah ukuran layar kecil
+    const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
 
-    // Simulasi data
     const chartsData = [
         { id: 1, title: 'KSB 60' },
         { id: 2, title: 'KSB 64' },
@@ -42,56 +43,60 @@ const Header = () => {
         { id: 4, title: 'KSB Double Drive' },
     ];
 
+    // Navigasi dengan window.location.href untuk memastikan reload penuh
     const handleMenuClick = (title) => {
-        setActiveMenu(title); // Menandai menu yang aktif
+        setActiveMenu(title);
         if (title === 'Overview') {
-            navigate('/Overview');
+            window.location.href = '/Overview';
         } else {
-            navigate(`/unit/${title}`);
+            window.location.href = `/unit/${title}`;
         }
     };
 
-    // Fungsi untuk logout
     const handleLogout = async () => {
-        await logout(navigate);
+        await logout();
+        window.location.href = '/login'; // Setelah logout, redirect ke halaman login
     };
 
-    // Fungsi untuk membuka dan menutup dropdown menu
     const handleClick = (event) => {
-        setAnchorEl(event.currentTarget); // Set anchorEl untuk posisi menu
+        setAnchorEl(event.currentTarget);
     };
 
     const handleClose = () => {
-        setAnchorEl(null); // Menutup dropdown menu
+        setAnchorEl(null);
     };
 
-    // Toggle drawer (sidebar)
     const toggleDrawer = (open) => {
         setDrawerOpen(open);
     };
 
     return (
-        <AppBar position="static" sx={{ background: 'linear-gradient(180deg, rgba(51, 102, 153, 1) 30%, rgba(0, 32, 64, 1) 70%)', minHeight: '64px' }}>
+        <AppBar
+            position="static"
+            sx={{
+                background: 'linear-gradient(180deg, rgba(51, 102, 153, 1) 30%, rgba(0, 32, 64, 1) 70%)',
+                minHeight: '64px',
+            }}
+        >
             <Toolbar sx={{ justifyContent: 'space-between', position: 'relative', height: '64px' }}>
                 {/* Logo */}
-                <IconButton edge="start" color="inherit" aria-label="logo" onClick={() => navigate('/')}>
+                <IconButton edge="start" color="inherit" aria-label="logo" onClick={() => window.location.href = '/'}>
                     <LogoImage src={Logo} alt="Logo" />
                 </IconButton>
 
-                {/* Icon Button untuk membuka Sidebar (Drawer) saat ukuran layar kecil */}
+                {/* Menu Icon untuk layar kecil */}
                 <IconButton
                     edge="end"
                     color="inherit"
                     aria-label="menu"
-                    sx={{ display: { xs: 'block', sm: 'none' } }} // Hanya tampil di layar kecil
+                    sx={{ display: { xs: 'block', sm: 'none' } }}
                     onClick={() => toggleDrawer(true)}
                 >
                     <MenuIcon />
                 </IconButton>
 
-                {/* Menu Items yang hanya ditampilkan di layar besar */}
                 {!isSmallScreen && (
-                    <Box sx={{ display: 'flex', alignItems: 'center', position: 'relative', overflowX: 'auto', whiteSpace: 'nowrap' }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', overflowX: 'auto', whiteSpace: 'nowrap' }}>
                         {chartsData.map((item) => (
                             <MenuButton
                                 key={item.id}
@@ -99,39 +104,31 @@ const Header = () => {
                                 className={activeMenu === item.title ? 'active' : ''}
                                 sx={{
                                     backgroundColor: activeMenu === item.title ? 'rgba(255, 255, 255, 0.2)' : 'transparent',
-                                    '&:hover': {
-                                        backgroundColor: 'rgba(255, 255, 255, 0.3)',
-                                    }
+                                    '&:hover': { backgroundColor: 'rgba(255, 255, 255, 0.3)' }
                                 }}
                             >
                                 {item.title}
                             </MenuButton>
                         ))}
-                        {/* Tombol Dropdown dengan ikon panah */}
                         <IconButton onClick={handleClick} color="inherit">
                             <ArrowDropDownIcon />
                         </IconButton>
-                        <Menu
-                            anchorEl={anchorEl}
-                            open={Boolean(anchorEl)}
-                            onClose={handleClose}
-                        >
-                            {/* Opsi Logout */}
+                        <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleClose}>
                             <MenuItem onClick={handleLogout}>Logout</MenuItem>
                         </Menu>
                     </Box>
                 )}
             </Toolbar>
 
-            {/* Sidebar / Drawer */}
+            {/* Sidebar Drawer */}
             <Drawer
                 anchor="left"
                 open={drawerOpen}
                 onClose={() => toggleDrawer(false)}
                 sx={{
                     '& .MuiDrawer-paper': {
-                        backgroundColor: '#0A2540', // Warna latar belakang sidebar
-                        color: '#fff', // Warna teks
+                        backgroundColor: '#0A2540',
+                        color: '#fff',
                     },
                 }}
             >
@@ -143,14 +140,13 @@ const Header = () => {
                                 key={item.id}
                                 onClick={() => {
                                     handleMenuClick(item.title);
-                                    toggleDrawer(false); // Tutup drawer setelah klik
+                                    toggleDrawer(false);
                                 }}
                                 selected={activeMenu === item.title}
                             >
                                 <ListItemText primary={item.title} />
                             </ListItem>
                         ))}
-                        {/* Tombol Logout di Sidebar */}
                         <ListItem button onClick={handleLogout}>
                             <ListItemText primary="Logout" />
                         </ListItem>

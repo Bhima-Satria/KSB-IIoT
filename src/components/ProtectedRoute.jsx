@@ -6,16 +6,19 @@ const ProtectedRoute = ({ children }) => {
     const location = useLocation();
     const navigate = useNavigate();
 
+    // Cek jika user sudah login dan mencoba mengakses halaman login
     useEffect(() => {
         if (token && location.pathname === '/login') {
-            navigate('/', { replace: true }); // Paksa user tetap di halaman utama
+            navigate('/', { replace: true }); // Arahkan ke halaman utama jika sudah login
         }
     }, [token, location, navigate]);
 
-    if (!token) {
+    // Jika tidak ada token, arahkan user ke halaman login
+    if (!token && location.pathname !== '/login') {
         return <Navigate to="/login" replace />;
     }
 
+    // Jika ada token dan bukan halaman login, tampilkan halaman yang dilindungi
     return children;
 };
 

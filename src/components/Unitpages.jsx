@@ -498,7 +498,6 @@ const CardStatus = ({ title, value, lastUpdatedDate }) => {
     );
 };
 
-
 const TotalFlowCalculator = ({ title, value, unit }) => {
     // State untuk menyimpan total flow
     const [totalFlow, setTotalFlow] = useState(0);
@@ -522,46 +521,101 @@ const TotalFlowCalculator = ({ title, value, unit }) => {
     };
 
     return (
-        <div
-            style={{
+        <Box
+            sx={{
+                width: { xs: '90%', sm: '160px' }, // Lebar lebih kecil dan responsif
+                height: 'auto',
+                backgroundColor: '#336699', // Warna latar utama
+                borderRadius: '12px', // Membuat ujung bulat
                 display: 'flex',
-                justifyContent: 'space-between', // Menjaga elemen agar berjajar kiri-kanan
+                flexDirection: 'column',
+                justifyContent: 'center',
                 alignItems: 'center',
-                backgroundColor: 'white',
-                boxShadow: '0px 4px 16px rgba(0, 0, 0, 0.2)',
-                borderRadius: '10px',
-                padding: '10px',
-                margin: '5px',
-                width: '350px', // Ukuran box
+                boxShadow: '0px 4px 16px rgba(0, 0, 0, 0.1)', // Bayangan lembut
+                padding: '8px', // Padding lebih kecil
+                transition: 'all 0.3s ease', // Transisi halus untuk hover
+                '&:hover': {
+                    boxShadow: '0px 8px 24px rgba(0, 0, 0, 0.2)', // Menambah bayangan saat hover
+                    transform: 'translateY(-4px)', // Mengangkat sedikit saat hover
+                    backgroundColor: '#FF9E33', // Mengubah warna latar saat hover
+                },
             }}
         >
-            {/* Menampilkan Total Flow dan Value */}
-            <div
-                style={{
-                    fontSize: '1rem', // Ukuran font sesuai dengan desain
-                    fontWeight: 'bold',
-                    marginRight: '15px', // Memberikan ruang antara total flow dan tombol reset
-                }}
-            >
-                {title}: {totalFlow.toFixed(2)} {unit}
-            </div>
+            <Typography variant="body2" sx={{ color: 'white', fontWeight: 'bold', textAlign: 'center', fontSize: '0.85rem' }}>
+                {title}
+            </Typography>
 
-            {/* Tombol untuk reset total flow */}
-            <button
+            <Typography variant="h6" sx={{ color: 'white', fontWeight: 'bold', textAlign: 'center', marginY: 1, fontSize: '1rem' }}>
+                {totalFlow.toFixed(2)} {unit}
+            </Typography>
+
+            <Typography variant="caption" sx={{ color: '#FFD700', textAlign: 'center', marginTop: 1, fontSize: '0.75rem' }}>
+                Realtime Value
+            </Typography>
+
+            {/* Tombol Reset */}
+            <Button
                 onClick={resetTotalFlow}
-                style={{
-                    backgroundColor: 'red',
+                sx={{
+                    backgroundColor: '#FF0000',
                     color: 'white',
-                    border: 'none',
-                    padding: '5px 10px', // Ukuran tombol lebih kecil
-                    borderRadius: '10px',
-                    cursor: 'pointer',
-                    fontSize: '0.9rem', // Ukuran font tombol sedikit lebih kecil
+                    padding: '4px 10px', // Ukuran tombol lebih kecil
+                    borderRadius: '8px',
+                    fontSize: '0.75rem', // Ukuran font tombol lebih kecil
+                    '&:hover': {
+                        backgroundColor: '#D10000',
+                    },
+                    marginTop: 1, // Menambahkan jarak antara tombol dan teks
                 }}
             >
                 Reset
-            </button>
-        </div>
+            </Button>
+        </Box>
+    );
+};
+
+const UnitInfoTable = ({ unitId }) => {
+    const [unitInfo, setUnitInfo] = useState([]);
+
+    useEffect(() => {
+        const getData = async () => {
+            try {
+                const response = await fetchData(unitId);
+                const fetchedUnitInfo = response.unitInfo;
+
+                if (fetchedUnitInfo) {
+                    // Ubah object ke array agar mudah di-mapping
+                    const formattedUnitInfo = Object.entries(fetchedUnitInfo).map(([label, value]) => ({
+                        label,
+                        value,
+                    }));
+                    setUnitInfo(formattedUnitInfo);
+                }
+            } catch (error) {
+                console.error('Error fetching unit information:', error);
+            }
+        };
+
+        getData();
+    }, [unitId]);
+
+    return (
+        <TableBody>
+            {unitInfo.length > 0 ? (
+                unitInfo.map(({ label, value }, index) => (
+                    <TableRow key={index}>
+                        <TableCell sx={{ padding: '13px', fontSize: '1.1rem' }}>{label}</TableCell>
+                        <TableCell sx={{ padding: '13px', fontSize: '1.1rem' }}>{value}</TableCell>
+                    </TableRow>
+                ))
+            ) : (
+                <TableRow>
+                    <TableCell colSpan={2} sx={{ textAlign: 'center' }}>
+                        No data available
+                    </TableCell>
+                </TableRow>
+            )}
+        </TableBody>
     );
 };
 
@@ -1048,44 +1102,12 @@ const UnitPage = () => {
                                             </TableRow>
                                         </TableHead>
                                         <TableBody>
-                                            {(() => {
-                                                // Tentukan data berdasarkan unitId
-                                                const unitDetails =
-                                                    unitId === 'KSB 67'
-                                                        ? [
-                                                            { label: 'Unit Name', value: 'KSB 67' },
-                                                            { label: 'Type Pump', value: 'ISP-D150' },
-                                                            { label: 'Customer', value: 'PT Adaro Tirta Sarana (Sera)' },
-                                                            { label: 'Duty Flow', value: '600 m3/h' },
-                                                            { label: 'Duty Head', value: '165.24 m' },
-                                                            { label: 'Speed', value: '1450 RPM' },
-                                                        ]
-                                                        : unitId === 'KSB 64'
-                                                            ? [
-                                                                { label: 'Unit Name', value: 'KSB 64' },
-                                                                { label: 'Type Pump', value: 'ISP-D200' },
-                                                                { label: 'Customer', value: 'PT TRB (Tanjung Raya Bersama)' },
-                                                                { label: 'Duty Flow', value: '800 m3/h' },
-                                                                { label: 'Duty Head', value: '160 m' },
-                                                                { label: 'Speed', value: '1500 RPM' },
-                                                            ]
-                                                            : []; // Default kosong jika unitId tidak sesuai
-
-                                                return unitDetails.map(({ label, value }, index) => (
-                                                    <TableRow key={index}>
-                                                        <TableCell sx={{ padding: '13px', fontSize: '1.1rem' }}>{label}</TableCell>
-                                                        <TableCell sx={{ padding: '13px', fontSize: '1.1rem' }}>{value}</TableCell>
-                                                    </TableRow>
-                                                ));
-                                            })()}
+                                            <UnitInfoTable unitId={unitId} />
                                         </TableBody>
                                     </Table>
                                 </TableContainer>
                             </Box>
                         </Grid>
-
-
-
 
                         {/* Kolom untuk Data Instruments */}
                         <Grid item xs={12} sm={12} md={4} lg={4}>
@@ -1579,8 +1601,8 @@ const UnitPage = () => {
                         <Grid item xs={12} sm={12} md={4} lg={4}>
                             <Box
                                 sx={{
-                                    height: '140px', // Total tinggi box (2 baris)
-                                    width: '400px',  // Lebar box
+                                    height: '180px', // Total tinggi box (2 baris)
+                                    width: '380px',  // Lebar box
                                     backgroundColor: 'white',
                                     boxShadow: '0px 4px 16px rgba(0, 0, 0, 0.2)',
                                     borderRadius: '30px',
@@ -1588,28 +1610,32 @@ const UnitPage = () => {
                                     padding: '10px',
                                 }}
                             >
-                                {/* Mengatur isi box menjadi dua baris */}
+                                {/* Mengatur isi box menjadi dua kolom kiri dan kanan */}
                                 <Box
                                     sx={{
                                         display: 'flex',
-                                        flexDirection: 'column',
+                                        justifyContent: 'space-between', // Membagi menjadi dua kolom
                                         alignItems: 'center',
                                         height: '100%',  // Menggunakan seluruh tinggi yang ada
                                     }}
                                 >
-                                    {cardData.map((data, index) => (
-                                        <React.Fragment key={index}>
-                                            {/* Baris pertama: Total Flow */}
-                                            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '5px' }}>
-                                                <TotalFlowCalculator title="Total Flow" value={data.FLOW.toFixed(0)} unit='m3' />
-                                            </Box>
+                                    {/* Kolom Kiri: Total Flow */}
+                                    <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginRight: '10px' }}>
+                                        {cardData.map((data, index) => (
+                                            <React.Fragment key={index}>
+                                                <TotalFlowCalculator title="Total Flow" value={data.FLOW.toFixed(0)} unit="m³" />
+                                            </React.Fragment>
+                                        ))}
+                                    </Box>
 
-                                            {/* Baris kedua: Total Fuel */}
-                                            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                                                <TotalFlowCalculator title="Total Fuel" value={data.ENGINE_FUEL_CONSUMPTIONS.toFixed(1)} unit='L' />
-                                            </Box>
-                                        </React.Fragment>
-                                    ))}
+                                    {/* Kolom Kanan: Total Fuel */}
+                                    <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                                        {cardData.map((data, index) => (
+                                            <React.Fragment key={index}>
+                                                <TotalFlowCalculator title="Total Fuel" value={data.ENGINE_FUEL_CONSUMPTIONS.toFixed(1)} unit="L" />
+                                            </React.Fragment>
+                                        ))}
+                                    </Box>
                                 </Box>
                             </Box>
                         </Grid>
