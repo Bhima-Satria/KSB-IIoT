@@ -7,7 +7,7 @@ let refreshTimeLeft = 8600; // Default 1 menit (refresh token time)
 // Menjalankan fungsi setelah halaman dimuat
 window.addEventListener('load', () => {
     console.log("Page loaded, starting timers...");
-    
+
     const refreshToken = localStorage.getItem('refreshToken');
     idleTimeLeft = parseInt(localStorage.getItem('idleTimeLeft')) || idleTimeLeft;  // Mengambil waktu idle dari localStorage jika ada
     // Jangan mengambil refreshTimeLeft dari localStorage, reset ke default untuk menghindari penumpukan
@@ -105,7 +105,7 @@ const loginUserPribadi = async (username, password) => {
         localStorage.setItem('username', username);
 
         // Tentukan idleTimeLeft untuk user pribadi (15 menit)
-        idleTimeLeft = 0.5 * 60;  // 15 menit idle time untuk user pribadi
+        idleTimeLeft = 15 * 60;  // 15 menit idle time untuk user pribadi
         // Set refreshTimeLeft ke nilai default (1 menit) untuk menghindari penumpukan
         refreshTimeLeft = 8600;  // Set ke default refresh time
         // Pastikan timer dimulai saat login dan juga setelah halaman di-refresh
@@ -158,12 +158,16 @@ function startIdleTimer(idleTimeLeft) {
     }, 1000);  // Update setiap detik
 
     // Reset idle timer jika ada aktivitas pengguna
-    window.addEventListener('mousemove', () => resetIdleTimer());
-    window.addEventListener('keydown', () => resetIdleTimer());
+    if (localStorage.getItem('username') === 'ksbengdev') {
+        console.log("Adding event listeners for user activity...");
+    } else {
+        window.addEventListener('mousemove', () => resetIdleTimer());
+        window.addEventListener('keydown', () => resetIdleTimer());
+    }
 
     function resetIdleTimer() {
         // Reset ke idleTimeLeft sesuai dengan jenis user (4 hari untuk ksbengdev, 15 menit untuk user pribadi)
-        idleTimeLeft = (localStorage.getItem('username') === 'ksbengdev') ? 96 * 60 * 60 : 15 * 60; 
+        idleTimeLeft = (localStorage.getItem('username') === 'ksbengdev') ? 96 * 60 * 60 : 15 * 60;
         localStorage.setItem('idleTimeLeft', idleTimeLeft);  // Simpan waktu reset
         console.log("Idle timer reset due to user activity");
     }

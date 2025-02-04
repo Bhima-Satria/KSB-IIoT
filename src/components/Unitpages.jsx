@@ -108,14 +108,14 @@ const Alarm = ({ title, coilValue, onAlarmUpdate }) => {
     return (
         <Box
             sx={{
-                width: { xs: '100%', sm: '200px' },
-                height: { xs: '20px', sm: '50px' },
+                width: { xs: '100%', sm: '145px' },  // Responsif width dikurangi 15%
+                height: { xs: '17px', sm: '43px' }, // Responsif height dikurangi 15%
                 backgroundColor: '#F5F5F5',
                 borderRadius: '5px',
                 display: 'flex',
                 flexDirection: 'row',
                 alignItems: 'center',
-                padding: { xs: '4px', sm: '0px' },
+                padding: { xs: '3px', sm: '0px' }, // Responsif padding dikurangi 15%
                 marginBottom: 3,
                 boxShadow: '0px 4px 16px rgba(0, 0, 0, 0.3)',
                 border: '1px solid #DDDDDD',
@@ -129,14 +129,14 @@ const Alarm = ({ title, coilValue, onAlarmUpdate }) => {
                     display: 'flex',
                     justifyContent: 'center',
                     alignItems: 'center',
-                    width: { xs: '20px', sm: '50px' },
-                    height: { xs: '20px', sm: '50px' },
-                    marginRight: '10px',
+                    width: { xs: '17px', sm: '43px' },  // Responsif width icon box dikurangi 15%
+                    height: { xs: '17px', sm: '43px' }, // Responsif height icon box dikurangi 15%
+                    marginRight: '9px', // Responsif margin dikurangi 15%
                 }}
             >
                 <Icons.WarningAmberOutlined
                     sx={{
-                        fontSize: { xs: '10px', sm: '40px' }, // Responsive icon size
+                        fontSize: { xs: '8px', sm: '34px' },  // Responsif icon size dikurangi 15%
                         color: 'white',
                         ...blinkStyle,
                     }}
@@ -144,13 +144,13 @@ const Alarm = ({ title, coilValue, onAlarmUpdate }) => {
             </Box>
 
             {/* Text Box */}
-            <Box sx={{ textAlign: 'left', marginLeft: { xs: '10px', sm: '0px' } }}>
+            <Box sx={{ textAlign: 'left', marginLeft: { xs: '8px', sm: '0px' } }}> {/* Responsif margin dikurangi 15% */}
                 <Typography
                     variant="body1"
                     sx={{
                         fontWeight: 'bold',
                         color: isWarning ? '#FF0000' : '#000',
-                        fontSize: { xs: '14px', sm: '16px' }, // Responsive font size
+                        fontSize: { xs: '9px', sm: '11px' },  // Responsif font size dikurangi 15%
                     }}
                 >
                     {title}
@@ -159,6 +159,7 @@ const Alarm = ({ title, coilValue, onAlarmUpdate }) => {
         </Box>
     );
 };
+
 
 const Vacuum = ({ title, coilValue }) => {
     const isWarning = coilValue === 1; // Check if the coil value indicates a warning
@@ -169,8 +170,8 @@ const Vacuum = ({ title, coilValue }) => {
     return (
         <Box
             sx={{
-                width: { xs: '100%', sm: '200px' },  // Responsif width for small and large screens
-                height: { xs: '20px', sm: '50px' }, // Responsif height for small and large screens
+                width: { xs: '100%', sm: '145px' },  // Responsif width for small and large screens (dikurangi 15%)
+                height: { xs: '17px', sm: '43px' }, // Responsif height for small and large screens (dikurangi 15%)
                 backgroundColor: '#F5F5F5',
                 borderRadius: '5px',
                 display: 'flex',
@@ -178,7 +179,7 @@ const Vacuum = ({ title, coilValue }) => {
                 justifyContent: 'left',
                 alignItems: 'center',
                 boxShadow: '0px 4px 16px rgba(0, 0, 0, 0.3)',
-                padding: { xs: '4px', sm: '0px' }, // Adjust padding based on screen size
+                padding: { xs: '3px', sm: '0px' }, // Adjust padding based on screen size (dikurangi 15%)
                 marginBottom: 3,
                 border: '1px solid #DDDDDD',
             }}
@@ -191,14 +192,14 @@ const Vacuum = ({ title, coilValue }) => {
                     display: 'flex',
                     justifyContent: 'center',
                     alignItems: 'center',
-                    width: { xs: '20px', sm: '50px' },  // Responsif width for icon box
-                    height: { xs: '20px', sm: '50px' }, // Responsif height for icon box
-                    marginRight: '10px',
-                    padding: { xs: '5px', sm: '0' }, // Adjust padding based on screen size
+                    width: { xs: '17px', sm: '43px' },  // Responsif width for icon box (dikurangi 15%)
+                    height: { xs: '17px', sm: '43px' }, // Responsif height for icon box (dikurangi 15%)
+                    marginRight: '9px', // Adjusted for a smaller margin (dikurangi 15%)
+                    padding: { xs: '4px', sm: '0' }, // Adjust padding based on screen size
                 }}
             >
                 <Icon sx={{
-                    fontSize: { xs: '10px', sm: '40px' },  // Responsif icon size
+                    fontSize: { xs: '8px', sm: '34px' },  // Responsif icon size (dikurangi 15%)
                     color: 'white',
                 }} />
             </Box>
@@ -208,12 +209,12 @@ const Vacuum = ({ title, coilValue }) => {
                 display: 'flex',
                 flexDirection: 'column',
                 textAlign: 'left',
-                marginLeft: { xs: '10px', sm: '0px' }, // Adjust text margin for smaller screens
+                marginLeft: { xs: '8px', sm: '0px' }, // Adjust text margin for smaller screens (dikurangi 15%)
             }}>
                 <Typography variant="body1" sx={{
                     fontWeight: 'bold',
                     color: 'black',
-                    fontSize: { xs: '14px', sm: '16px' },  // Responsif font size
+                    fontSize: { xs: '11px', sm: '13px' },  // Responsif font size (dikurangi 15%)
                 }}>
                     {title}
                 </Typography>
@@ -221,6 +222,7 @@ const Vacuum = ({ title, coilValue }) => {
         </Box>
     );
 };
+
 
 const LevelSensor = ({ title, coilValue }) => {
     const isWarning = coilValue === 1; // Check if the coil value indicates a warning
@@ -231,8 +233,8 @@ const LevelSensor = ({ title, coilValue }) => {
     return (
         <Box
             sx={{
-                width: { xs: '100%', sm: '200px' },  // Responsif width for small and large screens
-                height: { xs: '20px', sm: '50px' }, // Responsif height for small and large screens
+                width: { xs: '100%', sm: '145px' },  // Responsif width for small and large screens (dikurangi 15%)
+                height: { xs: '17px', sm: '43px' }, // Responsif height for small and large screens (dikurangi 15%)
                 backgroundColor: '#F5F5F5',
                 borderRadius: '5px',
                 display: 'flex',
@@ -240,7 +242,7 @@ const LevelSensor = ({ title, coilValue }) => {
                 justifyContent: 'left',
                 alignItems: 'center',
                 boxShadow: '0px 4px 16px rgba(0, 0, 0, 0.3)',
-                padding: { xs: '4px', sm: '0px' }, // Adjust padding based on screen size
+                padding: { xs: '3px', sm: '0px' }, // Adjust padding based on screen size (dikurangi 15%)
                 marginBottom: 3,
                 border: '1px solid #DDDDDD',
             }}
@@ -253,14 +255,14 @@ const LevelSensor = ({ title, coilValue }) => {
                     display: 'flex',
                     justifyContent: 'center',
                     alignItems: 'center',
-                    width: { xs: '20px', sm: '50px' },  // Responsif width for icon box
-                    height: { xs: '20px', sm: '50px' }, // Responsif height for icon box
-                    marginRight: '10px',
-                    padding: { xs: '5px', sm: '0' }, // Adjust padding based on screen size
+                    width: { xs: '17px', sm: '43px' },  // Responsif width for icon box (dikurangi 15%)
+                    height: { xs: '17px', sm: '43px' }, // Responsif height for icon box (dikurangi 15%)
+                    marginRight: '9px', // Adjusted for a smaller margin (dikurangi 15%)
+                    padding: { xs: '4px', sm: '0' }, // Adjust padding based on screen size
                 }}
             >
                 <Icon sx={{
-                    fontSize: { xs: '10px', sm: '40px' },  // Responsif icon size
+                    fontSize: { xs: '8px', sm: '34px' },  // Responsif icon size (dikurangi 15%)
                     color: 'white',
                 }} />
             </Box>
@@ -270,12 +272,12 @@ const LevelSensor = ({ title, coilValue }) => {
                 display: 'flex',
                 flexDirection: 'column',
                 textAlign: 'left',
-                marginLeft: { xs: '10px', sm: '0px' }, // Adjust text margin for smaller screens
+                marginLeft: { xs: '8px', sm: '0px' }, // Adjust text margin for smaller screens (dikurangi 15%)
             }}>
                 <Typography variant="body1" sx={{
                     fontWeight: 'bold',
                     color: 'black',
-                    fontSize: { xs: '14px', sm: '16px' },  // Responsif font size
+                    fontSize: { xs: '11px', sm: '13px' },  // Responsif font size (dikurangi 15%)
                 }}>
                     {title}
                 </Typography>
@@ -284,18 +286,19 @@ const LevelSensor = ({ title, coilValue }) => {
     );
 };
 
+
 const DataCard = ({ title, value, unit, Icon, Duty }) => {
     return (
         <Card
             sx={{
                 backgroundColor: 'white',
-                boxShadow: '0px 4px 16px rgba(0, 0, 0, 0.2)',
+                boxShadow: '0px 4px 16px rgba(0, 0, 0, 0.1)', // Lebih ringan shadow-nya
                 display: 'flex',
                 flexDirection: 'column',
-                padding: { xs: 1, sm: 2 }, // Padding responsif
+                padding: { xs: 0.5, sm: 1 }, // Padding lebih kecil
                 margin: 1,
                 flex: 1,
-                minWidth: { xs: '120px', sm: '200px' },
+                minWidth: { xs: '100px', sm: '150px' }, // Ukuran minimum lebih kecil
                 maxWidth: '100%', // Membatasi lebar maksimal
             }}
         >
@@ -304,8 +307,8 @@ const DataCard = ({ title, value, unit, Icon, Duty }) => {
                     display: 'flex',
                     alignItems: 'center',
                     width: '100%',
-                    paddingBottom: '8px', // Kurangi jarak bawah
-                    paddingTop: '8px', // Kurangi jarak atas
+                    paddingBottom: '4px', // Kurangi jarak bawah
+                    paddingTop: '4px', // Kurangi jarak atas
                 }}
             >
                 <Box
@@ -313,25 +316,25 @@ const DataCard = ({ title, value, unit, Icon, Duty }) => {
                         flexGrow: 1,
                         display: 'flex',
                         flexDirection: 'column',
-                        gap: '4px', // Kurangi jarak antar teks
+                        gap: '2px', // Kurangi jarak antar teks
                     }}
                 >
                     <Typography
                         variant="body2"
                         color="textSecondary"
                         sx={{
-                            fontSize: { xs: '1rem', sm: '1.2rem' },
-                            marginBottom: '4px', // Jarak bawah kecil
+                            fontSize: { xs: '0.8rem', sm: '1rem' }, // Ukuran font lebih kecil
+                            marginBottom: '2px', // Jarak bawah kecil
                         }}
                     >
                         {title}
                     </Typography>
                     <Typography
-                        variant="h5"
+                        variant="h6"
                         sx={{
                             fontWeight: 'bold',
-                            fontSize: { xs: '1.2rem', sm: '1.5rem' },
-                            marginTop: '4px', // Jarak atas kecil
+                            fontSize: { xs: '1rem', sm: '1.2rem' }, // Ukuran font lebih kecil
+                            marginTop: '2px', // Jarak atas kecil
                         }}
                     >
                         {value} {unit}
@@ -339,8 +342,8 @@ const DataCard = ({ title, value, unit, Icon, Duty }) => {
                 </Box>
                 <Box
                     sx={{
-                        width: { xs: '50px', sm: '80px' }, // Responsif lebar ikon
-                        height: { xs: '50px', sm: '80px' }, // Responsif tinggi ikon
+                        width: { xs: '40px', sm: '50px' }, // Responsif lebar ikon lebih kecil
+                        height: { xs: '40px', sm: '50px' }, // Responsif tinggi ikon lebih kecil
                         borderRadius: '50%',
                         backgroundColor: '#f5f5f5',
                         display: 'flex',
@@ -351,7 +354,7 @@ const DataCard = ({ title, value, unit, Icon, Duty }) => {
                 >
                     <Icon
                         sx={{
-                            fontSize: { xs: '40px', sm: '70px' }, // Responsif ukuran ikon
+                            fontSize: { xs: '30px', sm: '40px' }, // Responsif ukuran ikon lebih kecil
                             color: '#FF8A00',
                         }}
                     />
@@ -364,11 +367,11 @@ const DataCard = ({ title, value, unit, Icon, Duty }) => {
                     borderTop: '1px solid #e0e0e0',
                     width: '100%',
                     textAlign: 'center',
-                    marginTop: '4px', // Kurangi margin atas
+                    marginTop: '2px', // Kurangi margin atas
                     display: 'flex',
                     justifyContent: 'space-between',
                     alignItems: 'center',
-                    padding: { xs: '4px', sm: '8px' }, // Responsif padding bawah
+                    padding: { xs: '2px', sm: '4px' }, // Padding bawah lebih kecil
                 }}
             >
                 <Box
@@ -381,7 +384,7 @@ const DataCard = ({ title, value, unit, Icon, Duty }) => {
                         variant="body2"
                         color="textSecondary"
                         sx={{
-                            fontSize: { xs: '0.8rem', sm: '1rem' },
+                            fontSize: { xs: '0.7rem', sm: '0.9rem' }, // Ukuran font lebih kecil
                         }}
                     >
                         {Duty}
@@ -391,6 +394,7 @@ const DataCard = ({ title, value, unit, Icon, Duty }) => {
         </Card>
     );
 };
+
 
 const CardStatus = ({ title, value, lastUpdatedDate }) => {
     // Menentukan status berdasarkan value
@@ -420,13 +424,13 @@ const CardStatus = ({ title, value, lastUpdatedDate }) => {
     const statusIcon = isOn ? (
         <Icons.PowerSettingsNew sx={{
             color: '#4CAF50',
-            fontSize: { xs: '40px', sm: '60px', md: '80px' }, // Ukuran responsif lebih kecil
+            fontSize: { xs: '28px', sm: '42px', md: '56px' }, // Ukuran ikon dikurangi sekitar 30%
             opacity: blinkStyle.opacity,
         }} />
     ) : (
         <Icons.PowerSettingsNew sx={{
             color: '#FF0000',
-            fontSize: { xs: '40px', sm: '60px', md: '80px' }, // Ukuran responsif lebih kecil
+            fontSize: { xs: '28px', sm: '42px', md: '56px' }, // Ukuran ikon dikurangi sekitar 30%
         }} />
     );
 
@@ -438,38 +442,50 @@ const CardStatus = ({ title, value, lastUpdatedDate }) => {
             boxShadow: '0px 4px 16px rgba(0, 0, 0, 0.2)',
             display: 'flex',
             flexDirection: 'column',
-            padding: { xs: 1, sm: 2 }, // Padding responsif
+            padding: { xs: 0.7, sm: 1.4 }, // Padding dikurangi sekitar 30%
             margin: 1,
             flex: 1,
-            minWidth: { xs: '120px', sm: '200px' },
+            minWidth: { xs: '85px', sm: '140px' }, // Ukuran minimum box dikurangi sekitar 30%
             maxWidth: '100%', // Membatasi lebar maksimal agar sesuai dengan layar
         }}>
-            <CardContent sx={{ display: 'flex', alignItems: 'center', width: '100%' }}>
-                <Box sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', gap: '4px' }}>
+            <CardContent sx={{
+                display: 'flex',
+                alignItems: 'center',
+                width: '100%',
+                paddingBottom: '3px', // Padding bawah dikurangi
+                paddingTop: '3px', // Padding atas dikurangi
+            }}>
+                <Box sx={{
+                    flexGrow: 1,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '2px', // Gap antar teks dikurangi
+                }}>
                     <Typography variant="body2" color="textSecondary" sx={{
-                        fontSize: { xs: '0.9rem', sm: '1.1rem' }, // Ukuran responsif lebih kecil
-                        marginBottom: '4px',
+                        fontSize: { xs: '0.6rem', sm: '0.8rem' }, // Ukuran font dikurangi sekitar 30%
+                        marginBottom: '3px',
                     }}>
                         {title}
                     </Typography>
-                    <Typography variant="h5" sx={{
+                    <Typography variant="h6" sx={{
                         fontWeight: 'bold',
-                        fontSize: { xs: '0.9rem', sm: '1.3rem' }, // Ukuran responsif lebih kecil
+                        fontSize: { xs: '0.8rem', sm: '1.1rem' }, // Ukuran font dikurangi sekitar 30%
+                        marginTop: '3px', // Jarak atas dikurangi
                     }}>
                         {statusText}
                     </Typography>
                 </Box>
                 <Box sx={{
-                    width: { xs: '40px', sm: '60px' },
-                    height: { xs: '40px', sm: '60px' },
+                    width: { xs: '28px', sm: '42px' }, // Ukuran box ikon dikurangi sekitar 30%
+                    height: { xs: '28px', sm: '42px' },
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                     marginLeft: 2
                 }}>
                     <Box sx={{
-                        width: { xs: '50px', sm: '70px', md: '80px' },
-                        height: { xs: '50px', sm: '70px', md: '80px' },
+                        width: { xs: '35px', sm: '60px', md: '55px' }, // Ukuran box di sekitar ikon dikurangi sekitar 30%
+                        height: { xs: '35px', sm: '60px', md: '55px' },
                         borderRadius: '50%',
                         backgroundColor: '#f5f5f5',
                         display: 'flex',
@@ -484,11 +500,11 @@ const CardStatus = ({ title, value, lastUpdatedDate }) => {
                 borderTop: '1px solid #e0e0e0', width: '100%',
                 textAlign: 'center', marginTop: 1, display: 'flex',
                 justifyContent: 'space-between', alignItems: 'center',
-                padding: { xs: '0.5rem', sm: '0.8rem' }, // Padding responsif lebih kecil
+                padding: { xs: '0.4rem', sm: '0.6rem' }, // Padding bawah dikurangi sekitar 30%
             }}>
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
                     <Typography variant="body2" color="textSecondary" sx={{
-                        fontSize: { xs: '0.7rem', sm: '0.9rem' }, // Ukuran responsif lebih kecil
+                        fontSize: { xs: '0.5rem', sm: '0.7rem' }, // Ukuran font bawah dikurangi sekitar 30%
                     }}>
                         Latest Online: {lastUpdatedDate}
                     </Typography>
@@ -497,6 +513,7 @@ const CardStatus = ({ title, value, lastUpdatedDate }) => {
         </Card>
     );
 };
+
 
 const TotalFlowCalculator = ({ title, value, unit }) => {
     // State untuk menyimpan total flow
@@ -523,7 +540,7 @@ const TotalFlowCalculator = ({ title, value, unit }) => {
     return (
         <Box
             sx={{
-                width: { xs: '90%', sm: '160px' }, // Lebar lebih kecil dan responsif
+                width: { xs: '90%', sm: '170px' }, // Lebar lebih kecil dan responsif
                 height: 'auto',
                 backgroundColor: '#336699', // Warna latar utama
                 borderRadius: '12px', // Membuat ujung bulat
@@ -542,26 +559,21 @@ const TotalFlowCalculator = ({ title, value, unit }) => {
             }}
         >
             <Typography variant="body2" sx={{ color: 'white', fontWeight: 'bold', textAlign: 'center', fontSize: '0.85rem' }}>
-               Counting {title}
+                Counting {title} <br />
+                <span style={{ color: '#FFD700', textAlign: 'center' }}>
+                    {totalFlow.toFixed(2)} {unit}
+                </span>
             </Typography>
 
-            <Typography variant="h6" sx={{ color: 'white', fontWeight: 'bold', textAlign: 'center', marginY: 1, fontSize: '1rem' }}>
-                {totalFlow.toFixed(2)} {unit}
-            </Typography>
-
-            <Typography variant="caption" sx={{ color: '#FFD700', textAlign: 'center', marginTop: 1, fontSize: '0.75rem' }}>
-                Realtime Value
-            </Typography>
-
-            {/* Tombol Reset */}
             <Button
                 onClick={resetTotalFlow}
                 sx={{
                     backgroundColor: '#FF0000',
                     color: 'white',
-                    padding: '4px 10px', // Ukuran tombol lebih kecil
-                    borderRadius: '8px',
-                    fontSize: '0.75rem', // Ukuran font tombol lebih kecil
+                    padding: '1px 7px', // Ukuran tombol lebih kecil
+                    borderRadius: '6px', // Border radius lebih tipis
+                    fontSize: '0.7rem', // Ukuran font tombol lebih kecil
+                    fontWeight: 'bold', // Membuat tulisan bold
                     '&:hover': {
                         backgroundColor: '#D10000',
                     },
@@ -570,6 +582,7 @@ const TotalFlowCalculator = ({ title, value, unit }) => {
             >
                 Reset
             </Button>
+
         </Box>
     );
 };
@@ -1102,7 +1115,7 @@ const UnitPage = () => {
                                             </TableRow>
                                         </TableHead>
                                         <TableBody>
-                                        {(() => {
+                                            {(() => {
                                                 // Tentukan data berdasarkan unitId
                                                 const unitDetails =
                                                     unitId === 'KSB 67'
@@ -1132,7 +1145,7 @@ const UnitPage = () => {
                                                     </TableRow>
                                                 ));
                                             })()}
-                                            
+
                                             {/* <UnitInfoTable unitId={unitId} /> */}
                                         </TableBody>
                                     </Table>
@@ -1373,7 +1386,7 @@ const UnitPage = () => {
                         </Grid>
 
 
-                        {/* Kolom kosong 4 diisi Alarm List */}
+                        {/* Kolom kosong 6 diisi Alarm List */}
                         <Grid item xs={12} sm={12} md={4} lg={4}>
                             <Box
                                 sx={{
@@ -1390,48 +1403,44 @@ const UnitPage = () => {
                                     padding: '15px',  // Mengurangi padding utama untuk lebih rapat
                                 }}
                             >
-                                {/* Separator Box for Vacuum Pump & Level Sensor Status */}
+
                                 <Box
                                     sx={{
-                                        backgroundColor: 'white',  // Color for embush (light yellow)
-                                        boxShadow: '0px 4px 20px rgba(0, 0, 0, 0.3)',  // Strong shadow for clear separation
+                                        height: '180px', // Total tinggi box (2 baris)
+                                        width: '380px',  // Lebar box
+                                        backgroundColor: 'white',
+                                        boxShadow: '0px 4px 16px rgba(0, 0, 0, 0.2)',
                                         borderRadius: '20px',
-                                        width: '100%',
-                                        margin: '5px 0',  // Mengurangi margin antar box
-                                        padding: '5px',
+                                        margin: '5px',
+                                        padding: '10px',
                                     }}
                                 >
-                                    <Typography
-                                        variant="h6"
-                                        sx={{
-                                            fontSize: '1.3rem',
-                                            textAlign: 'center',
-                                            fontWeight: 'bold',
-                                            textShadow: '2px 2px 4px rgba(0, 0, 0, 0.5)',
-                                            marginTop: '5px', // Spacing sedikit di atas title
-                                            marginBottom: '12px', // Spacing sedikit di bawah title
-                                        }}
-                                    >
-                                        Vacuum Pump & Level Sensor Status
-                                    </Typography>
-
+                                    {/* Mengatur isi box menjadi dua kolom kiri dan kanan */}
                                     <Box
                                         sx={{
-                                            display: 'grid',
-                                            gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',  // Grid with auto-fill and dynamic width
-                                            gap: '0px',  // Mengurangi gap menjadi 0 untuk jarak antar card lebih rapat
-                                            width: '100%',  // Full width of the box
-                                            justifyItems: 'center',  // Center grid items horizontally
-                                            alignItems: 'start',  // Align grid items to the top
+                                            display: 'flex',
+                                            justifyContent: 'space-between', // Membagi menjadi dua kolom
+                                            alignItems: 'center',
+                                            height: '100%',  // Menggunakan seluruh tinggi yang ada
                                         }}
                                     >
-                                        {cardDataCoil.map((data, index) => (
-                                            <React.Fragment key={index}>
-                                                <Vacuum title="Vacuum Pump" coilValue={data.VACUM_ON} />
-                                                <LevelSensor title="Low Level" coilValue={data.LOW_LEVEL} />
-                                                <LevelSensor title="High Level" coilValue={data.HIGH_LEVEL} />
-                                            </React.Fragment>
-                                        ))}
+                                        {/* Kolom Kiri: Total Flow */}
+                                        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginRight: '10px' }}>
+                                            {cardData.map((data, index) => (
+                                                <React.Fragment key={index}>
+                                                    <TotalFlowCalculator title="Total Flow" value={data.FLOW.toFixed(0)} unit="m³" />
+                                                </React.Fragment>
+                                            ))}
+                                        </Box>
+
+                                        {/* Kolom Kanan: Total Fuel */}
+                                        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                                            {cardData.map((data, index) => (
+                                                <React.Fragment key={index}>
+                                                    <TotalFlowCalculator title="Total Fuel" value={data.ENGINE_FUEL_CONSUMPTIONS.toFixed(1)} unit="L" />
+                                                </React.Fragment>
+                                            ))}
+                                        </Box>
                                     </Box>
                                 </Box>
 
@@ -1440,7 +1449,7 @@ const UnitPage = () => {
                                     sx={{
                                         backgroundColor: 'white',  // White background for Alarm List Box
                                         boxShadow: '0px 4px 16px rgba(0, 0, 0, 0.2)',
-                                        borderRadius: '30px',
+                                        borderRadius: '20px',
                                         padding: '10px',  // Mengurangi padding untuk Box Alarm agar lebih rapat
                                         width: '100%',
                                         marginBottom: '5px',  // Margin sedikit antar box
@@ -1454,25 +1463,29 @@ const UnitPage = () => {
                                             textAlign: 'center',
                                             fontWeight: 'bold',
                                             textShadow: '2px 2px 4px rgba(0, 0, 0, 0.5)',
-                                            marginBottom: '12px', // Spacing sedikit di bawah title
+                                            marginBottom: '10px', // Spacing sedikit di bawah title
                                         }}
                                     >
-                                        Alarm List For {unitId}
+                                        Level Sensor Status & Alarm List For {unitId}
                                     </Typography>
 
-                                    {/* Render each Alarm card with hardcoded titles and coilValue = 1 */}
                                     <Box
                                         sx={{
                                             display: 'grid',
-                                            gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',  // Grid with auto-fill and dynamic width
-                                            gap: '0px',  // Mengurangi gap menjadi 0 untuk jarak antar card lebih rapat
+                                            gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))',  // Grid with auto-fill and dynamic width
+                                            gap: '8px',  // Mengatur gap lebih kecil untuk jarak antar card lebih rapat
                                             width: '100%',  // Full width of the box
                                             justifyItems: 'center',  // Center grid items horizontally
                                             alignItems: 'start',  // Align grid items to the top 
+                                            marginTop: '0',  // Pastikan tidak ada margin top berlebihan
+                                            marginBottom: '0',  // Pastikan tidak ada margin bottom berlebihan
                                         }}
                                     >
                                         {cardDataCoil.map((data, index) => (
                                             <React.Fragment key={index}>
+                                                <Vacuum title="Vacuum Pump" coilValue={data.VACUM_ON} />
+                                                <LevelSensor title="Low Level" coilValue={data.LOW_LEVEL} />
+                                                <LevelSensor title="High Level" coilValue={data.HIGH_LEVEL} />
                                                 <Alarm
                                                     title="Pump DE Temp"
                                                     coilValue={data.PUMP_DE_OVER_TEMP}
@@ -1625,49 +1638,7 @@ const UnitPage = () => {
 
                                     </Box>
                                 </Box>
-                            </Box>
-                        </Grid>
 
-                        {/* Kolom kosong 5 diisi Total Flow dan Total Fuel */}
-                        <Grid item xs={12} sm={12} md={4} lg={4}>
-                            <Box
-                                sx={{
-                                    height: '180px', // Total tinggi box (2 baris)
-                                    width: '380px',  // Lebar box
-                                    backgroundColor: 'white',
-                                    boxShadow: '0px 4px 16px rgba(0, 0, 0, 0.2)',
-                                    borderRadius: '30px',
-                                    margin: '5px',
-                                    padding: '10px',
-                                }}
-                            >
-                                {/* Mengatur isi box menjadi dua kolom kiri dan kanan */}
-                                <Box
-                                    sx={{
-                                        display: 'flex',
-                                        justifyContent: 'space-between', // Membagi menjadi dua kolom
-                                        alignItems: 'center',
-                                        height: '100%',  // Menggunakan seluruh tinggi yang ada
-                                    }}
-                                >
-                                    {/* Kolom Kiri: Total Flow */}
-                                    <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginRight: '10px' }}>
-                                        {cardData.map((data, index) => (
-                                            <React.Fragment key={index}>
-                                                <TotalFlowCalculator title="Total Flow" value={data.FLOW.toFixed(0)} unit="m³" />
-                                            </React.Fragment>
-                                        ))}
-                                    </Box>
-
-                                    {/* Kolom Kanan: Total Fuel */}
-                                    <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                                        {cardData.map((data, index) => (
-                                            <React.Fragment key={index}>
-                                                <TotalFlowCalculator title="Total Fuel" value={data.ENGINE_FUEL_CONSUMPTIONS.toFixed(1)} unit="L" />
-                                            </React.Fragment>
-                                        ))}
-                                    </Box>
-                                </Box>
                             </Box>
                         </Grid>
 

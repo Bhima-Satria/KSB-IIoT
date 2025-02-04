@@ -9,33 +9,36 @@ const NonLoginPage = () => {
     useEffect(() => {
         const handleLogin = async () => {
             try {
-                // Login otomatis menggunakan kredensial ksbengdev
+                let unitId = '';
+
+                // Tentukan unitId berdasarkan redirectPath
+                if (redirectPath === 'yMuD$2p67') {
+                    unitId = 'KSB 67';
+                } else if (redirectPath === 'yMuD$2p64') {
+                    unitId = 'KSB 64';
+                } else {
+                    // Jika redirectPath tidak valid, tidak lanjutkan ke login otomatis
+                    console.error("Invalid redirect path");
+                    navigate('/login', { replace: true });
+                    return;
+                }
+
+                // Jika redirectPath valid, login otomatis menggunakan kredensial ksbengdev
                 const token = await loginKsbengdev();
                 if (token) {
-                    let unitId = '';
-
-                    // Tentukan unitId berdasarkan redirectPath
-                    if (redirectPath === 'yMuD$2p67') {
-                        unitId = 'KSB 67';
-                    } else if (redirectPath === 'yMuD$2p64') {
-                        unitId = 'KSB 64';
-                    }
-
                     // Arahkan ke halaman unit yang sesuai setelah login berhasil
-                    if (unitId) {
-                        navigate(`/unit/${unitId}`, { replace: true });
-                    } else {
-                        console.error("Invalid redirect path");
-                        navigate('/login', { replace: true });
-                    }
+                    navigate(`/unit/${unitId}`, { replace: true });
+                } else {
+                    console.error("Login failed:", error);
+                    navigate('/login', { replace: true });  // Jika login gagal, arahkan ke halaman login
                 }
             } catch (error) {
                 console.error("Login failed:", error);
-                navigate('/login', { replace: true });  // Jika login gagal, arahkan ke halaman login
+                navigate('/login', { replace: true });  // Jika terjadi error, arahkan ke halaman login
             }
         };
 
-        // Jalankan login otomatis
+        // Jalankan login otomatis jika redirectPath valid
         handleLogin();
     }, [navigate, redirectPath]);
 
