@@ -1377,7 +1377,7 @@ const UnitPage_DD = () => {
                                                         display: true,
                                                     },
                                                     min: 0, // Rentang minimum untuk sumbu Y
-                                                    max: 200, // Rentang maksimum untuk sumbu Y
+                                                    max: 300, // Rentang maksimum untuk sumbu Y
                                                 },
                                             },
                                         }}
