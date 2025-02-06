@@ -242,6 +242,7 @@ export function logout() {
 
 // Fetch real-time data and GPS
 export const fetchData = async (unitId) => {
+
     try {
         const token = localStorage.getItem('accessToken');
         if (!token) throw new Error('No access token found');
@@ -254,8 +255,7 @@ export const fetchData = async (unitId) => {
         const gpsApiUrl = `https://8hzol8pmvh.execute-api.ap-southeast-1.amazonaws.com/DNDDieselStandard/${unit}/GPS`;
         const unitInfoUrl = `https://8hzol8pmvh.execute-api.ap-southeast-1.amazonaws.com/DNDDieselStandard/${unit}/UnitInformation`;
 
-        // Gunakan Promise.allSettled untuk menangani fetch terpisah
-        const responses = await Promise.allSettled([
+        const requests = [
             fetch(apiUrl, {
                 method: 'GET',
                 headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
@@ -268,25 +268,23 @@ export const fetchData = async (unitId) => {
                 method: 'GET',
                 headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
             }),
-        ]);
+        ];
 
-        // Parsing hasil fetch yang berhasil, dan handle yang gagal
+        const responses = await Promise.allSettled(requests);
+
+        // Check if any response has 401 status
+        for (const response of responses) {
+            if (response.status === 'fulfilled' && response.value.status === 401) {
+                handleUnauthorized();
+                return;
+            }
+        }
+
+        // Process successful responses
         const realTimeResponse = responses[0].status === 'fulfilled' ? await responses[0].value.json() : {};
         const gpsResponse = responses[1].status === 'fulfilled' ? await responses[1].value.json() : {};
         const unitInfoResponse = responses[2].status === 'fulfilled' ? await responses[2].value.json() : {};
 
-        // Log jika ada request yang gagal
-        if (responses[0].status === 'rejected') {
-            console.error('Failed to fetch real-time data:', responses[0].reason);
-        }
-        if (responses[1].status === 'rejected') {
-            console.error('Failed to fetch GPS data:', responses[1].reason);
-        }
-        if (responses[2].status === 'rejected') {
-            console.error('Failed to fetch Unit Information:', responses[2].reason);
-        }
-
-        // Simpan unitInfoData di localStorage dengan key unik berdasarkan unit
         if (Object.keys(unitInfoResponse).length) {
             localStorage.setItem(`unitInfo_${unit}`, JSON.stringify(unitInfoResponse));
         }
@@ -300,8 +298,17 @@ export const fetchData = async (unitId) => {
             unitInfo: unitInfoResponse || {},
         };
     } catch (error) {
-        console.error('Fetch data error:', error);
-        throw error;
+        if (error.message.includes('Unauthorized')) {
+            handleUnauthorized();
+        } else {
+            console.error('Fetch data error:', error);
+            throw error;
+        }
     }
-};
+
+    function handleUnauthorized() {
+        console.error('Unauthorized: logging out and redirecting to login');
+        logout();
+    }
+}; 
 

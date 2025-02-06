@@ -946,20 +946,6 @@ const UnitPage = () => {
 
     return (
         <Box sx={{ p: 2 }}>
-            {isDataEmpty ? (
-                <Box sx={{
-                    textAlign: 'center',
-                    mt: 2,
-                    paddingLeft: { xs: 5 },
-                }}>
-                    <Typography variant="body2" color="textSecondary" sx={{ fontSize: '0.8rem' }}>
-                        Data kosong atau tidak tersedia
-                    </Typography>
-                    <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-                        <CircularProgress />
-                    </Box>
-                </Box>
-            ) : (
                 <Grid container spacing={2} justifyContent="center" direction="row">
 
                     {/* Kolom untuk Card Status */}
@@ -1654,7 +1640,6 @@ const UnitPage = () => {
 
                     </Grid>
                 </Grid>
-            )}
         </Box>
     );
 
