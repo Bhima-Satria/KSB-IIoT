@@ -10,6 +10,7 @@ import { Helmet } from 'react-helmet';
 import LoginPage from './components/LoginPage';
 import ProtectedRoute from './components/ProtectedRoute'; // ProtectedRoute untuk akses terproteksi
 import NonLoginPage from './components/NonLoginPage'; // Halaman non-login untuk login otomatis
+import UnitPage_DD from './components/Unitpages_DD';
 
 const App = () => {
     return (
@@ -44,6 +45,15 @@ const App = () => {
                             element={
                                 <ProtectedRoute>
                                     <UnitPage />
+                                </ProtectedRoute>
+                            }
+                        />
+
+                        <Route
+                            path='/unit_DD/:unitId'
+                            element={
+                                <ProtectedRoute>
+                                    <UnitPage_DD />
                                 </ProtectedRoute>
                             }
                         />

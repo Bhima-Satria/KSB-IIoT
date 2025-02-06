@@ -40,14 +40,14 @@ const Header = () => {
         { id: 1, title: 'KSB 60' },
         { id: 2, title: 'KSB 64' },
         { id: 3, title: 'KSB 67' },
-        { id: 4, title: 'KSB Double Drive' },
+        { id: 4, title: 'KSB 72' },
     ];
 
     // Navigasi dengan window.location.href untuk memastikan reload penuh
     const handleMenuClick = (title) => {
         setActiveMenu(title);
-        if (title === 'Overview') {
-            window.location.href = '/Overview';
+        if (title === 'KSB 72') {
+            window.location.href = `/Unit_DD/${title}`;
         } else {
             window.location.href = `/unit/${title}`;
         }

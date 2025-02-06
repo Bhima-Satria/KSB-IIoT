@@ -115,10 +115,10 @@ const Alarm = ({ title, coilValue, onAlarmUpdate }) => {
                 display: 'flex',
                 flexDirection: 'row',
                 alignItems: 'center',
-                padding: 0, // Hapus padding untuk mengurangi spasi
-                marginBottom: 1, // Hapus marginBottom
+                padding: { xs: '3px', sm: '0px' }, // Responsif padding dikurangi 15%
+                marginBottom: 3,
                 boxShadow: '0px 4px 16px rgba(0, 0, 0, 0.3)',
-                border: '1px solid #DDDDDD', // Bisa dihilangkan jika tidak diperlukan
+                border: '1px solid #DDDDDD',
             }}
         >
             {/* Icon Box */}
@@ -131,7 +131,7 @@ const Alarm = ({ title, coilValue, onAlarmUpdate }) => {
                     alignItems: 'center',
                     width: { xs: '17px', sm: '43px' },  // Responsif width icon box dikurangi 15%
                     height: { xs: '17px', sm: '43px' }, // Responsif height icon box dikurangi 15%
-                    marginRight: 0.5, // Hapus marginRight
+                    marginRight: '9px', // Responsif margin dikurangi 15%
                 }}
             >
                 <Icons.WarningAmberOutlined
@@ -144,7 +144,7 @@ const Alarm = ({ title, coilValue, onAlarmUpdate }) => {
             </Box>
 
             {/* Text Box */}
-            <Box sx={{ textAlign: 'left', marginLeft: 0 }}> {/* Hapus marginLeft */}
+            <Box sx={{ textAlign: 'left', marginLeft: { xs: '8px', sm: '0px' } }}> {/* Responsif margin dikurangi 15% */}
                 <Typography
                     variant="body1"
                     sx={{
@@ -159,7 +159,6 @@ const Alarm = ({ title, coilValue, onAlarmUpdate }) => {
         </Box>
     );
 };
-
 
 
 const Vacuum = ({ title, coilValue }) => {
@@ -180,8 +179,8 @@ const Vacuum = ({ title, coilValue }) => {
                 justifyContent: 'left',
                 alignItems: 'center',
                 boxShadow: '0px 4px 16px rgba(0, 0, 0, 0.3)',
-                padding: 0, // Adjust padding based on screen size (dikurangi 15%)
-                marginBottom: 1,
+                padding: { xs: '3px', sm: '0px' }, // Adjust padding based on screen size (dikurangi 15%)
+                marginBottom: 3,
                 border: '1px solid #DDDDDD',
             }}
         >
@@ -195,8 +194,8 @@ const Vacuum = ({ title, coilValue }) => {
                     alignItems: 'center',
                     width: { xs: '17px', sm: '43px' },  // Responsif width for icon box (dikurangi 15%)
                     height: { xs: '17px', sm: '43px' }, // Responsif height for icon box (dikurangi 15%)
-                    marginRight: 0.5, // Adjusted for a smaller margin (dikurangi 15%)
-                    padding: 0, // Adjust padding based on screen size
+                    marginRight: '9px', // Adjusted for a smaller margin (dikurangi 15%)
+                    padding: { xs: '4px', sm: '0' }, // Adjust padding based on screen size
                 }}
             >
                 <Icon sx={{
@@ -243,8 +242,8 @@ const LevelSensor = ({ title, coilValue }) => {
                 justifyContent: 'left',
                 alignItems: 'center',
                 boxShadow: '0px 4px 16px rgba(0, 0, 0, 0.3)',
-                padding: 0, // Adjust padding based on screen size (dikurangi 15%)
-                marginBottom: 1,
+                padding: { xs: '3px', sm: '0px' }, // Adjust padding based on screen size (dikurangi 15%)
+                marginBottom: 3,
                 border: '1px solid #DDDDDD',
             }}
         >
@@ -258,8 +257,8 @@ const LevelSensor = ({ title, coilValue }) => {
                     alignItems: 'center',
                     width: { xs: '17px', sm: '43px' },  // Responsif width for icon box (dikurangi 15%)
                     height: { xs: '17px', sm: '43px' }, // Responsif height for icon box (dikurangi 15%)
-                    marginRight: 0.5, // Adjusted for a smaller margin (dikurangi 15%)
-                    padding: 0, // Adjust padding based on screen size
+                    marginRight: '9px', // Adjusted for a smaller margin (dikurangi 15%)
+                    padding: { xs: '4px', sm: '0' }, // Adjust padding based on screen size
                 }}
             >
                 <Icon sx={{
@@ -633,7 +632,7 @@ const UnitInfoTable = ({ unitId }) => {
     );
 };
 
-const UnitPage = () => {
+const UnitPage_DD = () => {
     const { unitId } = useParams(); // Mendapatkan unitId dari params URL
     const [cardData, setCardData] = useState([]); // Menyimpan data untuk ditampilkan di UI
     const [cardDataCoil, setCardDataCoil] = useState([]); // Menyimpan data coil untuk ditampilkan di UI
@@ -788,14 +787,14 @@ const UnitPage = () => {
         },
         {
             title: "Engine Speed",
-            value: cardData[0]?.ENGINE_SPEED.toFixed(0),
+            value: cardData[0]?.ENGINE_1_SPEED.toFixed(0),
             unit: "RPM",
             Icon: Icons.Speed,
             Duty: "Duty Speed: 1450 RPM"
         },
         {
             title: "Engine Load",
-            value: cardData[0]?.ENGINE_LOAD.toFixed(0),
+            value: cardData[0]?.ENGINE_1_LOAD.toFixed(0),
             unit: "%",
             Icon: Icons.ElectricCar,
             Duty: "Duty Engine: 80%"
@@ -816,14 +815,14 @@ const UnitPage = () => {
         },
         {
             title: "Engine Run Hour",
-            value: cardData[0]?.ENGINE_RUN_HOUR.toFixed(2),
+            value: cardData[0]?.ENGINE_1_RUN_HOUR.toFixed(2),
             unit: "Hours",
             Icon: Icons.ManageHistory,
             Duty: "-"
         },
         {
             title: "Fuel Rate",
-            value: cardData[0]?.ENGINE_FUEL_CONSUMPTIONS.toFixed(1),
+            value: cardData[0]?.ENGINE_1_FUEL_CONSUMPTIONS.toFixed(1),
             unit: "L/h",
             Icon: Icons.LocalGasStation,
             Duty: "Duty Fuel: 100 L/h"
@@ -971,7 +970,7 @@ const UnitPage = () => {
                                 <CardStatus
                                     key={index}
                                     title="Unit Status"
-                                    value={data.ENGINE_RUN}
+                                    value={data.ENGINE_1_RUN}
                                     lastUpdatedDate={parsedDate}
                                 />
                             ))}
@@ -1060,6 +1059,7 @@ const UnitPage = () => {
                                                 width: '100%',
                                                 height: 'auto',
                                                 maxWidth: '610px',
+                                                maxHeight: '400px',
                                                 borderRadius: '10px',
                                                 opacity: fade ? 1 : 0, // Atur opacity untuk efek transisi
                                                 transition: 'opacity 0.5s ease-in-out', // Efek transisi opacity
@@ -1137,16 +1137,8 @@ const UnitPage = () => {
                                                                 { label: 'Duty Head', value: '160 m' },
                                                                 { label: 'Speed', value: '1500 RPM' },
                                                             ]
-                                                            : unitId === 'KSB 60'
-                                                                ? [
-                                                                    { label: 'Unit Name', value: 'KSB 60' },
-                                                                    { label: 'Type Pump', value: 'ISP-D200' },
-                                                                    { label: 'Customer', value: '-' },
-                                                                    { label: 'Duty Flow', value: '800 m3/h' },
-                                                                    { label: 'Duty Head', value: '160 m' },
-                                                                    { label: 'Speed', value: '1550 RPM' },
-                                                                ]
-                                                                : [];
+                                                            : [
+                                                                { label: 'No Data Available' }]; // Default kosong jika unitId tidak sesuai
 
                                                 return unitDetails.map(({ label, value }, index) => (
                                                     <TableRow key={index}>
@@ -1201,7 +1193,7 @@ const UnitPage = () => {
                                                 <Bubble title="Flow" value={data.FLOW.toFixed(0)} unit="m3/h" Icon={Icons.Water} />
                                             </Grid>
                                             <Grid item xs={6} sm={4} md={6} lg={4} container justifyContent="center">
-                                                <Bubble title="Engine Load" value={data.ENGINE_LOAD.toFixed(2)} unit="%" Icon={Icons.ElectricCar} />
+                                                <Bubble title="Engine Load" value={data.ENGINE_1_LOAD.toFixed(2)} unit="%" Icon={Icons.ElectricCar} />
                                             </Grid>
                                             <Grid item xs={6} sm={4} md={6} lg={4} container justifyContent="center">
                                                 <Bubble title="Pump DE Vib X1" value={data.PUMP_NDE_VIB_X1.toFixed(2)} unit="mm/s" Icon={Icons.Sensors} />
@@ -1219,7 +1211,7 @@ const UnitPage = () => {
                                                 <Bubble title="Total Head" value={(data.DISCHARGE_PRESSURE * 10.2).toFixed(2)} unit="m" Icon={Icons.AirlineStopsOutlined} />
                                             </Grid>
                                             <Grid item xs={6} sm={4} md={6} lg={4} container justifyContent="center">
-                                                <Bubble title="Fuel Rate" value={data.ENGINE_FUEL_CONSUMPTIONS.toFixed(2)} unit="L/h" Icon={Icons.LocalGasStation} />
+                                                <Bubble title="Fuel Rate" value={data.ENGINE_1_FUEL_CONSUMPTIONS.toFixed(2)} unit="L/h" Icon={Icons.LocalGasStation} />
                                             </Grid>
                                             <Grid item xs={6} sm={4} md={6} lg={4} container justifyContent="center">
                                                 <Bubble title="Pump NDE Vib Y" value={data.PUMP_DE_VIB_Y.toFixed(2)} unit="mm/s" Icon={Icons.Sensors} />
@@ -1447,7 +1439,7 @@ const UnitPage = () => {
                                         <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                                             {cardData.map((data, index) => (
                                                 <React.Fragment key={index}>
-                                                    <TotalFlowCalculator title="Total Fuel" value={data.ENGINE_FUEL_CONSUMPTIONS.toFixed(1)} unit="L" />
+                                                    <TotalFlowCalculator title="Total Fuel" value={data.ENGINE_1_FUEL_CONSUMPTIONS.toFixed(1)} unit="L" />
                                                 </React.Fragment>
                                             ))}
                                         </Box>
@@ -1482,13 +1474,13 @@ const UnitPage = () => {
                                     <Box
                                         sx={{
                                             display: 'grid',
-                                            gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 2fr))', // Grid with auto-fill and dynamic width
-                                            gap: '0px',  // Mengatur jarak antar card menjadi fixed 5px
+                                            gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))',  // Grid with auto-fill and dynamic width
+                                            gap: '8px',  // Mengatur gap lebih kecil untuk jarak antar card lebih rapat
                                             width: '100%',  // Full width of the box
                                             justifyItems: 'center',  // Center grid items horizontally
-                                            alignItems: 'start',  // Align grid items to the top
-                                            marginTop: '0px',  // Margin atas fixed 5px
-                                            marginBottom: '0px',  // Margin bawah fixed 5px
+                                            alignItems: 'start',  // Align grid items to the top 
+                                            marginTop: '0',  // Pastikan tidak ada margin top berlebihan
+                                            marginBottom: '0',  // Pastikan tidak ada margin bottom berlebihan
                                         }}
                                     >
                                         {cardDataCoil.map((data, index) => (
@@ -1660,4 +1652,4 @@ const UnitPage = () => {
 
 };
 
-export default UnitPage;
+export default UnitPage_DD;

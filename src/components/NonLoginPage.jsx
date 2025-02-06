@@ -16,7 +16,14 @@ const NonLoginPage = () => {
                     unitId = 'KSB 67';
                 } else if (redirectPath === 'yMuD$2p64') {
                     unitId = 'KSB 64';
-                } else {
+                } 
+                else if (redirectPath === 'yMuD$2p60') {
+                    unitId = 'KSB 60';
+                }
+                else if (redirectPath === 'yMuD$2pDD72') {
+                    unitId = 'KSB 72';
+                }
+                else {
                     // Jika redirectPath tidak valid, tidak lanjutkan ke login otomatis
                     console.error("Invalid redirect path");
                     navigate('/login', { replace: true });
