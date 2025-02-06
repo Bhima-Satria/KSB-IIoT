@@ -115,10 +115,10 @@ const Alarm = ({ title, coilValue, onAlarmUpdate }) => {
                 display: 'flex',
                 flexDirection: 'row',
                 alignItems: 'center',
-                padding: { xs: '3px', sm: '0px' }, // Responsif padding dikurangi 15%
-                marginBottom: 3,
+                padding: 0, // Hapus padding untuk mengurangi spasi
+                marginBottom: 1, // Hapus marginBottom
                 boxShadow: '0px 4px 16px rgba(0, 0, 0, 0.3)',
-                border: '1px solid #DDDDDD',
+                border: '1px solid #DDDDDD', // Bisa dihilangkan jika tidak diperlukan
             }}
         >
             {/* Icon Box */}
@@ -131,7 +131,7 @@ const Alarm = ({ title, coilValue, onAlarmUpdate }) => {
                     alignItems: 'center',
                     width: { xs: '17px', sm: '43px' },  // Responsif width icon box dikurangi 15%
                     height: { xs: '17px', sm: '43px' }, // Responsif height icon box dikurangi 15%
-                    marginRight: '9px', // Responsif margin dikurangi 15%
+                    marginRight: 0.5, // Hapus marginRight
                 }}
             >
                 <Icons.WarningAmberOutlined
@@ -144,7 +144,7 @@ const Alarm = ({ title, coilValue, onAlarmUpdate }) => {
             </Box>
 
             {/* Text Box */}
-            <Box sx={{ textAlign: 'left', marginLeft: { xs: '8px', sm: '0px' } }}> {/* Responsif margin dikurangi 15% */}
+            <Box sx={{ textAlign: 'left', marginLeft: 0 }}> {/* Hapus marginLeft */}
                 <Typography
                     variant="body1"
                     sx={{
@@ -159,6 +159,7 @@ const Alarm = ({ title, coilValue, onAlarmUpdate }) => {
         </Box>
     );
 };
+
 
 
 const Vacuum = ({ title, coilValue }) => {
@@ -179,8 +180,8 @@ const Vacuum = ({ title, coilValue }) => {
                 justifyContent: 'left',
                 alignItems: 'center',
                 boxShadow: '0px 4px 16px rgba(0, 0, 0, 0.3)',
-                padding: { xs: '3px', sm: '0px' }, // Adjust padding based on screen size (dikurangi 15%)
-                marginBottom: 3,
+                padding: 0, // Adjust padding based on screen size (dikurangi 15%)
+                marginBottom: 1,
                 border: '1px solid #DDDDDD',
             }}
         >
@@ -194,8 +195,8 @@ const Vacuum = ({ title, coilValue }) => {
                     alignItems: 'center',
                     width: { xs: '17px', sm: '43px' },  // Responsif width for icon box (dikurangi 15%)
                     height: { xs: '17px', sm: '43px' }, // Responsif height for icon box (dikurangi 15%)
-                    marginRight: '9px', // Adjusted for a smaller margin (dikurangi 15%)
-                    padding: { xs: '4px', sm: '0' }, // Adjust padding based on screen size
+                    marginRight: 0.5, // Adjusted for a smaller margin (dikurangi 15%)
+                    padding: 0, // Adjust padding based on screen size
                 }}
             >
                 <Icon sx={{
@@ -242,8 +243,8 @@ const LevelSensor = ({ title, coilValue }) => {
                 justifyContent: 'left',
                 alignItems: 'center',
                 boxShadow: '0px 4px 16px rgba(0, 0, 0, 0.3)',
-                padding: { xs: '3px', sm: '0px' }, // Adjust padding based on screen size (dikurangi 15%)
-                marginBottom: 3,
+                padding: 0, // Adjust padding based on screen size (dikurangi 15%)
+                marginBottom: 1,
                 border: '1px solid #DDDDDD',
             }}
         >
@@ -257,8 +258,8 @@ const LevelSensor = ({ title, coilValue }) => {
                     alignItems: 'center',
                     width: { xs: '17px', sm: '43px' },  // Responsif width for icon box (dikurangi 15%)
                     height: { xs: '17px', sm: '43px' }, // Responsif height for icon box (dikurangi 15%)
-                    marginRight: '9px', // Adjusted for a smaller margin (dikurangi 15%)
-                    padding: { xs: '4px', sm: '0' }, // Adjust padding based on screen size
+                    marginRight: 0.5, // Adjusted for a smaller margin (dikurangi 15%)
+                    padding: 0, // Adjust padding based on screen size
                 }}
             >
                 <Icon sx={{
@@ -513,7 +514,6 @@ const CardStatus = ({ title, value, lastUpdatedDate }) => {
         </Card>
     );
 };
-
 
 const TotalFlowCalculator = ({ title, value, unit }) => {
     // State untuk menyimpan total flow
@@ -1119,26 +1119,17 @@ const UnitPage_DD = () => {
                                             {(() => {
                                                 // Tentukan data berdasarkan unitId
                                                 const unitDetails =
-                                                    unitId === 'KSB 67'
+                                                    unitId === 'KSB 72'
                                                         ? [
-                                                            { label: 'Unit Name', value: 'KSB 67' },
-                                                            { label: 'Type Pump', value: 'ISP-D150' },
-                                                            { label: 'Customer', value: 'PT Adaro Tirta Sarana (Sera)' },
+                                                            { label: 'Unit Name', value: 'KSB 72' },
+                                                            { label: 'Type Pump', value: 'ISP-D150 U2H' },
+                                                            { label: 'Customer', value: 'PT. Thriveni Indomining' },
                                                             { label: 'Duty Flow', value: '600 m3/h' },
-                                                            { label: 'Duty Head', value: '165.24 m' },
-                                                            { label: 'Speed', value: '1450 RPM' },
+                                                            { label: 'Duty Head', value: '250 m' },
+                                                            { label: 'Speed', value: '1560 RPM' },
                                                         ]
-                                                        : unitId === 'KSB 64'
-                                                            ? [
-                                                                { label: 'Unit Name', value: 'KSB 64' },
-                                                                { label: 'Type Pump', value: 'ISP-D200' },
-                                                                { label: 'Customer', value: 'PT TRB (Tanjung Raya Bersama)' },
-                                                                { label: 'Duty Flow', value: '800 m3/h' },
-                                                                { label: 'Duty Head', value: '160 m' },
-                                                                { label: 'Speed', value: '1500 RPM' },
-                                                            ]
-                                                            : [
-                                                                { label: 'No Data Available' }]; // Default kosong jika unitId tidak sesuai
+                                                        : [
+                                                            { label: 'No Data Available' }]; // Default kosong jika unitId tidak sesuai
 
                                                 return unitDetails.map(({ label, value }, index) => (
                                                     <TableRow key={index}>
@@ -1202,7 +1193,7 @@ const UnitPage_DD = () => {
                                                 <Bubble title="Discharge Pressure" value={data.DISCHARGE_PRESSURE.toFixed(2)} unit="Bar" Icon={Icons.Commit} />
                                             </Grid>
                                             <Grid item xs={6} sm={4} md={6} lg={4} container justifyContent="center">
-                                                <Bubble title="Bearing Temp" value={data.PUMP_NDE_TEMP.toFixed(2)} unit="°C" Icon={Icons.Thermostat} />
+                                                <Bubble title="Pump DE Temp" value={data.PUMP_DE_TEMP.toFixed(2)} unit="°C" Icon={Icons.Thermostat} />
                                             </Grid>
                                             <Grid item xs={6} sm={4} md={6} lg={4} container justifyContent="center">
                                                 <Bubble title="Pump NDE VIb X2" value={data.PUMP_NDE_VIB_X2.toFixed(2)} unit="mm/s" Icon={Icons.Sensors} />
@@ -1474,13 +1465,13 @@ const UnitPage_DD = () => {
                                     <Box
                                         sx={{
                                             display: 'grid',
-                                            gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))',  // Grid with auto-fill and dynamic width
-                                            gap: '8px',  // Mengatur gap lebih kecil untuk jarak antar card lebih rapat
+                                            gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 2fr))', // Grid with auto-fill and dynamic width
+                                            gap: '0px',  // Mengatur jarak antar card menjadi fixed 5px
                                             width: '100%',  // Full width of the box
                                             justifyItems: 'center',  // Center grid items horizontally
-                                            alignItems: 'start',  // Align grid items to the top 
-                                            marginTop: '0',  // Pastikan tidak ada margin top berlebihan
-                                            marginBottom: '0',  // Pastikan tidak ada margin bottom berlebihan
+                                            alignItems: 'start',  // Align grid items to the top
+                                            marginTop: '0px',  // Margin atas fixed 5px
+                                            marginBottom: '0px',  // Margin bawah fixed 5px
                                         }}
                                     >
                                         {cardDataCoil.map((data, index) => (
