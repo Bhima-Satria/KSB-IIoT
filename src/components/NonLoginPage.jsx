@@ -1,51 +1,47 @@
 import React, { useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { loginKsbengdev } from './dataService';  // Mengimpor fungsi login otomatis ksbengdev
+import { loginKsbengdev } from './dataService';
 
 const NonLoginPage = () => {
     const navigate = useNavigate();
-    const { redirectPath } = useParams(); // Menangkap path dinamis
+    const { redirectPath } = useParams();
 
     useEffect(() => {
         const handleLogin = async () => {
             try {
-                let unitId = '';
+                // Tentukan unitId berdasarkan path mapping
+                const pathMapping = {
+                    'yMuD$2p67': 'KSB 67',
+                    'yMuD$2p64': 'KSB 64',
+                    'yMuD$2p60': 'KSB 60',
+                    'yMuD$2p72': 'KSB 72'
+                };
 
-                // Tentukan unitId berdasarkan redirectPath
-                if (redirectPath === 'yMuD$2p67') {
-                    unitId = 'KSB 67';
-                } else if (redirectPath === 'yMuD$2p64') {
-                    unitId = 'KSB 64';
-                } 
-                else if (redirectPath === 'yMuD$2p60') {
-                    unitId = 'KSB 60';
-                }
-                else if (redirectPath === 'yMuD$2pDD72') {
-                    unitId = 'KSB 72';
-                }
-                else {
-                    // Jika redirectPath tidak valid, tidak lanjutkan ke login otomatis
+                const unitId = pathMapping[redirectPath];
+
+                // Jika redirectPath tidak valid, arahkan ke login
+                if (!unitId) {
                     console.error("Invalid redirect path");
                     navigate('/login', { replace: true });
                     return;
                 }
 
-                // Jika redirectPath valid, login otomatis menggunakan kredensial ksbengdev
+                // Lakukan login otomatis
                 const token = await loginKsbengdev();
+
                 if (token) {
-                    // Arahkan ke halaman unit yang sesuai setelah login berhasil
-                    navigate(`/unit/${unitId}`, { replace: true });
+                    const path = unitId === 'KSB 72' ? `/unit_DD/${unitId}` : `/unit/${unitId}`;
+                    navigate(path, { replace: true });
                 } else {
-                    console.error("Login failed:", error);
-                    navigate('/login', { replace: true });  // Jika login gagal, arahkan ke halaman login
+                    console.error("Login failed");
+                    navigate('/login', { replace: true });
                 }
             } catch (error) {
                 console.error("Login failed:", error);
-                navigate('/login', { replace: true });  // Jika terjadi error, arahkan ke halaman login
+                navigate('/login', { replace: true });
             }
         };
 
-        // Jalankan login otomatis jika redirectPath valid
         handleLogin();
     }, [navigate, redirectPath]);
 
