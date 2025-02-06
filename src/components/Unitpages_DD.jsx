@@ -786,20 +786,6 @@ const UnitPage_DD = () => {
             Duty: "Duty Pressure: 16.2 Bar"
         },
         {
-            title: "Engine Speed",
-            value: cardData[0]?.ENGINE_1_SPEED.toFixed(0),
-            unit: "RPM",
-            Icon: Icons.Speed,
-            Duty: "Duty Speed: 1450 RPM"
-        },
-        {
-            title: "Engine Load",
-            value: cardData[0]?.ENGINE_1_LOAD.toFixed(0),
-            unit: "%",
-            Icon: Icons.ElectricCar,
-            Duty: "Duty Engine: 80%"
-        },
-        {
             title: "Pump DE Temp",
             value: cardData[0]?.PUMP_DE_TEMP.toFixed(2),
             unit: "°C",
@@ -807,47 +793,61 @@ const UnitPage_DD = () => {
             Duty: "Temp Duty: 90°C"
         },
         {
-            title: "Pump NDE Temp",
-            value: cardData[0]?.PUMP_NDE_TEMP.toFixed(2),
-            unit: "°C",
-            Icon: Icons.Thermostat,
-            Duty: "Temp Duty: 90°C"
+            title: "First Engine Speed",
+            value: cardData[0]?.ENGINE_1_SPEED.toFixed(0),
+            unit: "RPM",
+            Icon: Icons.Speed,
+            Duty: "Duty Speed: 1560 RPM"
         },
         {
-            title: "Engine Run Hour",
+            title: "Second Engine Speed",
+            value: cardData[0]?.ENGINE_2_SPEED.toFixed(0),
+            unit: "RPM",
+            Icon: Icons.Speed,
+            Duty: "Duty Speed: 1560 RPM"
+        },
+        {
+            title: "First Engine Load",
+            value: cardData[0]?.ENGINE_1_LOAD.toFixed(2),
+            unit: "%",
+            Icon: Icons.ElectricCar,
+            Duty: "Duty Engine: 80%"
+        },
+        {
+            title: "Second Engine Load",
+            value: cardData[0]?.ENGINE_2_LOAD.toFixed(2),
+            unit: "%",
+            Icon: Icons.ElectricCar,
+            Duty: "Duty Engine: 80%"
+        },
+        {
+            title: "First Engine Run Hour",
             value: cardData[0]?.ENGINE_1_RUN_HOUR.toFixed(2),
             unit: "Hours",
             Icon: Icons.ManageHistory,
             Duty: "-"
         },
         {
-            title: "Fuel Rate",
+            title: "Second Engine Run Hour",
+            value: cardData[0]?.ENGINE_2_RUN_HOUR.toFixed(2),
+            unit: "Hours",
+            Icon: Icons.ManageHistory,
+            Duty: "-"
+        },
+        {
+            title: "First Engine Fuel Rate",
             value: cardData[0]?.ENGINE_1_FUEL_CONSUMPTIONS.toFixed(1),
             unit: "L/h",
             Icon: Icons.LocalGasStation,
             Duty: "Duty Fuel: 100 L/h"
         },
         {
-            title: "Pump DE Vib Y",
-            value: cardData[0]?.PUMP_DE_VIB_Y.toFixed(2),
-            unit: "mm/s",
-            Icon: Icons.Sensors,
-            Duty: "Duty Vib: - mm/s"
+            title: "Second Engine Fuel Rate",
+            value: cardData[0]?.ENGINE_2_FUEL_CONSUMPTIONS.toFixed(1),
+            unit: "L/h",
+            Icon: Icons.LocalGasStation,
+            Duty: "Duty Fuel: 100 L/h"
         },
-        {
-            title: "Pump NDE Vib X1",
-            value: cardData[0]?.PUMP_NDE_VIB_X1.toFixed(2),
-            unit: "mm/s",
-            Icon: Icons.Sensors,
-            Duty: "Duty Vib: - mm/s"
-        },
-        {
-            title: "Pump NDE Vib X2",
-            value: cardData[0]?.PUMP_NDE_VIB_X2.toFixed(1),
-            unit: "mm/s",
-            Icon: Icons.Sensors,
-            Duty: "Duty Vib: - mm/s"
-        }
     ];
 
     const groupedCards = [];
@@ -969,8 +969,16 @@ const UnitPage_DD = () => {
                             {cardDataCoil.map((data, index) => (
                                 <CardStatus
                                     key={index}
-                                    title="Unit Status"
+                                    title="Fisrt Engine Status"
                                     value={data.ENGINE_1_RUN}
+                                    lastUpdatedDate={parsedDate}
+                                />
+                            ))}
+                            {cardDataCoil.map((data, index) => (
+                                <CardStatus
+                                    key={index}
+                                    title="Second Engine Status"
+                                    value={data.ENGINE_2_RUN}
                                     lastUpdatedDate={parsedDate}
                                 />
                             ))}
@@ -1121,7 +1129,7 @@ const UnitPage_DD = () => {
                                                 const unitDetails =
                                                     unitId === 'KSB 72'
                                                         ? [
-                                                            { label: 'Unit Name', value: 'KSB 72' },
+                                                            { label: 'Unit Name', value: 'KSB 72 Double Drive' },
                                                             { label: 'Type Pump', value: 'ISP-D150 U2H' },
                                                             { label: 'Customer', value: 'PT. Thriveni Indomining' },
                                                             { label: 'Duty Flow', value: '600 m3/h' },
@@ -1184,25 +1192,25 @@ const UnitPage_DD = () => {
                                                 <Bubble title="Flow" value={data.FLOW.toFixed(0)} unit="m3/h" Icon={Icons.Water} />
                                             </Grid>
                                             <Grid item xs={6} sm={4} md={6} lg={4} container justifyContent="center">
-                                                <Bubble title="Engine Load" value={data.ENGINE_1_LOAD.toFixed(2)} unit="%" Icon={Icons.ElectricCar} />
+                                                <Bubble title="Engine 1 Fuel Rate" value={data.ENGINE_1_FUEL_CONSUMPTIONS.toFixed(2)} unit="L/h" Icon={Icons.LocalGasStation} />
                                             </Grid>
                                             <Grid item xs={6} sm={4} md={6} lg={4} container justifyContent="center">
-                                                <Bubble title="Pump DE Vib X1" value={data.PUMP_NDE_VIB_X1.toFixed(2)} unit="mm/s" Icon={Icons.Sensors} />
+                                                <Bubble title="Engine 1 Oil Pressure" value={data.ENGINE_1_OIL_PRESSURE.toFixed(2)} unit="Bar" Icon={Icons.Commit} />
                                             </Grid>
                                             <Grid item xs={6} sm={4} md={6} lg={4} container justifyContent="center">
                                                 <Bubble title="Discharge Pressure" value={data.DISCHARGE_PRESSURE.toFixed(2)} unit="Bar" Icon={Icons.Commit} />
                                             </Grid>
                                             <Grid item xs={6} sm={4} md={6} lg={4} container justifyContent="center">
-                                                <Bubble title="Pump DE Temp" value={data.PUMP_DE_TEMP.toFixed(2)} unit="°C" Icon={Icons.Thermostat} />
+                                                <Bubble title="Engine 2 Fuel Rate" value={data.ENGINE_2_FUEL_CONSUMPTIONS.toFixed(2)} unit="L/h" Icon={Icons.LocalGasStation} />
                                             </Grid>
                                             <Grid item xs={6} sm={4} md={6} lg={4} container justifyContent="center">
-                                                <Bubble title="Pump NDE VIb X2" value={data.PUMP_NDE_VIB_X2.toFixed(2)} unit="mm/s" Icon={Icons.Sensors} />
+                                                <Bubble title="Engine 2 Oil Pressure" value={data.ENGINE_2_OIL_PRESSURE.toFixed(2)} unit="Bar" Icon={Icons.Commit} />
                                             </Grid>
                                             <Grid item xs={6} sm={4} md={6} lg={4} container justifyContent="center">
                                                 <Bubble title="Total Head" value={(data.DISCHARGE_PRESSURE * 10.2).toFixed(2)} unit="m" Icon={Icons.AirlineStopsOutlined} />
                                             </Grid>
                                             <Grid item xs={6} sm={4} md={6} lg={4} container justifyContent="center">
-                                                <Bubble title="Fuel Rate" value={data.ENGINE_1_FUEL_CONSUMPTIONS.toFixed(2)} unit="L/h" Icon={Icons.LocalGasStation} />
+                                                <Bubble title="Pump DE Temp" value={data.PUMP_DE_TEMP.toFixed(2)} unit="°C" Icon={Icons.Thermostat} />
                                             </Grid>
                                             <Grid item xs={6} sm={4} md={6} lg={4} container justifyContent="center">
                                                 <Bubble title="Pump NDE Vib Y" value={data.PUMP_DE_VIB_Y.toFixed(2)} unit="mm/s" Icon={Icons.Sensors} />
