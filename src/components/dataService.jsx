@@ -131,24 +131,26 @@ function saveTokenData(accessToken, refreshToken) {
 }
 
 // Fungsi untuk mulai menghitung mundur (idle time)
-// Fungsi untuk mulai menghitung mundur (idle time)
 function startIdleTimer(idleTimeLeft) {
     console.log("startIdleTimer called");
+
+    // Pastikan idleTimeLeft adalah angka yang valid
+    idleTimeLeft = (localStorage.getItem('username') === 'ksbengdev') ? 96 * 60 * 60 : 15 * 60
 
     // Menghentikan interval sebelumnya jika ada
     if (idleTimer) clearInterval(idleTimer);
 
     // Mengatur ulang timer
     idleTimer = setInterval(() => {
-        idleTimeLeft--;
-        localStorage.setItem('idleTimeLeft', idleTimeLeft);  // Simpan waktu sisa
+        idleTimeLeft = Math.max(0, idleTimeLeft - 1);
+        localStorage.setItem('idleTimeLeft', idleTimeLeft);  // Simpan waktu sisa jika valid
         console.log(`Idle Timer: ${idleTimeLeft} seconds`);
 
         if (idleTimeLeft <= 0) {
             clearInterval(idleTimer);  // Menghentikan timer ketika waktu habis
-            // Mengecek jenis user dan melakukan login otomatis yang sesuai
             if (localStorage.getItem('username') === 'ksbengdev') {
                 console.log("Idle time expired, auto logging in as ksbengdev...");
+                window.location.reload();  // Refresh halaman untuk login otomatis
                 loginKsbengdev();  // Login otomatis untuk ksbengdev
             } else {
                 console.log("Idle time expired, user is not ksbengdev, redirecting to login...");
@@ -157,21 +159,20 @@ function startIdleTimer(idleTimeLeft) {
         }
     }, 1000);  // Update setiap detik
 
-    // Reset idle timer jika ada aktivitas pengguna
     if (localStorage.getItem('username') === 'ksbengdev') {
         console.log("Adding event listeners for user activity...");
     } else {
-        window.addEventListener('mousemove', () => resetIdleTimer());
-        window.addEventListener('keydown', () => resetIdleTimer());
+        window.addEventListener('mousemove', resetIdleTimer);
+        window.addEventListener('keydown', resetIdleTimer);
     }
 
     function resetIdleTimer() {
-        // Reset ke idleTimeLeft sesuai dengan jenis user (4 hari untuk ksbengdev, 15 menit untuk user pribadi)
         idleTimeLeft = (localStorage.getItem('username') === 'ksbengdev') ? 96 * 60 * 60 : 15 * 60;
         localStorage.setItem('idleTimeLeft', idleTimeLeft);  // Simpan waktu reset
         console.log("Idle timer reset due to user activity");
     }
 }
+
 
 // Fungsi untuk melakukan refresh token setiap 1 menit (60 detik)
 function startRefreshTokenTimer(refreshToken, refreshTimeLeft) {
@@ -253,7 +254,7 @@ export const fetchData = async (unitId) => {
         const unit = `KSB${parsedUnitId[1]}`;
         const apiUrl = `https://8hzol8pmvh.execute-api.ap-southeast-1.amazonaws.com/DNDDieselStandard/${unit}/RealTime`;
         const gpsApiUrl = `https://8hzol8pmvh.execute-api.ap-southeast-1.amazonaws.com/DNDDieselStandard/${unit}/GPS`;
-        const unitInfoUrl = `https://8hzol8pmvh.execute-api.ap-southeast-1.amazonaws.com/DNDDieselStandard/${unit}/UnitInformation`;
+        // const unitInfoUrl = `https://8hzol8pmvh.execute-api.ap-southeast-1.amazonaws.com/DNDDieselStandard/${unit}/UnitInformation`;
 
         const requests = [
             fetch(apiUrl, {
@@ -264,10 +265,12 @@ export const fetchData = async (unitId) => {
                 method: 'GET',
                 headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
             }),
+            /*
             fetch(unitInfoUrl, {
                 method: 'GET',
                 headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
             }),
+            */
         ];
 
         const responses = await Promise.allSettled(requests);
@@ -283,11 +286,13 @@ export const fetchData = async (unitId) => {
         // Process successful responses
         const realTimeResponse = responses[0].status === 'fulfilled' ? await responses[0].value.json() : {};
         const gpsResponse = responses[1].status === 'fulfilled' ? await responses[1].value.json() : {};
-        const unitInfoResponse = responses[2].status === 'fulfilled' ? await responses[2].value.json() : {};
+        // const unitInfoResponse = responses[2].status === 'fulfilled' ? await responses[2].value.json() : {};
 
+        /*
         if (Object.keys(unitInfoResponse).length) {
             localStorage.setItem(`unitInfo_${unit}`, JSON.stringify(unitInfoResponse));
         }
+        */
 
         return {
             realTimeData: realTimeResponse.READ_REAL || {},
@@ -295,7 +300,7 @@ export const fetchData = async (unitId) => {
             gpsData: gpsResponse.READ_GPS || {},
             serverName: realTimeResponse.server_name || '',
             date: realTimeResponse.date || '',
-            unitInfo: unitInfoResponse || {},
+            // unitInfo: unitInfoResponse || {},
         };
     } catch (error) {
         if (error.message.includes('Unauthorized')) {
@@ -310,5 +315,5 @@ export const fetchData = async (unitId) => {
         console.error('Unauthorized: logging out and redirecting to login');
         logout();
     }
-}; 
+};
 
