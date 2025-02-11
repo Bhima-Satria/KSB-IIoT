@@ -3,7 +3,7 @@ let idleTimer;
 let refreshTokenTimer;
 const DEFAULT_IDLE_TIME_USER = 15 * 60; // 15 menit untuk user pribadi
 const DEFAULT_IDLE_TIME_KSBENGDEV = 96 * 60 * 60; // 4 hari untuk ksbengdev
-const DEFAULT_REFRESH_TIME = 8600; // Default 1 menit untuk refresh token
+const DEFAULT_REFRESH_TIME = 86000; // Default 23 jam untuk refresh token
 
 // Menjalankan fungsi setelah halaman dimuat
 window.addEventListener('load', () => {
@@ -121,7 +121,7 @@ function startRefreshTokenTimer(refreshToken) {
 
     refreshTokenTimer = setInterval(() => {
         refreshTokenApi(refreshToken);
-    }, DEFAULT_REFRESH_TIME * 1000);
+    }, DEFAULT_REFRESH_TIME);
 }
 
 // Fungsi untuk refresh token melalui API
