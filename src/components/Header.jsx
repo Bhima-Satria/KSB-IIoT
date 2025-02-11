@@ -5,7 +5,6 @@ import {
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import MenuIcon from '@mui/icons-material/Menu';
-import { useNavigate } from 'react-router-dom';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import { logout } from './dataService'; // Sesuaikan path dengan struktur proyek Anda
 
@@ -132,26 +131,61 @@ const Header = () => {
                     },
                 }}
             >
-                <Box sx={{ width: 250, padding: '20px' }}>
-                    <List>
+                <Box sx={{ padding: '20px', backgroundColor: 'transparent' }}>
+                    <List disablePadding>
                         {chartsData.map((item) => (
                             <ListItem
-                                button
+                                component="button"
                                 key={item.id}
                                 onClick={() => {
                                     handleMenuClick(item.title);
                                     toggleDrawer(false);
                                 }}
                                 selected={activeMenu === item.title}
+                                sx={{
+                                    textAlign: 'left',
+                                    padding: '1px 15px',
+                                    color: 'white',
+                                    backgroundColor: activeMenu === item.title ? 'rgba(255, 255, 255, 0.15)' : 'transparent',
+                                    borderRadius: '10px',
+                                    boxShadow: '0px 2px 4px rgba(255, 255, 255, 0.3)',
+                                    cursor: 'pointer',
+                                    transition: 'background-color 0.3s ease, transform 0.2s',
+                                    marginBottom: '10px',
+                                    '&:hover': {
+                                        backgroundColor: 'rgb(250, 133, 0)',
+                                        transform: 'translateY(-2px)'
+                                    },
+                                }}
                             >
-                                <ListItemText primary={item.title} />
+                                <ListItemText primary={item.title} sx={{ color: 'white' }} />
                             </ListItem>
                         ))}
-                        <ListItem button onClick={handleLogout}>
-                            <ListItemText primary="Logout" />
+                        <ListItem
+                            component="button"
+                            onClick={handleLogout}
+                            sx={{
+                                textAlign: 'left',
+                                padding: '1px 15px',
+                                color: 'white',
+                                backgroundColor: 'transparent',
+                                borderRadius: '10px',
+                                boxShadow: '0px 2px 4px rgba(255, 255, 255, 0.3)',
+                                cursor: 'pointer',
+                                transition: 'background-color 0.3s ease, transform 0.2s',
+                                marginBottom: '10px',
+                                '&:hover': {
+                                    backgroundColor: 'rgb(250, 133, 0)',
+                                    transform: 'translateY(-2px)'
+                                },
+                            }}
+                        >
+                            <ListItemText primary="Logout" sx={{ color: 'white' }} />
                         </ListItem>
                     </List>
                 </Box>
+
+
             </Drawer>
         </AppBar>
     );
