@@ -119,10 +119,19 @@ function startRefreshTokenTimer(refreshToken) {
 
     if (refreshTokenTimer) clearInterval(refreshTokenTimer);
 
+    let refreshCountDown = DEFAULT_REFRESH_TIME;
+
     refreshTokenTimer = setInterval(() => {
-        refreshTokenApi(refreshToken);
-    }, DEFAULT_REFRESH_TIME);
+        refreshCountDown -= 1;
+        console.log(`Refresh Token Timer: ${refreshCountDown} seconds remaining`);
+
+        if (refreshCountDown <= 0) {
+            refreshTokenApi(refreshToken);
+            refreshCountDown = DEFAULT_REFRESH_TIME;
+        }
+    }, 1000);
 }
+
 
 // Fungsi untuk refresh token melalui API
 async function refreshTokenApi(refreshToken) {
