@@ -638,7 +638,6 @@ const UnitPage = () => {
     const [cardData, setCardData] = useState([]); // Menyimpan data untuk ditampilkan di UI
     const [cardDataCoil, setCardDataCoil] = useState([]); // Menyimpan data coil untuk ditampilkan di UI
     const [gpsData, setGpsData] = useState([]); // Menyimpan data GPS
-    const [loading, setLoading] = useState(true); // Loading state
     const [lastUpdated, setLastUpdated] = useState(null); // Waktu terakhir data diperbarui
     const [isDataEmpty, setIsDataEmpty] = useState(false); // Status apakah data kosong
     const [parsedDate, setParsedDate] = useState(''); // Waktu terformat
@@ -917,8 +916,6 @@ const UnitPage = () => {
             } catch (error) {
                 console.error('Error fetching data:', error);
                 setIsDataEmpty(true);
-            } finally {
-                setLoading(false);
             }
         };
 
@@ -935,14 +932,6 @@ const UnitPage = () => {
     const images = loadImagesByUnit(unitId, 3); // Misalnya, ada 5 gambar
 
     const displayedCards = groupedCards[currentSlide];
-
-    if (loading) {
-        return (
-            <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-                <CircularProgress />
-            </Box>
-        );
-    }
 
     return (
         <Box sx={{ p: 2 }}>

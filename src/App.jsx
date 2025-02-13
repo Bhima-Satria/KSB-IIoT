@@ -4,13 +4,13 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Header from './components/Header';
 import Content from './components/Content';
 import UnitPage from './components/Unitpages';
-import Overview from './components/Overview';
 import theme from './components/theme';
 import { Helmet } from 'react-helmet';
 import LoginPage from './components/LoginPage';
 import ProtectedRoute from './components/ProtectedRoute'; // ProtectedRoute untuk akses terproteksi
 import NonLoginPage from './components/NonLoginPage'; // Halaman non-login untuk login otomatis
 import UnitPage_DD from './components/Unitpages_DD';
+import ChartComponent from './components/Datachart';
 
 const App = () => {
     return (
@@ -59,13 +59,14 @@ const App = () => {
                         />
 
                         <Route
-                            path="/overview"
-                            element={
-                                <ProtectedRoute>
-                                    <Overview />
-                                </ProtectedRoute>
-                            }
+                        path='/chart'
+                        element={
+                            <ProtectedRoute>
+                                <ChartComponent />
+                            </ProtectedRoute>
+                        }
                         />
+                        
                     </Routes>
                 </Box>
             </Router>

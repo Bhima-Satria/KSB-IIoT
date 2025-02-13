@@ -89,7 +89,7 @@ function startIdleTimer(idleTime) {
     idleTimer = setInterval(() => {
         idleTime = Math.max(0, idleTime - 1);
         localStorage.setItem('idleTimeLeft', idleTime);
-        console.log(`Idle Timer: ${idleTime} seconds`);
+        // console.log(`Relogin Timer: ${idleTime} seconds`);
 
         if (idleTime <= 0) {
             clearInterval(idleTimer);
@@ -123,7 +123,7 @@ function startRefreshTokenTimer(refreshToken) {
 
     refreshTokenTimer = setInterval(() => {
         refreshCountDown -= 1;
-        console.log(`Refresh Token Timer: ${refreshCountDown} seconds remaining`);
+        // console.log(`Refresh Token Timer: ${refreshCountDown} seconds remaining`);
 
         if (refreshCountDown <= 0) {
             refreshTokenApi(refreshToken);
@@ -174,7 +174,6 @@ export function logout() {
 
 // Fetch real-time data and GPS
 export const fetchData = async (unitId) => {
-
     try {
         const token = localStorage.getItem('accessToken');
         if (!token) throw new Error('No access token found');
@@ -203,32 +202,97 @@ export const fetchData = async (unitId) => {
         for (const response of responses) {
             if (response.status === 'fulfilled' && response.value.status === 401) {
                 handleUnauthorized();
-                return;
+                return getDefaultData();
             }
         }
 
-        // Process successful responses
-        const realTimeResponse = responses[0].status === 'fulfilled' ? await responses[0].value.json() : {};
-        const gpsResponse = responses[1].status === 'fulfilled' ? await responses[1].value.json() : {};
+        // Process responses safely
+        const realTimeResponse = responses[0].status === 'fulfilled' ? await safeJsonParse(responses[0].value) : {};
+        const gpsResponse = responses[1].status === 'fulfilled' ? await safeJsonParse(responses[1].value) : {};
 
         return {
-            realTimeData: realTimeResponse.READ_REAL || {},
+            realTimeData: realTimeResponse.READ_REAL || getDefaultRealTimeData(),
             coilData: realTimeResponse.READ_COIL || {},
-            gpsData: gpsResponse.READ_GPS || {},
+            gpsData: gpsResponse.READ_GPS || getDefaultGPSData(),
             serverName: realTimeResponse.server_name || '',
             date: realTimeResponse.date || '',
         };
     } catch (error) {
-        if (error.message.includes('Unauthorized')) {
-            handleUnauthorized();
-        } else {
-            console.error('Fetch data error:', error);
-            throw error;
-        }
+        console.error('Fetch data error:', error);
+        return getDefaultData();
     }
 
     function handleUnauthorized() {
         console.error('Unauthorized: logging out and redirecting to login');
         logout();
     }
+};
+
+// Fetch historical data
+export const fetchDataChart = async (unitId, startDate, endDate, spField) => {
+    try {
+        const token = localStorage.getItem('accessToken');
+        if (!token) throw new Error('No access token found');
+
+        const formattedStartDate = startDate.format('YYMMDD');
+        const formattedEndDate = endDate.format('YYMMDD');
+        const apiUrl = `https://8hzol8pmvh.execute-api.ap-southeast-1.amazonaws.com/DNDDieselStandard/${unitId}/date/${formattedStartDate}/${formattedEndDate}/${spField}`;
+
+        const response = await fetch(apiUrl, {
+            method: 'GET',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        });
+
+        if (!response.ok) throw new Error('Failed to fetch data');
+
+        return response.json();
+    } catch (error) {
+        console.error('Fetch historical data error:', error);
+        throw error;
+    }
 }
+
+
+// Helper function untuk parse JSON dengan aman
+const safeJsonParse = async (response) => {
+    try {
+        return await response.json();
+    } catch (error) {
+        console.error('JSON parsing error:', error);
+        return {};
+    }
+};
+
+// Data default untuk READ_REAL
+const getDefaultRealTimeData = () => ({
+    FLOW: 0,
+    PUMP_DE_TEMP: 0,
+    PUMP_NDE_TEMP: 0,
+    PUMP_DE_VIB_Y: 0,
+    PUMP_NDE_VIB_X1: 0,
+    PUMP_NDE_VIB_X2: 0,
+    FLOW_TOTAL: 0,
+    OIL_LUB_PRESS: 0,
+    DISCHARGE_PRESSURE: 0,
+    ENGINE_RUN_HOUR: 0,
+    ENGINE_SPEED: 0,
+    ENGINE_LOAD: 0,
+    ENGINE_FUEL_CONSUMPTIONS: 0,
+    ENGINE_OIL_PRESSURE: 0,
+    ENGINE_BATTERY_VOLTAGE: 0,
+});
+
+// Data default untuk GPS
+const getDefaultGPSData = () => ({
+    LAT: 0,
+    LONG: 0,
+});
+
+// Data default jika seluruh API gagal
+const getDefaultData = () => ({
+    realTimeData: getDefaultRealTimeData(),
+    coilData: {},
+    gpsData: getDefaultGPSData(),
+    serverName: '',
+    date: '',
+});
