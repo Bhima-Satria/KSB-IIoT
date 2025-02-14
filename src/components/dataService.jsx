@@ -3,7 +3,7 @@ let idleTimer;
 let refreshTokenTimer;
 const DEFAULT_IDLE_TIME_USER = 15 * 60; // 15 menit untuk user pribadi
 const DEFAULT_IDLE_TIME_KSBENGDEV = 96 * 60 * 60; // 4 hari untuk ksbengdev
-const DEFAULT_REFRESH_TIME = 86000; // Default 23 jam untuk refresh token
+const DEFAULT_REFRESH_TIME = 0.1 * 60 * 60; // Default 5 jam untuk refresh token
 
 // Menjalankan fungsi setelah halaman dimuat
 window.addEventListener('load', () => {
@@ -178,7 +178,7 @@ export const fetchData = async (unitId) => {
         const token = localStorage.getItem('accessToken');
         if (!token) throw new Error('No access token found');
 
-        const parsedUnitId = unitId.match(/ksb\s*(\d+)/i);
+        const parsedUnitId = unitId.toUpperCase().match(/KSB\s*(\d+)/i);
         if (!parsedUnitId || parsedUnitId.length < 2) throw new Error('Invalid unitId format');
 
         const unit = `KSB${parsedUnitId[1]}`;
@@ -202,7 +202,7 @@ export const fetchData = async (unitId) => {
         for (const response of responses) {
             if (response.status === 'fulfilled' && response.value.status === 401) {
                 handleUnauthorized();
-                return getDefaultData();
+                return getDefaultData(unit);
             }
         }
 
@@ -211,7 +211,7 @@ export const fetchData = async (unitId) => {
         const gpsResponse = responses[1].status === 'fulfilled' ? await safeJsonParse(responses[1].value) : {};
 
         return {
-            realTimeData: realTimeResponse.READ_REAL || getDefaultRealTimeData(),
+            realTimeData: realTimeResponse.READ_REAL || getDefaultRealTimeData(unit),
             coilData: realTimeResponse.READ_COIL || {},
             gpsData: gpsResponse.READ_GPS || getDefaultGPSData(),
             serverName: realTimeResponse.server_name || '',
@@ -219,12 +219,18 @@ export const fetchData = async (unitId) => {
         };
     } catch (error) {
         console.error('Fetch data error:', error);
-        return getDefaultData();
+        return getDefaultData(unitId);
     }
 
     function handleUnauthorized() {
-        console.error('Unauthorized: logging out and redirecting to login');
-        logout();
+        if (localStorage.getItem('username') === 'ksbengdev') {
+            console.error('Unauthorized: logging out and redirecting to login');
+            loginKsbengdev();
+        }
+        else {
+            console.error('Unauthorized: logging out and redirecting to login');
+            logout();
+        }
     }
 };
 
@@ -250,8 +256,7 @@ export const fetchDataChart = async (unitId, startDate, endDate, spField) => {
         console.error('Fetch historical data error:', error);
         throw error;
     }
-}
-
+};
 
 // Helper function untuk parse JSON dengan aman
 const safeJsonParse = async (response) => {
@@ -263,24 +268,52 @@ const safeJsonParse = async (response) => {
     }
 };
 
-// Data default untuk READ_REAL
-const getDefaultRealTimeData = () => ({
-    FLOW: 0,
-    PUMP_DE_TEMP: 0,
-    PUMP_NDE_TEMP: 0,
-    PUMP_DE_VIB_Y: 0,
-    PUMP_NDE_VIB_X1: 0,
-    PUMP_NDE_VIB_X2: 0,
-    FLOW_TOTAL: 0,
-    OIL_LUB_PRESS: 0,
-    DISCHARGE_PRESSURE: 0,
-    ENGINE_RUN_HOUR: 0,
-    ENGINE_SPEED: 0,
-    ENGINE_LOAD: 0,
-    ENGINE_FUEL_CONSUMPTIONS: 0,
-    ENGINE_OIL_PRESSURE: 0,
-    ENGINE_BATTERY_VOLTAGE: 0,
-});
+// Data default untuk READ_REAL berdasarkan unit
+const getDefaultRealTimeData = (unit) => {
+    if (unit === "KSB72") {
+        return {
+            FLOW: 0,
+            PUMP_DE_TEMP: 0,
+            PUMP_NDE_TEMP: 0,
+            PUMP_DE_VIB_Y: 0,
+            PUMP_NDE_VIB_X1: 0,
+            PUMP_NDE_VIB_X2: 0,
+            FLOW_TOTAL: 0,
+            OIL_LUB_PRESS: 0,
+            DISCHARGE_PRESSURE: 0,
+            ENGINE_1_RUN_HOUR: 0.0,
+            ENGINE_1_SPEED: 0,
+            ENGINE_1_LOAD: 0,
+            ENGINE_1_FUEL_CONSUMPTIONS: 0,
+            ENGINE_1_OIL_PRESSURE: 0,
+            ENGINE_1_BATTERY_VOLTAGE: 0,
+            ENGINE_2_RUN_HOUR: 0.0,
+            ENGINE_2_SPEED: 0,
+            ENGINE_2_LOAD: 0,
+            ENGINE_2_FUEL_CONSUMPTIONS: 0,
+            ENGINE_2_OIL_PRESSURE: 0,
+            ENGINE_2_BATTERY_VOLTAGE: 0,
+        };
+    } else {
+        return {
+            FLOW: 0,
+            PUMP_DE_TEMP: 0,
+            PUMP_NDE_TEMP: 0,
+            PUMP_DE_VIB_Y: 0,
+            PUMP_NDE_VIB_X1: 0,
+            PUMP_NDE_VIB_X2: 0,
+            FLOW_TOTAL: 0,
+            OIL_LUB_PRESS: 0,
+            DISCHARGE_PRESSURE: 0,
+            ENGINE_RUN_HOUR: 0,
+            ENGINE_SPEED: 0,
+            ENGINE_LOAD: 0,
+            ENGINE_FUEL_CONSUMPTIONS: 0,
+            ENGINE_OIL_PRESSURE: 0,
+            ENGINE_BATTERY_VOLTAGE: 0,
+        };
+    }
+};
 
 // Data default untuk GPS
 const getDefaultGPSData = () => ({
@@ -289,8 +322,8 @@ const getDefaultGPSData = () => ({
 });
 
 // Data default jika seluruh API gagal
-const getDefaultData = () => ({
-    realTimeData: getDefaultRealTimeData(),
+const getDefaultData = (unit) => ({
+    realTimeData: getDefaultRealTimeData(unit),
     coilData: {},
     gpsData: getDefaultGPSData(),
     serverName: '',
