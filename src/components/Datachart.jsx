@@ -1,28 +1,8 @@
-// DataChart.jsx
 import React, { useEffect, useState } from 'react';
-import {
-    Box,
-    Card,
-    CardContent,
-    Typography,
-    MenuItem,
-    Select,
-    Button,
-    CircularProgress,
-    Grid
-} from '@mui/material';
+import { Box, Card, CardContent, Typography, MenuItem, Select, Button, CircularProgress, Grid } from '@mui/material';
 import dayjs from 'dayjs';
 import { Line } from 'react-chartjs-2';
-import {
-    Chart as ChartJS,
-    LineElement,
-    PointElement,
-    LinearScale,
-    CategoryScale,
-    Title,
-    Tooltip,
-    Legend,
-} from 'chart.js';
+import { Chart as ChartJS, LineElement, PointElement, LinearScale, CategoryScale, Title, Tooltip, Legend, } from 'chart.js';
 import { fetchDataChart } from './dataService';
 
 ChartJS.register(
@@ -38,8 +18,8 @@ ChartJS.register(
 const UNIT_IDS = [
     'KSB 60',
     'KSB 64',
-    'KSB67',
-    'KSB72'
+    'KSB 67',
+    'KSB 72'
 ];
 
 const SP_FIELDS = [
@@ -66,6 +46,7 @@ const DataChart = () => {
     const [startDate, setStartDate] = useState(dayjs().subtract(7, 'day').format('YYYY-MM-DD'));
     const [endDate, setEndDate] = useState(dayjs().format('YYYY-MM-DD'));
     const [chartData, setChartData] = useState([]);
+    const [chartLabels, setChartLabels] = useState([]);
     const [loading, setLoading] = useState(false);
 
     const handleFetchData = async () => {
@@ -79,8 +60,14 @@ const DataChart = () => {
                 return;
             }
 
-            const data = await fetchDataChart(unitId, formattedStartDate, formattedEndDate, spField);
-            setChartData(data);
+            const response = await fetchDataChart(unitId, formattedStartDate, formattedEndDate, spField);
+            if (response[spField]) {
+                setChartLabels(Object.keys(response[spField]));
+                setChartData(Object.values(response[spField]));
+            } else {
+                setChartLabels([]);
+                setChartData([]);
+            }
         } catch (error) {
             console.error('Error fetching chart data:', error);
         } finally {
@@ -93,11 +80,11 @@ const DataChart = () => {
     }, [unitId, spField, startDate, endDate]);
 
     const chartConfig = {
-        labels: chartData.map(item => item.timestamp),
+        labels: chartLabels,
         datasets: [
             {
                 label: spField,
-                data: chartData.map(item => item.value),
+                data: chartData,
                 borderColor: '#42A5F5',
                 fill: false,
             },

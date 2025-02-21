@@ -1,3 +1,5 @@
+import dayjs from 'dayjs';
+
 // Variabel global untuk timer dan waktu idle
 let idleTimer;
 let refreshTokenTimer;
@@ -234,14 +236,14 @@ export const fetchData = async (unitId) => {
     }
 };
 
-// Fetch historical data
 export const fetchDataChart = async (unitId, startDate, endDate, spField) => {
     try {
         const token = localStorage.getItem('accessToken');
         if (!token) throw new Error('No access token found');
 
-        const formattedStartDate = startDate.format('YYMMDD');
-        const formattedEndDate = endDate.format('YYMMDD');
+        const formattedStartDate = dayjs(startDate).format('YYMMDD');
+        const formattedEndDate = dayjs(endDate).format('YYMMDD');
+
         const apiUrl = `https://8hzol8pmvh.execute-api.ap-southeast-1.amazonaws.com/DNDDieselStandard/${unitId}/date/${formattedStartDate}/${formattedEndDate}/${spField}`;
 
         const response = await fetch(apiUrl, {
@@ -257,6 +259,7 @@ export const fetchDataChart = async (unitId, startDate, endDate, spField) => {
         throw error;
     }
 };
+
 
 // Helper function untuk parse JSON dengan aman
 const safeJsonParse = async (response) => {
