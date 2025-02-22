@@ -5,7 +5,6 @@ import {
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import MenuIcon from '@mui/icons-material/Menu';
-import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import { logout } from './dataService'; // Sesuaikan path dengan struktur proyek Anda
 
 const Logo = '../img/ksblogo.png';
@@ -19,10 +18,8 @@ const LogoImage = styled('img')(({ theme }) => ({
 const Header = () => {
     const [activeMenu, setActiveMenu] = useState('');
     const [drawerOpen, setDrawerOpen] = useState(false);
-    const [anchorEl, setAnchorEl] = useState(null);
 
     const theme = useTheme();
-    const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
 
     const chartsData = [
         { id: 1, title: 'KSB 60' },
