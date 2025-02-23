@@ -1,11 +1,72 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Typography, Grid, Box, Table, TableBody, TableCell, TableRow } from '@mui/material';
+import { Typography, Grid, Box, Table, TableBody, TableCell, TableRow, } from '@mui/material';
+import * as Icons from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { useSpring, animated } from 'react-spring';
 import { fetchData } from './dataService';
 import { MapContainer, TileLayer, Marker, Popup, Circle } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
+
+
+const DataCard = ({ title, value, unit, Icon = Icons.HelpOutline, valueColor = '#FF8A00', sizefont}) => {
+    return (
+        <Box
+            sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                width: '100%',
+                height: '100%',
+                background: 'linear-gradient(150deg, rgba(0, 32, 64, 0.4) 30%, rgba(51, 102, 153, 0.4)70%)',
+                boxShadow: '0px 4px 16px rgba(0, 0, 0, 0.2)',
+                borderRadius: '12px',
+                padding: '10px',
+                border: '1px solid rgba(1, 2, 31, 0.27)',
+                backdropFilter: 'blur(8px)', // Efek glassmorphism
+            }}
+        >
+            <Box
+                sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    flexGrow: 1
+                }}
+            >
+                {/* Bagian Kiri: Judul dan Value */}
+                <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', flexGrow: 1 }}>
+                    <Typography variant="body2" sx={{ fontWeight: 'bold', color: 'white' }}>
+                        {title}
+                    </Typography>
+                    <Typography variant="h5" sx={{ fontWeight: 'bold', color: 'white' }}>
+                        {value} {unit}
+                    </Typography>
+                </Box>
+
+                {/* Bagian Kanan: Ikon dengan Efek Glow */}
+                <Box
+                    sx={{
+                        width: '70px',
+                        height: '70px',
+                        borderRadius: '50%',
+                        background: 'linear-gradient(180deg, rgba(0, 80, 160, 0.9), rgba(0, 40, 80, 0.9))',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        boxShadow: `0px 0px 15px ${valueColor}`, // Efek glow
+                    }}
+                >
+                    <Icon sx={{ fontSize: '50px', color: valueColor }} />
+                </Box>
+            </Box>
+        </Box>
+    );
+};
+
+
+
+
+
 
 // Konfigurasi ikon default untuk marker di Leaflet
 const defaultIcon = new L.Icon({
@@ -31,19 +92,27 @@ const Content = () => {
     const [gpsData, setGpsData] = useState({ LAT: -2.0, LONG: 115.0 }); // Default koordinat jika data belum ada
     const imageRef = useRef(null);
     const [headerTitle, setHeaderTitle] = useState(''); // Judul awal kosong
+    const [statusData, setStatusData] = useState({});
 
     useEffect(() => {
         const unitId = chartsData[currentIndex]?.title;
+
         if (unitId) {
             fetchData(unitId).then((data) => {
+                console.log("Data fetched:", data);
+
                 if (data.gpsData) {
-                    setGpsData(data.gpsData); // Simpan GPS data ke state
+                    setGpsData(data.gpsData);
+                }
+                if (data.realTimeData) {
+                    setStatusData({ ...data.realTimeData, serverName: data.serverName });
                 }
             }).catch(error => {
                 console.error('Error fetching GPS data:', error);
             });
         }
-    }, [currentIndex]); // Akan dipanggil setiap kali currentIndex berubah
+    }, [currentIndex]);
+
 
     const fadeProps = useSpring({
         opacity: isZoomingIn ? 0 : 1,
@@ -170,6 +239,7 @@ const Content = () => {
                     color: 'white', // Mengatur warna teks menjadi biru tua
                     borderRadius: '5px',
                     marginBottom: '30px', // Menambahkan margin bawah
+                    zIndex: 2,
                 }}
             >
                 {/* Header Box */}
@@ -234,6 +304,7 @@ const Content = () => {
                     padding: '10px',
                     color: 'white',
                     borderRadius: '5px',
+                    zIndex: 2,
                 }}
             >
                 <Box
@@ -279,8 +350,13 @@ const Content = () => {
                     padding: '10px',
                     color: 'white',
                     borderRadius: '5px',
+                    zIndex: 2,
+                    '@media screen and (max-width: 1919px), screen and (max-height: 1069px)': {
+                        height: '495px',
+                    }
                 }}
             >
+
                 <Box
                     sx={{
                         background: 'linear-gradient(180deg, rgba(51, 102, 153, 1) 30%, rgba(0, 32, 64, 1) 70%)',
@@ -353,45 +429,22 @@ const Content = () => {
                 </Grid>
             </Box>
 
-            {/* Right Overlay - Unit Status */}
-            <Box
-                sx={{
-                    position: 'fixed',
-                    right: 30,
-                    bottom: 30,
-                    width: '1590px',
-                    height: '160px',
-                    background: 'linear-gradient(180deg, rgba(51, 102, 153, 0.7) 30%, rgba(0, 32, 64, 0.7) 70%)',
-                    overflowY: 'auto',
-                    padding: '10px',
-                    color: 'white',
-                    borderRadius: '5px',
-                }}
-            >
-                <Box
-                    sx={{
-                        background: 'linear-gradient(180deg, rgba(51, 102, 153, 1) 30%, rgba(0, 32, 64, 1) 70%)',
-                        padding: '10px',
-                        borderRadius: '5px',
-                        textAlign: 'center',
-                        fontWeight: 'bold',
-                        fontSize: '16px',
-                        color: 'white',
-                        marginBottom: '10px',
-                    }}
-                >
-                    Unit Status
-                </Box>
-            </Box>
-
-            {/* Centered Content */}
             <Grid container spacing={2} sx={{ mt: 3 }} justifyContent="center">
-                <Grid item xs={12} sm={6} md={4}>
-                    <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                <Grid item xs={12} sm={8} md={6} lg={4}>
+                    <Box
+                        sx={{
+                            height: '100%',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'center'
+                        }}
+                    >
                         <Box
                             sx={{
-                                height: 900,
-                                width: 900,
+                                width: '140%',
+                                maxWidth: 800, // Maksimal 900px, tapi tetap fleksibel
+                                height: '140%',
+                                maxHeight: 800,
                                 my: 2,
                                 ml: -45,
                                 position: 'relative',
@@ -407,8 +460,12 @@ const Content = () => {
                                     ref={imageRef}
                                     src={chartsData[currentIndex].image}
                                     alt={chartsData[currentIndex].title}
-                                    style={{ width: '100%', height: '100%', objectFit: 'contain' }}
-                                    onClick={() => handleImageClick(chartsData[currentIndex].title)} // Move the click handler here
+                                    style={{
+                                        width: '100%',
+                                        height: 'auto',
+                                        objectFit: 'contain'
+                                    }}
+                                    onClick={() => handleImageClick(chartsData[currentIndex].title)}
                                 />
                             </animated.div>
 
@@ -416,26 +473,95 @@ const Content = () => {
                             <Box
                                 sx={{
                                     position: 'absolute',
-                                    top: '60%', // Posisikan di tengah
+                                    top: '75%',
                                     left: '50%',
-                                    transform: 'translate(-50%, -50%)', // Pastikan tetap terpusat
-                                    marginTop: '100px', // Geser teks ke bawah sekitar 100px dari tengah gambar
+                                    transform: 'translate(-50%, -50%)',
+                                    marginTop: '100px',
                                     backgroundColor: 'rgba(0, 0, 0, 0.6)',
                                     color: 'white',
                                     padding: '5px 10px',
                                     borderRadius: '5px',
                                     fontSize: '12px',
                                     textAlign: 'center',
-                                    zIndex: 2, // Pastikan teks berada di atas gambar
+                                    zIndex: 2,
                                 }}
                             >
                                 Click Image to Redirect
                             </Box>
-
                         </Box>
                     </Box>
                 </Grid>
             </Grid>
+
+            {/* Bottom Overlay - Unit Status */}
+            <Box
+                sx={{
+                    position: 'fixed',
+                    left: 300,
+                    bottom: 30,
+                    width: '970px',
+                    height: '150px',
+                    background: 'linear-gradient(180deg, rgba(51, 102, 153, 0.7) 30%, rgba(0, 32, 64, 0.7) 70%)',
+                    padding: '10px',
+                    color: 'white',
+                    borderRadius: '5px',
+                    zIndex: 2,
+                    '@media (min-width: 1920px) and (min-height: 1070px)': {
+                        position: 'fixed',
+                        right: 30,
+                        bottom: 30,
+                        width: '1590px',
+                        height: '160px',
+                    }
+                }}
+            >
+                <Box
+                    sx={{
+                        background: 'linear-gradient(180deg, rgba(51, 102, 153, 1) 30%, rgba(0, 32, 64, 1) 70%)',
+                        padding: '3px',
+                        borderRadius: '5px',
+                        textAlign: 'center',
+                        fontWeight: 'bold',
+                        fontSize: '16px',
+                        color: 'white',
+                        marginBottom: '5px',
+                    }}
+                >
+                    Unit Status
+                </Box>
+                <Box
+                    sx={{
+                        display: 'flex',
+                        gap: '15px',
+                        flexWrap: 'nowrap',
+                        justifyContent: 'flex-start',
+                        width: '100%',
+                        maxWidth: '1590px',
+                        overflowX: 'auto',
+                    }}
+                >
+                    <DataCard
+                        title="Unit Name"
+                        value={statusData?.serverName || "Unknown"}
+                        unit=""
+                        Icon={Icons.ElectricCar}
+                    />
+
+                    <DataCard
+                        title="Run Hour"
+                        value={statusData?.ENGINE_RUN_HOUR?.toFixed(0) || statusData?.ENGINE_2_RUN_HOUR?.toFixed(0) }
+                        unit="Hours"
+                        Icon={Icons.Timer}
+                    />
+
+                    <DataCard
+                        title="Total Flow"
+                        value={statusData?.FLOW_TOTAL?.toFixed(0) || "0.00"}
+                        unit="L"
+                        Icon={Icons.WaterDrop}
+                    />
+                </Box>
+            </Box>
 
         </Box>
     );

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Grid, Box, Card, CardContent, Typography, CircularProgress } from '@mui/material';
+import { Grid, Box, Card, CardContent, Typography } from '@mui/material';
 import * as Icons from '@mui/icons-material';
 import { useParams } from 'react-router-dom';
 import { fetchData } from './dataService';
