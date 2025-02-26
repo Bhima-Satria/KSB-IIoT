@@ -866,7 +866,20 @@ const UnitPage_DD = () => {
 
     useEffect(() => {
         if (!unitId) return;
-        setHeaderTitle(`${unitId}`); // Set judul berdasarkan unitId
+        
+        // Mapping unitId ke nama perusahaan
+        const unitNames = {
+            "KSB 67": "PT Adaro Tirta Sarana (Sera)",
+            "KSB 64": "PT Tanjung Raya Bersama",
+            "KSB 72": "PT Thriveni Indomining",
+            "KSB 60": "" // Kosong untuk KSB60
+        };
+
+        // Format header: "KSB XX - Nama PT" (jika ada nama PT)
+        const title = unitNames[unitId] ? `${unitId} - ${unitNames[unitId]}` : unitId;
+
+        setHeaderTitle(title);
+
         const fetchInterval = setInterval(async () => {
             await getData();
         }, 1000); // Interval untuk getData setiap 1 detik
@@ -931,7 +944,7 @@ const UnitPage_DD = () => {
     }, [unitId, groupedCards.length]);
 
     // Mendapatkan gambar berdasarkan unitId dan jumlah gambar
-    const images = loadImagesByUnit(unitId, 3); // Misalnya, ada 5 gambar
+    const images = loadImagesByUnit(unitId, 4); // Misalnya, ada 5 gambar
 
     const displayedCards = groupedCards[currentSlide];
 
@@ -945,287 +958,88 @@ const UnitPage_DD = () => {
 
     return (
         <Box sx={{ p: 2 }}>
-                <Grid container spacing={2} justifyContent="center" direction="row">
+            <Grid container spacing={2} justifyContent="center" direction="row">
 
-                    {/* Kolom untuk Card Status */}
-                    <Grid item xs={12}>
-                        <Box sx={{
-                            display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between'
-                        }}>
-                            {cardDataCoil.map((data, index) => (
-                                <CardStatus
-                                    key={index}
-                                    title="Fisrt Engine Status"
-                                    value={data.ENGINE_1_RUN}
-                                    lastUpdatedDate={parsedDate}
-                                />
-                            ))}
-                            {cardDataCoil.map((data, index) => (
-                                <CardStatus
-                                    key={index}
-                                    title="Second Engine Status"
-                                    value={data.ENGINE_2_RUN}
-                                    lastUpdatedDate={parsedDate}
-                                />
-                            ))}
-                            {displayedCards.map((data, index) => (
-                                <DataCard
-                                    key={`${data.title}-${index}`}
-                                    title={data.title}
-                                    value={data.value}
-                                    unit={data.unit}
-                                    Icon={data.Icon}
-                                    Duty={data.Duty}
-                                />
-                            ))}
-                        </Box>
-                    </Grid>
+                {/* Kolom untuk Card Status */}
+                <Grid item xs={12}>
+                    <Box sx={{
+                        display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between'
+                    }}>
+                        {cardDataCoil.map((data, index) => (
+                            <CardStatus
+                                key={index}
+                                title="Fisrt Engine Status"
+                                value={data.ENGINE_1_RUN}
+                                lastUpdatedDate={parsedDate}
+                            />
+                        ))}
+                        {cardDataCoil.map((data, index) => (
+                            <CardStatus
+                                key={index}
+                                title="Second Engine Status"
+                                value={data.ENGINE_2_RUN}
+                                lastUpdatedDate={parsedDate}
+                            />
+                        ))}
+                        {displayedCards.map((data, index) => (
+                            <DataCard
+                                key={`${data.title}-${index}`}
+                                title={data.title}
+                                value={data.value}
+                                unit={data.unit}
+                                Icon={data.Icon}
+                                Duty={data.Duty}
+                            />
+                        ))}
+                    </Box>
+                </Grid>
 
-                    {/* Menampilkan Judul Unit di Header */}
-                    {headerTitle && (
-                        <Box
+                {/* Menampilkan Judul Unit di Header */}
+                {headerTitle && (
+                    <Box
+                        sx={{
+                            position: 'absolute',
+                            top: 0,
+                            left: '50%',
+                            transform: 'translateX(-50%)',
+                            textAlign: 'center', // Menyejajarkan teks ke tengah
+                            padding: '20px', // Padding yang lebih besar
+                        }}
+                    >
+                        <Typography
                             sx={{
-                                position: 'absolute',
-                                top: 0,
-                                left: '50%',
-                                transform: 'translateX(-50%)',
-                                textAlign: 'center', // Menyejajarkan teks ke tengah
-                                padding: '20px', // Padding yang lebih besar
+                                fontSize: '1.6rem', // Ukuran font lebih besar
+                                fontWeight: 'bold', // Bold teks
+                                color: '#fff', // Warna putih
+                                lineHeight: 1.2, // Mengontrol jarak antar baris
+                                wordBreak: 'break-word', // Memastikan teks besar tidak melanggar container
                             }}
                         >
-                            <Typography
-                                sx={{
-                                    fontSize: '1.6rem', // Ukuran font lebih besar
-                                    fontWeight: 'bold', // Bold teks
-                                    color: '#fff', // Warna putih
-                                    lineHeight: 1.2, // Mengontrol jarak antar baris
-                                    wordBreak: 'break-word', // Memastikan teks besar tidak melanggar container
-                                }}
-                            >
-                                {headerTitle}
-                            </Typography>
-                        </Box>
-                    )}
+                            {headerTitle}
+                        </Typography>
+                    </Box>
+                )}
 
 
-                    <Grid container spacing={0} sx={{ padding: '20px' }}>
-                        {/* Kolom untuk gambar */}
-                        {window.innerWidth >= 600 && (
-                            <Grid item xs={12} sm={12} md={4} lg={4}>
-                                <Box sx={{
-                                    height: '400px',
-                                    backgroundColor: 'white',
-                                    boxShadow: '0px 4px 16px rgba(0, 0, 0, 0.2)',
-                                    borderRadius: '30px',
-                                    margin: '5px',
-                                    display: 'flex',
-                                    flexDirection: 'column',
-                                    alignItems: 'center',
-                                    justifyContent: 'space-between',
-                                }}>
-                                    <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                                        <Typography
-                                            variant="h6"
-                                            color="textSecondary"
-                                            sx={{
-                                                fontSize: '1.3rem',
-                                                textAlign: 'center',
-                                                fontWeight: 'bold',
-                                                textShadow: '2px 2px 4px rgba(0, 0, 0, 0.5)',
-                                            }}
-                                        >
-                                            {unitId}
-                                        </Typography>
-                                    </Box>
-                                    <Box sx={{
-                                        display: 'flex',
-                                        justifyContent: 'center',
-                                        width: '100%',
-                                        padding: '10px',
-                                        marginBottom: '20px',
-                                        height: 'auto',
-                                        maxWidth: '100%',
-                                    }}>
-                                        <img
-                                            src={images[currentImageIndex]}
-                                            alt="Unit Visual"
-                                            style={{
-                                                width: '100%',
-                                                height: 'auto',
-                                                maxWidth: '610px',
-                                                maxHeight: '400px',
-                                                borderRadius: '10px',
-                                                opacity: fade ? 1 : 0, // Atur opacity untuk efek transisi
-                                                transition: 'opacity 0.5s ease-in-out', // Efek transisi opacity
-                                            }}
-                                        />
-                                    </Box>
-                                </Box>
-                            </Grid>
-                        )}
-
-
-                        {/* Kolom untuk Detail Informasi */}
+                <Grid container spacing={0} sx={{ padding: '20px' }}>
+                    {/* Kolom untuk gambar */}
+                    {window.innerWidth >= 600 && (
                         <Grid item xs={12} sm={12} md={4} lg={4}>
-                            <Box
-                                sx={{
-                                    height: '400px',
-                                    backgroundColor: 'white',
-                                    boxShadow: '0px 8px 24px rgba(0, 0, 0, 0.2)',
-                                    borderRadius: '30px',
-                                    margin: '5px',
-                                    padding: '20px', // Tambahkan padding untuk estetika
-                                }}
-                            >
-                                {/* Tabel Detail Unit */}
-                                <TableContainer
-                                    component={Paper}
-                                    sx={{
-                                        maxHeight: '360px',
-                                        overflowY: 'scroll', // Biarkan scroll untuk Y
-                                        '&::-webkit-scrollbar': {
-                                            display: 'none', // Menyembunyikan scrollbar di WebKit browsers (Chrome, Safari)
-                                        },
-                                        '&': {
-                                            scrollbarWidth: 'none', // Menyembunyikan scrollbar di Firefox
-                                        },
-                                    }}
-                                >
-                                    <Table stickyHeader aria-label="detail unit table">
-                                        <TableHead>
-                                            <TableRow>
-                                                <TableCell
-                                                    colSpan={2}
-                                                    sx={{
-                                                        backgroundColor: '#336699',
-                                                        color: 'white',
-                                                        fontWeight: 'bold',
-                                                        textAlign: 'center',
-                                                        fontSize: '1.3rem', // Atur ukuran font lebih besar
-                                                        padding: '8px', // Mengurangi padding di header
-                                                    }}
-                                                >
-                                                    <strong>Unit Information</strong>
-                                                </TableCell>
-                                            </TableRow>
-                                        </TableHead>
-                                        <TableBody>
-                                            {(() => {
-                                                // Tentukan data berdasarkan unitId
-                                                const unitDetails =
-                                                    unitId === 'KSB 72'
-                                                        ? [
-                                                            { label: 'Unit Name', value: 'KSB 72 Double Drive' },
-                                                            { label: 'Type Pump', value: 'ISP-D150 U2H' },
-                                                            { label: 'Customer', value: 'PT. Thriveni Indomining' },
-                                                            { label: 'Duty Flow', value: '600 m3/h' },
-                                                            { label: 'Duty Head', value: '250 m' },
-                                                            { label: 'Speed', value: '1560 RPM' },
-                                                        ]
-                                                        : [
-                                                            { label: 'No Data Available' }]; // Default kosong jika unitId tidak sesuai
-
-                                                return unitDetails.map(({ label, value }, index) => (
-                                                    <TableRow key={index}>
-                                                        <TableCell sx={{ padding: '13px', fontSize: '1.1rem' }}>{label}</TableCell>
-                                                        <TableCell sx={{ padding: '13px', fontSize: '1.1rem' }}>{value}</TableCell>
-                                                    </TableRow>
-                                                ));
-                                            })()}
-
-                                            {/* <UnitInfoTable unitId={unitId} /> */}
-                                        </TableBody>
-                                    </Table>
-                                </TableContainer>
-                            </Box>
-                        </Grid>
-
-                        {/* Kolom untuk Data Instruments */}
-                        <Grid item xs={12} sm={12} md={4} lg={4}>
-                            <Box
-                                sx={{
-                                    height: '400px',
-                                    backgroundColor: 'white',
-                                    boxShadow: '0px 4px 16px rgba(0, 0, 0, 0.2)',
-                                    borderRadius: '30px',
-                                    margin: '5px',
-                                    display: 'flex',
-                                    flexDirection: 'column',
-                                    justifyContent: 'flex-start',
-                                    alignItems: 'center',
-                                    overflow: 'auto',
-                                    padding: '10px',
-                                }}
-                            >
-                                <Typography
-                                    variant="body2"
-                                    color="textSecondary"
-                                    sx={{
-                                        fontSize: '1.3rem',  // Adjust font size as needed
-                                        textAlign: 'center',
-                                        fontWeight: 'bold',
-                                        textShadow: '2px 2px 4px rgba(0, 0, 0, 0.5)',
-                                        marginBottom: '10px'  // Add margin below the title
-                                    }}
-                                >
-                                    Data Instruments {unitId}
-                                </Typography>
-
-                                <Grid container spacing={1} justifyContent="center">
-                                    {cardData.map((data, index) => (
-                                        <React.Fragment key={index}>
-                                            <Grid item xs={6} sm={4} md={6} lg={4} container justifyContent="center">
-                                                <Bubble title="Flow" value={data.FLOW.toFixed(0)} unit="m3/h" Icon={Icons.Water} />
-                                            </Grid>
-                                            <Grid item xs={6} sm={4} md={6} lg={4} container justifyContent="center">
-                                                <Bubble title="Engine 1 Fuel Rate" value={data.ENGINE_1_FUEL_CONSUMPTIONS.toFixed(2)} unit="L/h" Icon={Icons.LocalGasStation} />
-                                            </Grid>
-                                            <Grid item xs={6} sm={4} md={6} lg={4} container justifyContent="center">
-                                                <Bubble title="Engine 1 Oil Pressure" value={data.ENGINE_1_OIL_PRESSURE.toFixed(2)} unit="Bar" Icon={Icons.Commit} />
-                                            </Grid>
-                                            <Grid item xs={6} sm={4} md={6} lg={4} container justifyContent="center">
-                                                <Bubble title="Discharge Pressure" value={data.DISCHARGE_PRESSURE.toFixed(2)} unit="Bar" Icon={Icons.Commit} />
-                                            </Grid>
-                                            <Grid item xs={6} sm={4} md={6} lg={4} container justifyContent="center">
-                                                <Bubble title="Engine 2 Fuel Rate" value={data.ENGINE_2_FUEL_CONSUMPTIONS.toFixed(2)} unit="L/h" Icon={Icons.LocalGasStation} />
-                                            </Grid>
-                                            <Grid item xs={6} sm={4} md={6} lg={4} container justifyContent="center">
-                                                <Bubble title="Engine 2 Oil Pressure" value={data.ENGINE_2_OIL_PRESSURE.toFixed(2)} unit="Bar" Icon={Icons.Commit} />
-                                            </Grid>
-                                            <Grid item xs={6} sm={4} md={6} lg={4} container justifyContent="center">
-                                                <Bubble title="Total Head" value={(data.DISCHARGE_PRESSURE * 10.2).toFixed(2)} unit="m" Icon={Icons.AirlineStopsOutlined} />
-                                            </Grid>
-                                            <Grid item xs={6} sm={4} md={6} lg={4} container justifyContent="center">
-                                                <Bubble title="Pump DE Temp" value={data.PUMP_DE_TEMP.toFixed(2)} unit="°C" Icon={Icons.Thermostat} />
-                                            </Grid>
-                                            <Grid item xs={6} sm={4} md={6} lg={4} container justifyContent="center">
-                                                <Bubble title="Pump NDE Vib Y" value={data.PUMP_DE_VIB_Y.toFixed(2)} unit="mm/s" Icon={Icons.Sensors} />
-                                            </Grid>
-                                            {/* Additional Bubbles */}
-                                        </React.Fragment>
-                                    ))}
-                                </Grid>
-                            </Box>
-                        </Grid>
-
-                        {/* Kolom kosong 1 diisi Map */}
-                        <Grid item xs={12} sm={12} md={4} lg={4}>
-                            {gpsData.map((data, index) => (
-                                <Box
-                                    sx={{
-                                        height: '400px',
-                                        backgroundColor: 'white',
-                                        boxShadow: '0px 4px 16px rgba(0, 0, 0, 0.2)',
-                                        borderRadius: '30px',
-                                        margin: '5px',
-                                        overflow: 'hidden',
-                                        padding: '10px',
-                                    }}
-                                    key={index} // Menambahkan key untuk mencegah peringatan di console
-                                >
+                            <Box sx={{
+                                height: '400px',
+                                backgroundColor: 'white',
+                                boxShadow: '0px 4px 16px rgba(0, 0, 0, 0.2)',
+                                borderRadius: '30px',
+                                margin: '5px',
+                                display: 'flex',
+                                flexDirection: 'column',
+                                alignItems: 'center',
+                                justifyContent: 'space-between',
+                            }}>
+                                <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                                     <Typography
                                         variant="h6"
-                                        color="textPrimary"
+                                        color="textSecondary"
                                         sx={{
                                             fontSize: '1.3rem',
                                             textAlign: 'center',
@@ -1233,404 +1047,603 @@ const UnitPage_DD = () => {
                                             textShadow: '2px 2px 4px rgba(0, 0, 0, 0.5)',
                                         }}
                                     >
-                                        Location {unitId}
+                                        {unitId}
                                     </Typography>
-
-                                    <Box
-                                        sx={{
-                                            height: '340px',
-                                            width: '100%',
-                                            border: '2px solid #4A90E2',
-                                            borderRadius: '20px',
-                                            overflow: 'hidden',
-                                        }}
-                                    >
-                                        <MapContainer center={[data.LAT, data.LONG]} zoom={5} style={{ width: '100%', height: '100%' }}>
-                                            <TileLayer
-                                                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                                                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                                            />
-
-                                            {/* Marker dengan koordinat dari gpsData */}
-                                            <Marker position={[data.LAT, data.LONG]} icon={defaultIcon}>
-                                                <Popup>
-                                                    Location : {data.LAT}, {data.LONG}
-                                                </Popup>
-                                            </Marker>
-
-                                            {/* Circle effect around the marker */}
-                                            <Circle
-                                                center={[data.LAT, data.LONG]} // Menggunakan data LAT, LONG
-                                                radius={200} // Radius in meters
-                                                pathOptions={{
-                                                    color: 'red',
-                                                    weight: 1,
-                                                    fillColor: 'red',
-                                                    fillOpacity: 0.1, // 10% transparency
-                                                }}
-                                            />
-                                        </MapContainer>
-                                    </Box>
                                 </Box>
-                            ))}
-                        </Grid>
-
-                        {/* Kolom kosong 5 diisi Chart */}
-                        <Grid item xs={12} sm={12} md={4} lg={4}>
-                            <Box
-                                sx={{
-                                    backgroundColor: 'white',
-                                    boxShadow: '0px 4px 16px rgba(0, 0, 0, 0.2)',
-                                    borderRadius: '30px',
-                                    height: '400px',
+                                <Box sx={{
                                     display: 'flex',
-                                    alignItems: 'center',
                                     justifyContent: 'center',
-                                    margin: '5px',
-                                }}
-                            >
-                                <Box
-                                    sx={{
-                                        height: '100%',
-                                        width: '100%',
-                                        padding: '12px',
-                                        boxShadow: '0px 4px 16px rgba(0, 0, 0, 0.2)',
-                                        borderRadius: '30px',
-                                    }}
-                                >
-                                    <Line
-                                        data={chartData}
-                                        options={{
-                                            responsive: true,
-                                            maintainAspectRatio: true,
-                                            plugins: {
-                                                legend: {
-                                                    position: 'top',
-                                                },
-                                                title: {
-                                                    display: true,
-                                                    text: 'Performance Curve', // Judul grafik
-                                                },
-                                                tooltip: {
-                                                    enabled: false, // Nonaktifkan tooltip default
-                                                },
-                                                annotation: chartData.datasets[0]?.data.length
-                                                    ? {
-                                                        annotations: chartData.datasets[0].data.map((point, index) => ({
-                                                            type: 'label',
-                                                            xValue: point.x,
-                                                            yValue: point.y,
-                                                            backgroundColor: 'rgba(200, 200, 200, 0.8)', // Latar belakang abu-abu muda
-                                                            borderColor: 'rgba(0,0,0,0.3)', // Garis border abu-abu
-                                                            borderWidth: 1,
-                                                            content: [`Flow: ${point.x} m3/h`, `Head: ${point.y} m`],
-                                                            font: {
-                                                                size: 12, // Ukuran font
-                                                                weight: 'bold',
-                                                            },
-                                                            display: true,
-                                                            xAdjust: 50, // Tetap di tengah secara horizontal
-                                                            yAdjust: 30, // Geser lebih jauh ke atas
-                                                        })),
-                                                    }
-                                                    : undefined,
-                                            },
-                                            scales: {
-                                                x: {
-                                                    type: 'linear', // Skala linear untuk flow
-                                                    title: {
-                                                        display: true,
-                                                        text: 'Flow (m3/h)', // Label untuk sumbu X
-                                                    },
-                                                    grid: {
-                                                        display: true,
-                                                    },
-                                                    ticks: {
-                                                        autoSkip: true,
-                                                        maxTicksLimit: 10,
-                                                    },
-                                                    min: 0, // Rentang minimum untuk sumbu X
-                                                    max: chartData.datasets[0]?.data.length
-                                                        ? Math.max(...chartData.datasets[0].data.map((d) => d.x)) + 150
-                                                        : undefined, // Tambahkan offset 100 jika data tersedia
-                                                },
-                                                y: {
-                                                    title: {
-                                                        display: true,
-                                                        text: 'Duty Head (m)', // Label untuk sumbu Y
-                                                    },
-                                                    grid: {
-                                                        display: true,
-                                                    },
-                                                    min: 0, // Rentang minimum untuk sumbu Y
-                                                    max: 300, // Rentang maksimum untuk sumbu Y
-                                                },
-                                            },
+                                    width: '100%',
+                                    padding: '10px',
+                                    marginBottom: '20px',
+                                    height: 'auto',
+                                    maxWidth: '100%',
+                                }}>
+                                    <img
+                                        src={images[currentImageIndex]}
+                                        alt="Unit Visual"
+                                        style={{
+                                            width: '100%',
+                                            height: 'auto',
+                                            maxWidth: '610px',
+                                            maxHeight: '400px',
+                                            borderRadius: '10px',
+                                            opacity: fade ? 1 : 0, // Atur opacity untuk efek transisi
+                                            transition: 'opacity 0.5s ease-in-out', // Efek transisi opacity
                                         }}
                                     />
                                 </Box>
                             </Box>
                         </Grid>
+                    )}
 
 
-                        {/* Kolom kosong 6 diisi Alarm List */}
-                        <Grid item xs={12} sm={12} md={4} lg={4}>
+                    {/* Kolom untuk Detail Informasi */}
+                    <Grid item xs={12} sm={12} md={4} lg={4}>
+                        <Box
+                            sx={{
+                                height: '400px',
+                                backgroundColor: 'white',
+                                boxShadow: '0px 8px 24px rgba(0, 0, 0, 0.2)',
+                                borderRadius: '30px',
+                                margin: '5px',
+                                padding: '20px', // Tambahkan padding untuk estetika
+                            }}
+                        >
+                            {/* Tabel Detail Unit */}
+                            <TableContainer
+                                component={Paper}
+                                sx={{
+                                    maxHeight: '360px',
+                                    overflowY: 'scroll', // Biarkan scroll untuk Y
+                                    '&::-webkit-scrollbar': {
+                                        display: 'none', // Menyembunyikan scrollbar di WebKit browsers (Chrome, Safari)
+                                    },
+                                    '&': {
+                                        scrollbarWidth: 'none', // Menyembunyikan scrollbar di Firefox
+                                    },
+                                }}
+                            >
+                                <Table stickyHeader aria-label="detail unit table">
+                                    <TableHead>
+                                        <TableRow>
+                                            <TableCell
+                                                colSpan={2}
+                                                sx={{
+                                                    backgroundColor: '#336699',
+                                                    color: 'white',
+                                                    fontWeight: 'bold',
+                                                    textAlign: 'center',
+                                                    fontSize: '1.3rem', // Atur ukuran font lebih besar
+                                                    padding: '8px', // Mengurangi padding di header
+                                                }}
+                                            >
+                                                <strong>Unit Information</strong>
+                                            </TableCell>
+                                        </TableRow>
+                                    </TableHead>
+                                    <TableBody>
+                                        {(() => {
+                                            // Tentukan data berdasarkan unitId
+                                            const unitDetails =
+                                                unitId === 'KSB 72'
+                                                    ? [
+                                                        { label: 'Unit Name', value: 'KSB 72 Double Drive' },
+                                                        { label: 'Type Pump', value: 'D150 U2H' },
+                                                        { label: 'Customer', value: 'PT. Thriveni Indomining' },
+                                                        { label: 'Duty Flow', value: '600 m3/h' },
+                                                        { label: 'Duty Head', value: '250 m' },
+                                                        { label: 'Speed', value: '1560 RPM' },
+                                                    ]
+                                                    : [
+                                                        { label: 'No Data Available' }]; // Default kosong jika unitId tidak sesuai
+
+                                            return unitDetails.map(({ label, value }, index) => (
+                                                <TableRow key={index}>
+                                                    <TableCell sx={{ padding: '13px', fontSize: '1.1rem' }}>{label}</TableCell>
+                                                    <TableCell sx={{ padding: '13px', fontSize: '1.1rem' }}>{value}</TableCell>
+                                                </TableRow>
+                                            ));
+                                        })()}
+
+                                        {/* <UnitInfoTable unitId={unitId} /> */}
+                                    </TableBody>
+                                </Table>
+                            </TableContainer>
+                        </Box>
+                    </Grid>
+
+                    {/* Kolom untuk Data Instruments */}
+                    <Grid item xs={12} sm={12} md={4} lg={4}>
+                        <Box
+                            sx={{
+                                height: '400px',
+                                backgroundColor: 'white',
+                                boxShadow: '0px 4px 16px rgba(0, 0, 0, 0.2)',
+                                borderRadius: '30px',
+                                margin: '5px',
+                                display: 'flex',
+                                flexDirection: 'column',
+                                justifyContent: 'flex-start',
+                                alignItems: 'center',
+                                overflow: 'auto',
+                                padding: '10px',
+                            }}
+                        >
+                            <Typography
+                                variant="body2"
+                                color="textSecondary"
+                                sx={{
+                                    fontSize: '1.3rem',  // Adjust font size as needed
+                                    textAlign: 'center',
+                                    fontWeight: 'bold',
+                                    textShadow: '2px 2px 4px rgba(0, 0, 0, 0.5)',
+                                    marginBottom: '10px'  // Add margin below the title
+                                }}
+                            >
+                                Data Instruments {unitId}
+                            </Typography>
+
+                            <Grid container spacing={1} justifyContent="center">
+                                {cardData.map((data, index) => (
+                                    <React.Fragment key={index}>
+                                        <Grid item xs={6} sm={4} md={6} lg={4} container justifyContent="center">
+                                            <Bubble title="Flow" value={data.FLOW.toFixed(0)} unit="m3/h" Icon={Icons.Water} />
+                                        </Grid>
+                                        <Grid item xs={6} sm={4} md={6} lg={4} container justifyContent="center">
+                                            <Bubble title="Engine 1 Fuel Rate" value={data.ENGINE_1_FUEL_CONSUMPTIONS.toFixed(2)} unit="L/h" Icon={Icons.LocalGasStation} />
+                                        </Grid>
+                                        <Grid item xs={6} sm={4} md={6} lg={4} container justifyContent="center">
+                                            <Bubble title="Engine 1 Oil Pressure" value={data.ENGINE_1_OIL_PRESSURE.toFixed(2)} unit="Bar" Icon={Icons.Commit} />
+                                        </Grid>
+                                        <Grid item xs={6} sm={4} md={6} lg={4} container justifyContent="center">
+                                            <Bubble title="Discharge Pressure" value={data.DISCHARGE_PRESSURE.toFixed(2)} unit="Bar" Icon={Icons.Commit} />
+                                        </Grid>
+                                        <Grid item xs={6} sm={4} md={6} lg={4} container justifyContent="center">
+                                            <Bubble title="Engine 2 Fuel Rate" value={data.ENGINE_2_FUEL_CONSUMPTIONS.toFixed(2)} unit="L/h" Icon={Icons.LocalGasStation} />
+                                        </Grid>
+                                        <Grid item xs={6} sm={4} md={6} lg={4} container justifyContent="center">
+                                            <Bubble title="Engine 2 Oil Pressure" value={data.ENGINE_2_OIL_PRESSURE.toFixed(2)} unit="Bar" Icon={Icons.Commit} />
+                                        </Grid>
+                                        <Grid item xs={6} sm={4} md={6} lg={4} container justifyContent="center">
+                                            <Bubble title="Total Head" value={(data.DISCHARGE_PRESSURE * 10.2).toFixed(2)} unit="m" Icon={Icons.AirlineStopsOutlined} />
+                                        </Grid>
+                                        <Grid item xs={6} sm={4} md={6} lg={4} container justifyContent="center">
+                                            <Bubble title="Pump DE Temp" value={data.PUMP_DE_TEMP.toFixed(2)} unit="°C" Icon={Icons.Thermostat} />
+                                        </Grid>
+                                        <Grid item xs={6} sm={4} md={6} lg={4} container justifyContent="center">
+                                            <Bubble title="Pump NDE Vib Y" value={data.PUMP_DE_VIB_Y.toFixed(2)} unit="mm/s" Icon={Icons.Sensors} />
+                                        </Grid>
+                                        {/* Additional Bubbles */}
+                                    </React.Fragment>
+                                ))}
+                            </Grid>
+                        </Box>
+                    </Grid>
+
+                    {/* Kolom kosong 1 diisi Map */}
+                    <Grid item xs={12} sm={12} md={4} lg={4}>
+                        {gpsData.map((data, index) => (
                             <Box
                                 sx={{
-                                    height: '400px',  // Mengatur tinggi otomatis, agar box tidak memaksa mengisi ruang
+                                    height: '400px',
                                     backgroundColor: 'white',
                                     boxShadow: '0px 4px 16px rgba(0, 0, 0, 0.2)',
                                     borderRadius: '30px',
-                                    margin: '4px',  // Maximum margin around the Box
-                                    display: 'flex',
-                                    flexDirection: 'column',
-                                    justifyContent: 'flex-start',  // Align content to the top
-                                    alignItems: 'center',  // Center content horizontally
-                                    overflow: 'auto',
-                                    padding: '15px',  // Mengurangi padding utama untuk lebih rapat
+                                    margin: '5px',
+                                    overflow: 'hidden',
+                                    padding: '10px',
+                                }}
+                                key={index} // Menambahkan key untuk mencegah peringatan di console
+                            >
+                                <Typography
+                                    variant="h6"
+                                    color="textPrimary"
+                                    sx={{
+                                        fontSize: '1.3rem',
+                                        textAlign: 'center',
+                                        fontWeight: 'bold',
+                                        textShadow: '2px 2px 4px rgba(0, 0, 0, 0.5)',
+                                    }}
+                                >
+                                    Location {unitId}
+                                </Typography>
+
+                                <Box
+                                    sx={{
+                                        height: '340px',
+                                        width: '100%',
+                                        border: '2px solid #4A90E2',
+                                        borderRadius: '20px',
+                                        overflow: 'hidden',
+                                    }}
+                                >
+                                    <MapContainer center={[data.LAT, data.LONG]} zoom={5} style={{ width: '100%', height: '100%' }}>
+                                        <TileLayer
+                                            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                                            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                                        />
+
+                                        {/* Marker dengan koordinat dari gpsData */}
+                                        <Marker position={[data.LAT, data.LONG]} icon={defaultIcon}>
+                                            <Popup>
+                                                Location : {data.LAT}, {data.LONG}
+                                            </Popup>
+                                        </Marker>
+
+                                        {/* Circle effect around the marker */}
+                                        <Circle
+                                            center={[data.LAT, data.LONG]} // Menggunakan data LAT, LONG
+                                            radius={200} // Radius in meters
+                                            pathOptions={{
+                                                color: 'red',
+                                                weight: 1,
+                                                fillColor: 'red',
+                                                fillOpacity: 0.1, // 10% transparency
+                                            }}
+                                        />
+                                    </MapContainer>
+                                </Box>
+                            </Box>
+                        ))}
+                    </Grid>
+
+                    {/* Kolom kosong 5 diisi Chart */}
+                    <Grid item xs={12} sm={12} md={4} lg={4}>
+                        <Box
+                            sx={{
+                                backgroundColor: 'white',
+                                boxShadow: '0px 4px 16px rgba(0, 0, 0, 0.2)',
+                                borderRadius: '30px',
+                                height: '400px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                margin: '5px',
+                            }}
+                        >
+                            <Box
+                                sx={{
+                                    height: '100%',
+                                    width: '100%',
+                                    padding: '12px',
+                                    boxShadow: '0px 4px 16px rgba(0, 0, 0, 0.2)',
+                                    borderRadius: '30px',
                                 }}
                             >
+                                <Line
+                                    data={chartData}
+                                    options={{
+                                        responsive: true,
+                                        maintainAspectRatio: true,
+                                        plugins: {
+                                            legend: {
+                                                position: 'top',
+                                            },
+                                            title: {
+                                                display: true,
+                                                text: 'Performance Curve', // Judul grafik
+                                            },
+                                            tooltip: {
+                                                enabled: false, // Nonaktifkan tooltip default
+                                            },
+                                            annotation: chartData.datasets[0]?.data.length
+                                                ? {
+                                                    annotations: chartData.datasets[0].data.map((point, index) => ({
+                                                        type: 'label',
+                                                        xValue: point.x,
+                                                        yValue: point.y,
+                                                        backgroundColor: 'rgba(200, 200, 200, 0.8)', // Latar belakang abu-abu muda
+                                                        borderColor: 'rgba(0,0,0,0.3)', // Garis border abu-abu
+                                                        borderWidth: 1,
+                                                        content: [`Flow: ${point.x} m3/h`, `Head: ${point.y} m`],
+                                                        font: {
+                                                            size: 12, // Ukuran font
+                                                            weight: 'bold',
+                                                        },
+                                                        display: true,
+                                                        xAdjust: 50, // Tetap di tengah secara horizontal
+                                                        yAdjust: 30, // Geser lebih jauh ke atas
+                                                    })),
+                                                }
+                                                : undefined,
+                                        },
+                                        scales: {
+                                            x: {
+                                                type: 'linear', // Skala linear untuk flow
+                                                title: {
+                                                    display: true,
+                                                    text: 'Flow (m3/h)', // Label untuk sumbu X
+                                                },
+                                                grid: {
+                                                    display: true,
+                                                },
+                                                ticks: {
+                                                    autoSkip: true,
+                                                    maxTicksLimit: 10,
+                                                },
+                                                min: 0, // Rentang minimum untuk sumbu X
+                                                max: chartData.datasets[0]?.data.length
+                                                    ? Math.max(...chartData.datasets[0].data.map((d) => d.x)) + 150
+                                                    : undefined, // Tambahkan offset 100 jika data tersedia
+                                            },
+                                            y: {
+                                                title: {
+                                                    display: true,
+                                                    text: 'Duty Head (m)', // Label untuk sumbu Y
+                                                },
+                                                grid: {
+                                                    display: true,
+                                                },
+                                                min: 0, // Rentang minimum untuk sumbu Y
+                                                max: 300, // Rentang maksimum untuk sumbu Y
+                                            },
+                                        },
+                                    }}
+                                />
+                            </Box>
+                        </Box>
+                    </Grid>
 
+
+                    {/* Kolom kosong 6 diisi Alarm List */}
+                    <Grid item xs={12} sm={12} md={4} lg={4}>
+                        <Box
+                            sx={{
+                                height: '400px',  // Mengatur tinggi otomatis, agar box tidak memaksa mengisi ruang
+                                backgroundColor: 'white',
+                                boxShadow: '0px 4px 16px rgba(0, 0, 0, 0.2)',
+                                borderRadius: '30px',
+                                margin: '4px',  // Maximum margin around the Box
+                                display: 'flex',
+                                flexDirection: 'column',
+                                justifyContent: 'flex-start',  // Align content to the top
+                                alignItems: 'center',  // Center content horizontally
+                                overflow: 'auto',
+                                padding: '15px',  // Mengurangi padding utama untuk lebih rapat
+                            }}
+                        >
+
+                            <Box
+                                sx={{
+                                    height: '180px', // Total tinggi box (2 baris)
+                                    width: '380px',  // Lebar box
+                                    backgroundColor: 'white',
+                                    boxShadow: '0px 4px 16px rgba(0, 0, 0, 0.2)',
+                                    borderRadius: '20px',
+                                    margin: '5px',
+                                    padding: '10px',
+                                }}
+                            >
+                                {/* Mengatur isi box menjadi dua kolom kiri dan kanan */}
                                 <Box
                                     sx={{
-                                        height: '180px', // Total tinggi box (2 baris)
-                                        width: '380px',  // Lebar box
-                                        backgroundColor: 'white',
-                                        boxShadow: '0px 4px 16px rgba(0, 0, 0, 0.2)',
-                                        borderRadius: '20px',
-                                        margin: '5px',
-                                        padding: '10px',
+                                        display: 'flex',
+                                        justifyContent: 'space-between', // Membagi menjadi dua kolom
+                                        alignItems: 'center',
+                                        height: '100%',  // Menggunakan seluruh tinggi yang ada
                                     }}
                                 >
-                                    {/* Mengatur isi box menjadi dua kolom kiri dan kanan */}
-                                    <Box
-                                        sx={{
-                                            display: 'flex',
-                                            justifyContent: 'space-between', // Membagi menjadi dua kolom
-                                            alignItems: 'center',
-                                            height: '100%',  // Menggunakan seluruh tinggi yang ada
-                                        }}
-                                    >
-                                        {/* Kolom Kiri: Total Flow */}
-                                        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginRight: '10px' }}>
-                                            {cardData.map((data, index) => (
-                                                <React.Fragment key={index}>
-                                                    <TotalFlowCalculator title="Total Flow" value={data.FLOW.toFixed(0)} unit="m³" />
-                                                </React.Fragment>
-                                            ))}
-                                        </Box>
-
-                                        {/* Kolom Kanan: Total Fuel */}
-                                        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                                            {cardData.map((data, index) => (
-                                                <React.Fragment key={index}>
-                                                    <TotalFlowCalculator title="Total Fuel" value={data.ENGINE_1_FUEL_CONSUMPTIONS.toFixed(1)} unit="L" />
-                                                </React.Fragment>
-                                            ))}
-                                        </Box>
-                                    </Box>
-                                </Box>
-
-                                {/* Box for Alarm List */}
-                                <Box
-                                    sx={{
-                                        backgroundColor: 'white',  // White background for Alarm List Box
-                                        boxShadow: '0px 4px 16px rgba(0, 0, 0, 0.2)',
-                                        borderRadius: '20px',
-                                        padding: '10px',  // Mengurangi padding untuk Box Alarm agar lebih rapat
-                                        width: '100%',
-                                        marginBottom: '5px',  // Margin sedikit antar box
-                                        marginTop: '5px',  // Margin sedikit antar box
-                                    }}
-                                >
-                                    <Typography
-                                        variant="h6"
-                                        sx={{
-                                            fontSize: '1.3rem',
-                                            textAlign: 'center',
-                                            fontWeight: 'bold',
-                                            textShadow: '2px 2px 4px rgba(0, 0, 0, 0.5)',
-                                            marginBottom: '10px', // Spacing sedikit di bawah title
-                                        }}
-                                    >
-                                        Level Sensor Status & Alarm List For {unitId}
-                                    </Typography>
-
-                                    <Box
-                                        sx={{
-                                            display: 'grid',
-                                            gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 2fr))', // Grid with auto-fill and dynamic width
-                                            gap: '0px',  // Mengatur jarak antar card menjadi fixed 5px
-                                            width: '100%',  // Full width of the box
-                                            justifyItems: 'center',  // Center grid items horizontally
-                                            alignItems: 'start',  // Align grid items to the top
-                                            marginTop: '0px',  // Margin atas fixed 5px
-                                            marginBottom: '0px',  // Margin bawah fixed 5px
-                                        }}
-                                    >
-                                        {cardDataCoil.map((data, index) => (
+                                    {/* Kolom Kiri: Total Flow */}
+                                    <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginRight: '10px' }}>
+                                        {cardData.map((data, index) => (
                                             <React.Fragment key={index}>
-                                                <Vacuum title="Vacuum Pump" coilValue={data.VACUM_ON} />
-                                                <LevelSensor title="Low Level" coilValue={data.LOW_LEVEL} />
-                                                <LevelSensor title="High Level" coilValue={data.HIGH_LEVEL} />
-                                                <Alarm
-                                                    title="Pump DE Temp"
-                                                    coilValue={data.PUMP_DE_OVER_TEMP}
-                                                    onAlarmUpdate={updateAlarms}
-                                                />
-                                                <Alarm
-                                                    title="Oil Lube Clogging"
-                                                    coilValue={data.OIL_LUB_CLOGGING}
-                                                    onAlarmUpdate={updateAlarms}
-                                                />
-                                                <Alarm
-                                                    title="Oil Lube No Flow"
-                                                    coilValue={data.OIL_LUB_NO_FLOW}
-                                                    onAlarmUpdate={updateAlarms}
-                                                />
-                                                <Alarm
-                                                    title="DE Vibration Y"
-                                                    coilValue={data.PUMP_ALARM_DE_VIB_Y1}
-                                                    onAlarmUpdate={updateAlarms}
-                                                />
-                                                <Alarm
-                                                    title="NDE Vibration X1"
-                                                    coilValue={data.PUMP_ALARM_NDE_VIB_X1}
-                                                    onAlarmUpdate={updateAlarms}
-                                                />
-                                                <Alarm
-                                                    title="NDE Vibration X2"
-                                                    coilValue={data.PUMP_ALARM_NDE_VIB_X2}
-                                                    onAlarmUpdate={updateAlarms}
-                                                />
+                                                <TotalFlowCalculator title="Total Flow" value={data.FLOW.toFixed(0)} unit="m³" />
                                             </React.Fragment>
                                         ))}
+                                    </Box>
 
-                                        {/* Popup for Active Alarms */}
-                                        {activeAlarms.length > 0 && !dismissed && (
-                                            <Modal
-                                                open={true}
-                                                onClose={() => setDismissed(false)} // Jangan tutup popup kecuali lewat "Dismiss"
-                                                aria-labelledby="active-alarms-popup"
+                                    {/* Kolom Kanan: Total Fuel */}
+                                    <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                                        {cardData.map((data, index) => (
+                                            <React.Fragment key={index}>
+                                                <TotalFlowCalculator title="Total Fuel" value={data.ENGINE_1_FUEL_CONSUMPTIONS.toFixed(1)} unit="L" />
+                                            </React.Fragment>
+                                        ))}
+                                    </Box>
+                                </Box>
+                            </Box>
+
+                            {/* Box for Alarm List */}
+                            <Box
+                                sx={{
+                                    backgroundColor: 'white',  // White background for Alarm List Box
+                                    boxShadow: '0px 4px 16px rgba(0, 0, 0, 0.2)',
+                                    borderRadius: '20px',
+                                    padding: '10px',  // Mengurangi padding untuk Box Alarm agar lebih rapat
+                                    width: '100%',
+                                    marginBottom: '5px',  // Margin sedikit antar box
+                                    marginTop: '5px',  // Margin sedikit antar box
+                                }}
+                            >
+                                <Typography
+                                    variant="h6"
+                                    sx={{
+                                        fontSize: '1.3rem',
+                                        textAlign: 'center',
+                                        fontWeight: 'bold',
+                                        textShadow: '2px 2px 4px rgba(0, 0, 0, 0.5)',
+                                        marginBottom: '10px', // Spacing sedikit di bawah title
+                                    }}
+                                >
+                                    Level Sensor Status & Alarm List For {unitId}
+                                </Typography>
+
+                                <Box
+                                    sx={{
+                                        display: 'grid',
+                                        gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 2fr))', // Grid with auto-fill and dynamic width
+                                        gap: '0px',  // Mengatur jarak antar card menjadi fixed 5px
+                                        width: '100%',  // Full width of the box
+                                        justifyItems: 'center',  // Center grid items horizontally
+                                        alignItems: 'start',  // Align grid items to the top
+                                        marginTop: '0px',  // Margin atas fixed 5px
+                                        marginBottom: '0px',  // Margin bawah fixed 5px
+                                    }}
+                                >
+                                    {cardDataCoil.map((data, index) => (
+                                        <React.Fragment key={index}>
+                                            <Vacuum title="Vacuum Pump" coilValue={data.VACUM_ON} />
+                                            <LevelSensor title="Low Level" coilValue={data.LOW_LEVEL} />
+                                            <LevelSensor title="High Level" coilValue={data.HIGH_LEVEL} />
+                                            <Alarm
+                                                title="Pump DE Temp"
+                                                coilValue={data.PUMP_DE_OVER_TEMP}
+                                                onAlarmUpdate={updateAlarms}
+                                            />
+                                            <Alarm
+                                                title="Oil Lube Clogging"
+                                                coilValue={data.OIL_LUB_CLOGGING}
+                                                onAlarmUpdate={updateAlarms}
+                                            />
+                                            <Alarm
+                                                title="Oil Lube No Flow"
+                                                coilValue={data.OIL_LUB_NO_FLOW}
+                                                onAlarmUpdate={updateAlarms}
+                                            />
+                                            <Alarm
+                                                title="DE Vibration Y"
+                                                coilValue={data.PUMP_ALARM_DE_VIB_Y1}
+                                                onAlarmUpdate={updateAlarms}
+                                            />
+                                            <Alarm
+                                                title="NDE Vibration X1"
+                                                coilValue={data.PUMP_ALARM_NDE_VIB_X1}
+                                                onAlarmUpdate={updateAlarms}
+                                            />
+                                            <Alarm
+                                                title="NDE Vibration X2"
+                                                coilValue={data.PUMP_ALARM_NDE_VIB_X2}
+                                                onAlarmUpdate={updateAlarms}
+                                            />
+                                        </React.Fragment>
+                                    ))}
+
+                                    {/* Popup for Active Alarms */}
+                                    {activeAlarms.length > 0 && !dismissed && (
+                                        <Modal
+                                            open={true}
+                                            onClose={() => setDismissed(false)} // Jangan tutup popup kecuali lewat "Dismiss"
+                                            aria-labelledby="active-alarms-popup"
+                                        >
+                                            <Box
+                                                sx={{
+                                                    display: 'flex', // Gunakan flexbox untuk alignment
+                                                    justifyContent: 'center', // Pusatkan secara horizontal
+                                                    alignItems: 'center', // Pusatkan secara vertikal
+                                                    position: 'absolute',
+                                                    top: 0,
+                                                    left: 0,
+                                                    width: '100vw', // Pastikan lebar box penuh
+                                                    height: '100vh', // Pastikan tinggi box penuh
+                                                    bgcolor: 'rgba(0, 0, 0, 0.5)', // Latar belakang transparan
+                                                    padding: 3,
+                                                }}
                                             >
                                                 <Box
                                                     sx={{
-                                                        display: 'flex', // Gunakan flexbox untuk alignment
-                                                        justifyContent: 'center', // Pusatkan secara horizontal
-                                                        alignItems: 'center', // Pusatkan secara vertikal
-                                                        position: 'absolute',
-                                                        top: 0,
-                                                        left: 0,
-                                                        width: '100vw', // Pastikan lebar box penuh
-                                                        height: '100vh', // Pastikan tinggi box penuh
-                                                        bgcolor: 'rgba(0, 0, 0, 0.5)', // Latar belakang transparan
+                                                        bgcolor: 'white',
+                                                        borderRadius: 2,
+                                                        boxShadow: 24,
+                                                        maxWidth: 800,
+                                                        width: '100%',
+                                                        overflowY: 'auto',
                                                         padding: 3,
                                                     }}
                                                 >
-                                                    <Box
+                                                    {/* Teks Warning */}
+                                                    <Typography
+                                                        id="active-alarms-popup"
+                                                        variant="h4"
                                                         sx={{
-                                                            bgcolor: 'white',
-                                                            borderRadius: 2,
-                                                            boxShadow: 24,
-                                                            maxWidth: 800,
-                                                            width: '100%',
-                                                            overflowY: 'auto',
-                                                            padding: 3,
+                                                            fontWeight: 'bold',
+                                                            textAlign: 'center',
+                                                            color: '#FF0000',
+                                                            marginBottom: 2,
+                                                            animation: 'blinking 1s infinite',
+                                                            fontSize: '50px',
                                                         }}
                                                     >
-                                                        {/* Teks Warning */}
-                                                        <Typography
-                                                            id="active-alarms-popup"
-                                                            variant="h4"
-                                                            sx={{
-                                                                fontWeight: 'bold',
-                                                                textAlign: 'center',
-                                                                color: '#FF0000',
-                                                                marginBottom: 2,
-                                                                animation: 'blinking 1s infinite',
-                                                                fontSize: '50px',
-                                                            }}
-                                                        >
-                                                            Warning!
-                                                        </Typography>
+                                                        Warning!
+                                                    </Typography>
 
-                                                        {/* Daftar Alarm */}
-                                                        <Box
-                                                            sx={{
-                                                                display: 'flex',
-                                                                flexWrap: 'wrap',
-                                                                justifyContent: 'center',
-                                                                gap: 2, // Tambahkan jarak antar card
-                                                            }}
-                                                        >
-                                                            {activeAlarms.map((alarm, idx) => (
-                                                                <Box
-                                                                    key={idx}
-                                                                    sx={{
-                                                                        display: 'flex',
-                                                                        flexDirection: 'column',
-                                                                        alignItems: 'center',
-                                                                        padding: 2,
-                                                                        borderRadius: 2,
-                                                                        backgroundColor: '#f8d7da',
-                                                                        width: '200px',
-                                                                    }}
-                                                                >
-                                                                    {/* Judul Alarm */}
-                                                                    <Typography
-                                                                        sx={{
-                                                                            fontWeight: 'bold',
-                                                                            color: '#FF0000',
-                                                                            fontSize: '20px',
-                                                                            textAlign: 'center',
-                                                                            marginBottom: 1,
-                                                                        }}
-                                                                    >
-                                                                        {alarm.title}
-                                                                    </Typography>
-
-                                                                    {/* Waktu Alarm Terakhir */}
-                                                                    <Typography
-                                                                        sx={{
-                                                                            color: '#555',
-                                                                            fontSize: '15px',
-                                                                            textAlign: 'center',
-                                                                        }}
-                                                                    >
-                                                                        Last Alarm: <br />
-                                                                        {alarm.timestamp}
-                                                                    </Typography>
-                                                                </Box>
-                                                            ))}
-                                                        </Box>
-
-                                                        {/* Tombol Dismiss */}
-                                                        <Box sx={{ textAlign: 'center', marginTop: 3 }}>
-                                                            <Button
-                                                                variant="contained"
-                                                                onClick={handleDismiss}
+                                                    {/* Daftar Alarm */}
+                                                    <Box
+                                                        sx={{
+                                                            display: 'flex',
+                                                            flexWrap: 'wrap',
+                                                            justifyContent: 'center',
+                                                            gap: 2, // Tambahkan jarak antar card
+                                                        }}
+                                                    >
+                                                        {activeAlarms.map((alarm, idx) => (
+                                                            <Box
+                                                                key={idx}
                                                                 sx={{
-                                                                    bgcolor: '#FF0000',
-                                                                    color: 'white',
-                                                                    '&:hover': { bgcolor: '#cc0000' },
+                                                                    display: 'flex',
+                                                                    flexDirection: 'column',
+                                                                    alignItems: 'center',
+                                                                    padding: 2,
+                                                                    borderRadius: 2,
+                                                                    backgroundColor: '#f8d7da',
+                                                                    width: '200px',
                                                                 }}
                                                             >
-                                                                Dismiss
-                                                            </Button>
-                                                        </Box>
+                                                                {/* Judul Alarm */}
+                                                                <Typography
+                                                                    sx={{
+                                                                        fontWeight: 'bold',
+                                                                        color: '#FF0000',
+                                                                        fontSize: '20px',
+                                                                        textAlign: 'center',
+                                                                        marginBottom: 1,
+                                                                    }}
+                                                                >
+                                                                    {alarm.title}
+                                                                </Typography>
+
+                                                                {/* Waktu Alarm Terakhir */}
+                                                                <Typography
+                                                                    sx={{
+                                                                        color: '#555',
+                                                                        fontSize: '15px',
+                                                                        textAlign: 'center',
+                                                                    }}
+                                                                >
+                                                                    Last Alarm: <br />
+                                                                    {alarm.timestamp}
+                                                                </Typography>
+                                                            </Box>
+                                                        ))}
+                                                    </Box>
+
+                                                    {/* Tombol Dismiss */}
+                                                    <Box sx={{ textAlign: 'center', marginTop: 3 }}>
+                                                        <Button
+                                                            variant="contained"
+                                                            onClick={handleDismiss}
+                                                            sx={{
+                                                                bgcolor: '#FF0000',
+                                                                color: 'white',
+                                                                '&:hover': { bgcolor: '#cc0000' },
+                                                            }}
+                                                        >
+                                                            Dismiss
+                                                        </Button>
                                                     </Box>
                                                 </Box>
-                                            </Modal>
-                                        )}
+                                            </Box>
+                                        </Modal>
+                                    )}
 
-                                    </Box>
                                 </Box>
-
                             </Box>
-                        </Grid>
 
+                        </Box>
                     </Grid>
+
                 </Grid>
+            </Grid>
         </Box>
     );
 
