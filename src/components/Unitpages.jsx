@@ -879,7 +879,7 @@ const UnitPage = () => {
         const title = unitNames[unitId] ? `${unitId} - ${unitNames[unitId]}` : unitId;
 
         setHeaderTitle(title);
-        
+
         const fetchInterval = setInterval(async () => {
             await getData();
         }, 1000); // Interval untuk getData setiap 1 detik
@@ -1110,7 +1110,7 @@ const UnitPage = () => {
                                                 unitId === 'KSB 67'
                                                     ? [
                                                         { label: 'Unit Name', value: 'KSB 67' },
-                                                        { label: 'Type Pump', value: 'D150' },
+                                                        { label: 'Type Pump', value: 'LCC 200' },
                                                         { label: 'Customer', value: 'PT Adaro Tirta Sarana (Sera)' },
                                                         { label: 'Duty Flow', value: '600 m3/h' },
                                                         { label: 'Duty Head', value: '165.24 m' },
@@ -1119,7 +1119,7 @@ const UnitPage = () => {
                                                     : unitId === 'KSB 64'
                                                         ? [
                                                             { label: 'Unit Name', value: 'KSB 64' },
-                                                            { label: 'Type Pump', value: 'D200' },
+                                                            { label: 'Type Pump', value: 'LCC 150' },
                                                             { label: 'Customer', value: 'PT TRB (Tanjung Raya Bersama)' },
                                                             { label: 'Duty Flow', value: '800 m3/h' },
                                                             { label: 'Duty Head', value: '160 m' },
@@ -1128,7 +1128,7 @@ const UnitPage = () => {
                                                         : unitId === 'KSB 60'
                                                             ? [
                                                                 { label: 'Unit Name', value: 'KSB 60' },
-                                                                { label: 'Type Pump', value: 'D200' },
+                                                                { label: 'Type Pump', value: 'LCC 200' },
                                                                 { label: 'Customer', value: '-' },
                                                                 { label: 'Duty Flow', value: '800 m3/h' },
                                                                 { label: 'Duty Head', value: '160 m' },

@@ -1129,7 +1129,7 @@ const UnitPage_DD = () => {
                                                 unitId === 'KSB 72'
                                                     ? [
                                                         { label: 'Unit Name', value: 'KSB 72 Double Drive' },
-                                                        { label: 'Type Pump', value: 'D150 U2H' },
+                                                        { label: 'Type Pump', value: 'LSA 8x10' },
                                                         { label: 'Customer', value: 'PT. Thriveni Indomining' },
                                                         { label: 'Duty Flow', value: '600 m3/h' },
                                                         { label: 'Duty Head', value: '250 m' },
