@@ -944,7 +944,7 @@ const UnitPage_DD = () => {
     }, [unitId, groupedCards.length]);
 
     // Mendapatkan gambar berdasarkan unitId dan jumlah gambar
-    const images = loadImagesByUnit(unitId, 4); // Misalnya, ada 5 gambar
+    const images = loadImagesByUnit(unitId, 2); // Misalnya, ada 5 gambar
 
     const displayedCards = groupedCards[currentSlide];
 
