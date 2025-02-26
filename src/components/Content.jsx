@@ -169,7 +169,7 @@ const Content = () => {
         ],
         'KSB 64': [
             { label: 'Unit Name', value: 'KSB 64' },
-            { label: 'Type Pump', value: 'LCC 150' },
+            { label: 'Type Pump', value: 'LCC 200' },
             { label: 'Customer', value: 'PT TRB (Tanjung Raya Bersama)' },
             { label: 'Duty Flow', value: '800 m3/h' },
             { label: 'Duty Head', value: '160 m' },
