@@ -1226,16 +1226,16 @@ const UnitPage = () => {
                                             <Bubble title="Pump DE Vib X1" value={data.PUMP_NDE_VIB_X1.toFixed(2)} unit="mm/s" Icon={Icons.Sensors} />
                                         </Grid>
                                         <Grid item xs={6} sm={4} md={6} lg={4} container justifyContent="center">
-                                            <Bubble title="Discharge Pressure" value={data.DISCHARGE_PRESSURE.toFixed(2)} unit="Bar" Icon={Icons.Commit} />
+                                            <Bubble title="DE Temp" value={data.PUMP_DE_TEMP.toFixed(2)} unit="°C" Icon={Icons.Thermostat} />
                                         </Grid>
                                         <Grid item xs={6} sm={4} md={6} lg={4} container justifyContent="center">
-                                            <Bubble title="Bearing Temp" value={data.PUMP_NDE_TEMP.toFixed(2)} unit="°C" Icon={Icons.Thermostat} />
+                                            <Bubble title="NDE Temp" value={data.PUMP_NDE_TEMP.toFixed(2)} unit="°C" Icon={Icons.Thermostat} />
                                         </Grid>
                                         <Grid item xs={6} sm={4} md={6} lg={4} container justifyContent="center">
                                             <Bubble title="Pump NDE VIb X2" value={data.PUMP_NDE_VIB_X2.toFixed(2)} unit="mm/s" Icon={Icons.Sensors} />
                                         </Grid>
                                         <Grid item xs={6} sm={4} md={6} lg={4} container justifyContent="center">
-                                            <Bubble title="Total Head" value={(data.DISCHARGE_PRESSURE * 10.2).toFixed(2)} unit="m" Icon={Icons.AirlineStopsOutlined} />
+                                            <Bubble title="Discharge Pressure" value={data.DISCHARGE_PRESSURE.toFixed(2)} unit="Bar" Icon={Icons.Commit} />
                                         </Grid>
                                         <Grid item xs={6} sm={4} md={6} lg={4} container justifyContent="center">
                                             <Bubble title="Fuel Rate" value={data.ENGINE_FUEL_CONSUMPTIONS.toFixed(2)} unit="L/h" Icon={Icons.LocalGasStation} />
