@@ -4,7 +4,7 @@ import { login } from './dataService';
 import { FaFacebook, FaInstagram, FaLinkedin, FaGlobe, FaYoutube } from 'react-icons/fa';
 
 const KSBLogo = '../img/ksblogo.png';
-const BackgroundImage = '../img/KSBDoubleDrive.webp';
+const BackgroundImage = '../img/KSB67.webp';
 
 const LoginPage = () => {
     const [username, setUsername] = useState('');

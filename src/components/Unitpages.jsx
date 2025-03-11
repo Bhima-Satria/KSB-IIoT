@@ -690,55 +690,86 @@ const UnitPage = () => {
     };
 
 
+    // State untuk menyimpan data chart
     const [chartData, setChartData] = useState({
-        labels: [], // Menyimpan waktu dalam detik (atau format lain)
+        labels: [],
         datasets: [
             {
-                label: 'Flow/Head',
+                label: 'Actual Duty',
                 data: [], // Menyimpan data Flow dan Duty Head
                 borderColor: 'rgba(255,0,0,1)',
                 fill: false,
-                pointRadius: 5, // Radius titik pada grafik
+                pointRadius: 5,
             },
-
+            {
+                label: 'Pump Curve',
+                data: [], // Akan diisi dengan kurva parabola
+                borderColor: 'green',
+                borderWidth: 2,
+                pointRadius: 0,
+                fill: false,
+            },
         ],
     });
 
+    // Fungsi untuk menghitung data Pump Curve
+    useEffect(() => {
+        const unitX = 850; // Nilai maksimum sumbu X (bisa diubah)
+        const unitYStart = 115; // Nilai awal sumbu Y (bisa diubah)
+        const unitYEnd = 105; // Nilai akhir sumbu Y (bisa diubah)
+        const exponent = 5; // Eksponen untuk bentuk kurva
+
+        const k = (unitYStart - unitYEnd) / Math.pow(unitX, exponent);
+
+        const parabolicData = Array.from({ length: 50 }, (_, i) => {
+            const x = (i / 49) * unitX;
+            const y = unitYStart - k * Math.pow(x, exponent);
+            return { x, y };
+        });
+
+        setChartData((prevData) => ({
+            ...prevData,
+            datasets: prevData.datasets.map((dataset) =>
+                dataset.label === 'Pump Curve'
+                    ? { ...dataset, data: parabolicData }
+                    : dataset
+            ),
+        }));
+    }, []);
+
+    // Fungsi untuk menambahkan data Actual Duty dengan efek blinking
     const addData = (data) => {
-        // Tambahkan data baru dengan efek blinking
         setChartData((prevState) => ({
             ...prevState,
-            datasets: prevState.datasets.map((dataset, index) => {
-                if (index === 0) {
-                    return {
+            datasets: prevState.datasets.map((dataset) =>
+                dataset.label === 'Actual Duty'
+                    ? {
                         ...dataset,
-                        data: [{ x: data.flow, y: data.head }], // Ganti data lama dengan data baru
-                        pointBackgroundColor: 'green', // Warna titik untuk blinking
+                        data: [{ x: data.flow, y: data.head }], // Tambah titik baru tanpa menghapus yang lama
+                        pointBackgroundColor: 'green',
                         pointBorderColor: 'green',
-                        pointRadius: 8, // Ukuran titik untuk efek blinking
-                    };
-                }
-                return dataset;
-            }),
+                        pointRadius: 8, // Efek blinking
+                    }
+                    : dataset
+            ),
         }));
 
         // Kembalikan ke tampilan normal setelah 500ms
         setTimeout(() => {
             setChartData((prevState) => ({
                 ...prevState,
-                datasets: prevState.datasets.map((dataset, index) => {
-                    if (index === 0) {
-                        return {
+                datasets: prevState.datasets.map((dataset) =>
+                    dataset.label === 'Actual Duty'
+                        ? {
                             ...dataset,
-                            pointBackgroundColor: 'rgba(255,0,0,1)', // Warna asli titik
+                            pointBackgroundColor: 'rgba(255,0,0,1)',
                             pointBorderColor: 'rgba(255,0,0,1)',
                             pointRadius: 5, // Ukuran asli titik
-                        };
-                    }
-                    return dataset;
-                }),
+                        }
+                        : dataset
+                ),
             }));
-        }, 500); // Durasi blinking dalam milidetik
+        }, 500);
     };
 
 
@@ -1313,45 +1344,74 @@ const UnitPage = () => {
                                     data={chartData}
                                     options={{
                                         responsive: true,
-                                        maintainAspectRatio: true,
+                                        maintainAspectRatio: false,
                                         plugins: {
                                             legend: {
                                                 position: 'top',
                                             },
                                             title: {
                                                 display: true,
-                                                text: 'Performance Curve', // Judul grafik
+                                                text: 'Performance Curve',
+                                                color: 'black',
                                             },
                                             tooltip: {
-                                                enabled: false, // Nonaktifkan tooltip default
+                                                enabled: false,
                                             },
-                                            annotation: chartData.datasets[0]?.data.length
-                                                ? {
-                                                    annotations: chartData.datasets[0].data.map((point, index) => ({
-                                                        type: 'label',
-                                                        xValue: point.x,
-                                                        yValue: point.y,
-                                                        backgroundColor: 'rgba(200, 200, 200, 0.8)', // Latar belakang abu-abu muda
-                                                        borderColor: 'rgba(0,0,0,0.3)', // Garis border abu-abu
-                                                        borderWidth: 1,
-                                                        content: [`Flow: ${point.x} m3/h`, `Head: ${point.y} m`],
-                                                        font: {
-                                                            size: 12, // Ukuran font
-                                                            weight: 'bold',
-                                                        },
-                                                        display: true,
-                                                        xAdjust: 50, // Tetap di tengah secara horizontal
-                                                        yAdjust: 30, // Geser lebih jauh ke atas
-                                                    })),
-                                                }
-                                                : undefined,
+                                            annotation: {
+                                                annotations: [
+                                                    // Annotation untuk titik Actual Duty (hanya satu titik)
+                                                    ...(chartData.datasets[0]?.data.length
+                                                        ? [
+                                                            {
+                                                                type: 'label',
+                                                                xValue: chartData.datasets[0].data[0].x,
+                                                                yValue: chartData.datasets[0].data[0].y,
+                                                                backgroundColor: 'rgba(200, 200, 200, 0.8)',
+                                                                borderColor: 'rgba(0,0,0,0.3)',
+                                                                borderWidth: 1,
+                                                                content: [
+                                                                    `Flow: ${chartData.datasets[0].data[0].x.toFixed(2)} m³/h`,
+                                                                    `Head: ${chartData.datasets[0].data[0].y.toFixed(2)} m`,
+                                                                ],
+                                                                font: {
+                                                                    size: 12,
+                                                                    weight: 'bold',
+                                                                },
+                                                                display: true,
+                                                                xAdjust: 50,
+                                                                yAdjust: 30,
+                                                            },
+                                                        ]
+                                                        : []),
+
+                                                    // Annotation untuk titik terakhir Pump Curve
+                                                    ...(chartData.datasets.find((d) => d.label === 'Pump Curve')?.data.length
+                                                        ? [
+                                                            {
+                                                                type: 'label',
+                                                                xValue: chartData.datasets.find((d) => d.label === 'Pump Curve').data[0].x, // Ambil titik pertama
+                                                                yValue: chartData.datasets.find((d) => d.label === 'Pump Curve').data[0].y,
+                                                                content: ['1200 RPM'], // Hanya teks tanpa background
+                                                                font: {
+                                                                    size: 10,
+                                                                    weight: 'bold',
+                                                                    color: 'rgba(100, 100, 100, 1)', // Abu-abu solid
+                                                                },
+                                                                display: true,
+                                                                xAdjust: 40, // Geser ke kanan
+                                                                yAdjust: -5, // Geser ke atas
+                                                            },
+                                                        ]
+                                                        : []),
+                                                ],
+                                            },
                                         },
                                         scales: {
                                             x: {
-                                                type: 'linear', // Skala linear untuk flow
+                                                type: 'linear',
                                                 title: {
                                                     display: true,
-                                                    text: 'Flow (m3/h)', // Label untuk sumbu X
+                                                    text: 'Flow (m3/h)',
                                                 },
                                                 grid: {
                                                     display: true,
@@ -1360,28 +1420,28 @@ const UnitPage = () => {
                                                     autoSkip: true,
                                                     maxTicksLimit: 10,
                                                 },
-                                                min: 0, // Rentang minimum untuk sumbu X
-                                                max: chartData.datasets[0]?.data.length
-                                                    ? Math.max(...chartData.datasets[0].data.map((d) => d.x)) + 150
-                                                    : undefined, // Tambahkan offset 100 jika data tersedia
+                                                min: 0,
+                                                max: 1200,
                                             },
                                             y: {
                                                 title: {
                                                     display: true,
-                                                    text: 'Duty Head (m)', // Label untuk sumbu Y
+                                                    text: 'Total Dynamic Head (m)',
                                                 },
                                                 grid: {
                                                     display: true,
                                                 },
-                                                min: 0, // Rentang minimum untuk sumbu Y
-                                                max: 200, // Rentang maksimum untuk sumbu Y
+                                                min: 0,
+                                                max: 200,
                                             },
                                         },
                                     }}
                                 />
+
                             </Box>
                         </Box>
                     </Grid>
+
 
 
                     {/* Kolom kosong 6 diisi Alarm List */}
