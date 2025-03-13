@@ -700,7 +700,8 @@ const UnitPage = () => {
                 borderColor: 'rgba(255,0,0,1)',
                 fill: false,
                 pointRadius: 5,
-            },
+            }
+            /*,
             {
                 label: 'Pump Curve',
                 data: [], // Akan diisi dengan kurva parabola
@@ -708,7 +709,7 @@ const UnitPage = () => {
                 borderWidth: 2,
                 pointRadius: 0,
                 fill: false,
-            },
+            }, */
         ],
     });
 
@@ -1383,7 +1384,7 @@ const UnitPage = () => {
                                                             },
                                                         ]
                                                         : []),
-
+                                                    /*
                                                     // Annotation untuk titik terakhir Pump Curve
                                                     ...(chartData.datasets.find((d) => d.label === 'Pump Curve')?.data.length
                                                         ? [
@@ -1402,7 +1403,7 @@ const UnitPage = () => {
                                                                 yAdjust: -5, // Geser ke atas
                                                             },
                                                         ]
-                                                        : []),
+                                                        : []), */
                                                 ],
                                             },
                                         },
